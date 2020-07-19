@@ -1,5 +1,5 @@
 ﻿---
-AlignAfterOpenBracket: AlwaysBreak
+AlignAfterOpenBracket: DontAlign
 AlignConsecutiveMacros: 'true'
 AlignConsecutiveAssignments: 'false'
 AlignEscapedNewlines: Right
@@ -10,7 +10,7 @@ AllowAllConstructorInitializersOnNextLine: 'false'
 AllowAllParametersOfDeclarationOnNextLine: 'true'
 AllowShortBlocksOnASingleLine: 'false'
 AllowShortCaseLabelsOnASingleLine: 'false'
-AllowShortFunctionsOnASingleLine: None
+AllowShortFunctionsOnASingleLine: InlineOnly
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLambdasOnASingleLine: All
 AllowShortLoopsOnASingleLine: 'false'
@@ -21,11 +21,11 @@ AlwaysBreakTemplateDeclarations: 'Yes'
 BinPackArguments: 'true'
 BinPackParameters: 'true'
 BreakBeforeBinaryOperators: NonAssignment
-BreakBeforeBraces: Allman
+BreakBeforeBraces: Linux
 BreakConstructorInitializers: AfterColon
 BreakInheritanceList: AfterColon
 BreakStringLiterals: 'true'
-ColumnLimit: '100'
+ColumnLimit: '120'
 CompactNamespaces: 'true'
 ConstructorInitializerAllOnOneLineOrOnePerLine: 'false'
 ConstructorInitializerIndentWidth: '4'
@@ -61,6 +61,5 @@ SpacesInContainerLiterals: 'false'
 SpacesInParentheses: 'false'
 SpacesInSquareBrackets: 'false'
 Standard: Cpp11
-UseTab: Never
 
 ...
