@@ -1,5 +1,7 @@
 #pragma once
+#include <cassert>
 #include <filesystem>
+#include <fmt/core.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,16 +25,21 @@ namespace fs = std::filesystem;
 
 #define ArraySize(X) (sizeof(X) / sizeof(X[0]))
 #define NODISCARD    [[nodiscard]]
-#define IMPLEMENTME()                                                                              \
-  printf("IMPLEMENT %s %s %d\n", __FUNCTION__, __FILE__, __LINE__);                                \
+#define IMPLEMENTME()                                                                                                  \
+  printf("IMPLEMENT %s %s %d\n", __FUNCTION__, __FILE__, __LINE__);                                                    \
   assert(0);
+
+#define passert(MESSAGE, EVAL)                                                                                         \
+  if (!EVAL) {                                                                                                         \
+    fmt::print(MESSAGE);                                                                                               \
+  }                                                                                                                    \
+  assert(EVAL);
 
 inline FILE *OpenFile(const char *file, const char *perm)
 {
   FILE *ret = NULL;
   ret = fopen(file, perm);
-  if (!ret)
-  {
+  if (!ret) {
     printf("FAILED TO OPEN FILE: %s\n", file);
     exit(EXIT_FAILURE);
   }

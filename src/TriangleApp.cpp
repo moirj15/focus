@@ -4,8 +4,11 @@
 
 #include <algorithm>
 #include <cassert>
-#include <fstream>
+#include <iostream>
 #include <unordered_set>
+#include <string>
+#include <vector>
+#include <fstream>
 
 static std::vector<char> ReadFile(const std::string &filename)
 {

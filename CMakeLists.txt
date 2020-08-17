@@ -5,27 +5,50 @@ set(CMAKE_UNITY_BUILD ON)
 file(GLOB SRC CONFIGURE_DEPENDS "src/*")
 
 add_executable(
-  vkRenderer
-  ${SRC}
+        vkRenderer
+        ${SRC}
 )
 
 
 if (WIN32)
-  message("WINDOWS")
-  include_directories(
-    G:/libraries/glm;
-    G:/libraries/glfw-3.3.2.bin.WIN64/include;
-    G:/VulkanSDK/1.2.131.2/include;
-  )
-  set(CMAKE_CXX_FLAGS "/std:c++latest /MDd /MP /TP /W3 -D_CRT_SECURE_NO_WARNINGS -DGLEW_STATIC")
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
-  target_link_libraries(
-    vkRenderer
-    G:/VulkanSDK/1.2.131.2/Lib/vulkan-1.lib
+    message("WINDOWS")
+    include_directories(
+            G:/libraries/glm;
+            G:/libraries/glfw-3.3.2.bin.WIN64/include;
+            G:/VulkanSDK/1.2.131.2/include;
+    )
+    set(CMAKE_CXX_FLAGS "/std:c++latest /MDd /MP /TP /W3 -D_CRT_SECURE_NO_WARNINGS -DGLEW_STATIC")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
+    target_link_libraries(
+            vkRenderer
+            G:/VulkanSDK/1.2.131.2/Lib/vulkan-1.lib
 
-    G:/libraries/glfw-3.3.2.bin.WIN64/lib-vc2019/glfw3.lib
-  )
-else()
+            G:/libraries/glfw-3.3.2.bin.WIN64/lib-vc2019/glfw3.lib
+    )
+else ()
+    message("LINUX")
+    include_directories(
+            ${CMAKE_SOURCE_DIR}/include;
+#            ~/vulkanSDK/x86_64/include
+    )
+
+    set(CMAKE_CXX_FLAGS "-std=c++2a -g -Wall -Wextra -pedantic -D_DEBUG")
+    link_directories(${CMAKE_SOURCE_DIR}/libs)
+    target_link_libraries(
+            vkRenderer
+            ~/vulkanSDK/x86_64/lib/libvulkan.so
+            ${CMAKE_SOURCE_DIR}/libs/libglfw3.a
+            ${CMAKE_SOURCE_DIR}/libs/libfmt.a
+            X11
+            Xxf86vm
+            Xrandr
+            pthread
+            Xi
+            dl
+            Xinerama
+            Xcursor
+
+    )
 
 endif ()
 
