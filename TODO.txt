@@ -1,0 +1,10 @@
+Renderer
+	+ Need to come up with the public facing renderer
+	+ gl
+		+ Need to implement the stubs
+		+ Need to figure out how to store UBOs
+		+ Need to decide if shaders will be queried for info after compilation or if their layout will be assumed
+	+ vk
+		+ 
+General
+	+ Need logging
