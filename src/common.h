@@ -1,7 +1,10 @@
 #pragma once
+
+#ifdef _WIN32
+#include <Windows.h>
+#endif
 #include <cassert>
 #include <filesystem>
-#include <fmt/core.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,6 +26,10 @@ typedef size_t Size;
 
 namespace fs = std::filesystem;
 
+#ifdef _WIN32
+using WindowsMessageHandler = LRESULT (*)(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+#endif
+
 #define ArraySize(X) (sizeof(X) / sizeof(X[0]))
 #define NODISCARD    [[nodiscard]]
 #define IMPLEMENTME()                                                                                                  \
@@ -30,21 +37,11 @@ namespace fs = std::filesystem;
   assert(0);
 
 #define passert(MESSAGE, EVAL)                                                                                         \
-  if (!EVAL) {                                                                                                         \
-    fmt::print(MESSAGE);                                                                                               \
+  if (!(EVAL)) {                                                                                                       \
+    printf(MESSAGE);                                                                                                   \
   }                                                                                                                    \
   assert(EVAL);
 
-inline FILE *OpenFile(const char *file, const char *perm)
-{
-  FILE *ret = NULL;
-  ret = fopen(file, perm);
-  if (!ret) {
-    printf("FAILED TO OPEN FILE: %s\n", file);
-    exit(EXIT_FAILURE);
-  }
-  return ret;
-}
 
 // inline std::tuple<char *, Size> ReadFile(const char *filename)
 // {

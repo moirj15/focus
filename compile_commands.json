@@ -1,0 +1,17 @@
+[
+{
+  "directory": "/home/moirj15/Documents/cpp/vkRenderer/build",
+  "command": "/usr/bin/c++   -I/home/moirj15/Documents/cpp/vkRenderer/include  -std=c++2a -g -Wall -Wextra -pedantic -D_DEBUG -DGLFW_INCLUDE_NONE -DRENDERER_OPENGL   -o CMakeFiles/vkRenderer.dir/Unity/unity_1_cxx.cxx.o -c /home/moirj15/Documents/cpp/vkRenderer/build/CMakeFiles/vkRenderer.dir/Unity/unity_1_cxx.cxx",
+  "file": "/home/moirj15/Documents/cpp/vkRenderer/build/CMakeFiles/vkRenderer.dir/Unity/unity_1_cxx.cxx"
+},
+{
+  "directory": "/home/moirj15/Documents/cpp/vkRenderer/build",
+  "command": "/usr/bin/c++   -I/home/moirj15/Documents/cpp/vkRenderer/include  -std=c++2a -g -Wall -Wextra -pedantic -D_DEBUG -DGLFW_INCLUDE_NONE -DRENDERER_OPENGL   -o CMakeFiles/vkRenderer.dir/Unity/unity_0_cxx.cxx.o -c /home/moirj15/Documents/cpp/vkRenderer/build/CMakeFiles/vkRenderer.dir/Unity/unity_0_cxx.cxx",
+  "file": "/home/moirj15/Documents/cpp/vkRenderer/build/CMakeFiles/vkRenderer.dir/Unity/unity_0_cxx.cxx"
+},
+{
+  "directory": "/home/moirj15/Documents/cpp/vkRenderer/build",
+  "command": "/usr/bin/cc  -I/home/moirj15/Documents/cpp/vkRenderer/include    -o CMakeFiles/vkRenderer.dir/Unity/unity_0_c.c.o   -c /home/moirj15/Documents/cpp/vkRenderer/build/CMakeFiles/vkRenderer.dir/Unity/unity_0_c.c",
+  "file": "/home/moirj15/Documents/cpp/vkRenderer/build/CMakeFiles/vkRenderer.dir/Unity/unity_0_c.c"
+}
+]

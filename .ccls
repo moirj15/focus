@@ -1,0 +1,7 @@
+clang
+%h -x
+%h c++-header
+-I
+include/
+%cpp -std=c++2a
+-stdlib=libstdc++
