@@ -13,5 +13,5 @@ CMakeLists.txt.user
 cmake-build-debug-visual-studio/*
 /test-out
 /tbuild
-/libs/windows/
-
+/libs/windows/*.lib
+/libs/linux/*.a
