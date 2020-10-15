@@ -254,22 +254,22 @@ ShaderHandle CreateShaderFromSource(const char *vSource, const char *fSource)
 
 VertexBufferHandle CreateVertexBuffer(void *data, u32 sizeInBytes, VertexBufferDescriptor descriptor)
 {
-  return VertexBufferManager::Create(data, sizeInBytes, descriptor);
+  return gVBManager.Create(data, sizeInBytes, descriptor);
 }
 
 void DestroyVertexBuffer(VertexBufferHandle handle)
 {
-  VertexBufferManager::Destroy(handle);
+  gVBManager.Destroy(handle);
 }
 
 IndexBufferHandle CreateIndexBuffer(void *data, u32 sizeInBytes, IndexBufferDescriptor descriptor)
 {
-  return IndexBufferManager::Create(data, sizeInBytes, descriptor);
+  return gIBManager.Create(data, sizeInBytes, descriptor);
 }
 
 void DestroyIndexBuffer(IndexBufferHandle handle)
 {
-  IndexBufferManager::Destroy(handle);
+  gIBManager.Destroy(handle);
 }
 
 } // namespace renderer::gl::context

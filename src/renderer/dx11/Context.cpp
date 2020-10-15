@@ -141,6 +141,7 @@ renderer::Window MakeWindow(s32 width, s32 height)
   };
 }
 
+#if 0
 Shader *CreateShaderFromSource(const std::string &vSource, const std::string &fSource)
 {
   ComPtr<ID3DBlob> vBinary;
@@ -163,5 +164,6 @@ Shader *CreateShaderFromSource(const std::string &vSource, const std::string &fS
 
   return shader;
 }
+#endif
 
 } // namespace renderer::dx11

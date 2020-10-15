@@ -1,6 +1,7 @@
 #include "ShaderManager.hpp"
 
 #include "../Interface/IShader.hpp"
+#include "Utils.hpp"
 #include "glad.h"
 
 #include <unordered_map>
@@ -9,13 +10,9 @@ namespace renderer::gl::ShaderManager
 {
 
 static ShaderHandle sCurrHandle;
+std::unordered_map<std::string, ShaderHandle> sNameToShaderHandles;
 std::unordered_map<ShaderHandle, u32> sShaderHandles;
 std::unordered_map<ShaderHandle, ShaderInfo> sShaderInfos;
-
-static VarType GLTypeToMyType(GLenum type)
-{
-  // TODO
-}
 
 ShaderHandle AddShader(const std::string &name, const char *vSource, const char *fSource)
 {
@@ -73,22 +70,34 @@ ShaderHandle AddShader(const std::string &name, const char *vSource, const char 
     glGetActiveAttrib(handle, i, sizeof(attributeName), &attribNameLen, &attribSize, &attribType, attributeName);
     InputBufferDescriptor descriptor = {
         .mName = attributeName,
-        .mType = GLTypeToMyType(attribType),
+        .mType = utils::GLTypeToVarType(attribType),
         .mSlot = (u32)i,
         .mByteOffset = (u32)attribSize, // TODO: might not be correct
     };
-
     shaderInfo.mInputBufferDescriptors.emplace(attributeName, descriptor);
+  }
+  s32 uniformBlockCount = 0;
+  glGetProgramiv(handle, GL_ACTIVE_UNIFORM_BLOCKS, &uniformBlockCount);
+  char uniformBlockName[256] = {};
+  s32 uniformBlockNameLength = 0;
+  for (s32 i = 0; i < uniformBlockCount; i++) {
+    glGetActiveUniformBlockName(handle, i, sizeof(uniformBlockName), &uniformBlockNameLength, uniformBlockName);
+    ConstantBuffer constantBuffer = {
+        .mName = uniformBlockName,
+        .mSlot = (u32)i,
+    };
   }
 
   sCurrHandle++;
   sShaderHandles[sCurrHandle] = handle;
   sShaderInfos[sCurrHandle] = shaderInfo;
+  sNameToShaderHandles[name] = handle;
   return sCurrHandle;
 }
 
-ShaderHandle GetShader(const std::string &name)
+ShaderHandle GetShaderHandle(const std::string &name)
 {
+  return sNameToShaderHandles[name];
 }
 
 void DeleteShader(ShaderHandle handle)

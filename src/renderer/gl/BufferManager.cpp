@@ -3,13 +3,15 @@
 #include <unordered_map>
 #include "glad.h"
 
-template<typename Handle, typename Descriptor>
-struct BufferManager {
-  Handle mCurrHandle = 0;
-  std::unordered_map<Handle, u32> mHandles;
-  std::unordered_map<Handle, Descriptor> mDescriptors;
+namespace renderer::gl
+{
+BufferManager<VertexBufferHandle, VertexBufferDescriptor> gVBManager;
+BufferManager<IndexBufferHandle, IndexBufferDescriptor> gIBManager;
+}
 
-  Handle Create(void *data, u32 sizeInBytes, Descriptor descriptor)
+#if 0
+  template<typename Handle, typename Descriptor>
+  Handle BufferManager::Create(void *data, u32 sizeInBytes, Descriptor descriptor)
   {
     // Create the buffer for OpenGL
     u32 handle;
@@ -24,14 +26,14 @@ struct BufferManager {
 
   u32 Get(Handle handle) { return mHandles[handle]; }
 
-  void WriteTo(void *data, u32 sizeInBytes, Handle handle)
+  void BufferManager::WriteTo(void *data, u32 sizeInBytes, Handle handle)
   {
     auto bufferHandle = mHandles[handle];
     auto descriptor = mDescriptors[handle];
     assert(descriptor.mSizeInBytes >= sizeInBytes);
     glNamedBufferSubData(bufferHandle, 0, sizeInBytes, data);
   }
-  void WriteTo(void *data, u32 sizeInBytes, u32 offsetInBytes, Handle handle)
+  void BufferManager::WriteTo(void *data, u32 sizeInBytes, u32 offsetInBytes, Handle handle)
   {
     auto bufferHandle = mHandles[handle];
     auto descriptor = mDescriptors[handle];
@@ -40,7 +42,7 @@ struct BufferManager {
   }
 
   // TODO: refractor so less code is used 
-  std::vector<void*> ReadFrom(Handle handle)
+  std::vector<void*> BufferManager::ReadFrom(Handle handle)
   {
     const auto &descriptor = mDescriptors[handle];
     std::vector<void*> vertexBuffer(descriptor.mSizeInBytes);
@@ -49,7 +51,7 @@ struct BufferManager {
     return vertexBuffer; 
   }
 
-  std::vector<void*> ReadFrom(Handle handle, u32 length)
+  std::vector<void*> BufferManager::ReadFrom(Handle handle, u32 length)
   {
     const auto &descriptor = mDescriptors[handle];
     assert(length < descriptor.mSizeInBytes);
@@ -59,7 +61,7 @@ struct BufferManager {
     return vertexBuffer; 
   }
 
-  std::vector<void*> ReadFrom(Handle handle, u32 start, u32 end)
+  std::vector<void*> BufferManager::ReadFrom(Handle handle, u32 start, u32 end)
   {
     const auto &descriptor = mDescriptors[handle];
     assert(end < descriptor.mSizeInBytes);
@@ -70,14 +72,14 @@ struct BufferManager {
   }
 
 
-  void Destroy(Handle handle)
+  void BufferManager::Destroy(Handle handle)
   {
     auto bufferHandle = mHandles[handle];
     mHandles.erase(handle);
     mDescriptors.erase(handle);
     glDeleteBuffers(1, &bufferHandle);
   }
-};
+template class BufferManager<VertexBufferHandle, VertexBufferDescriptor>;
 
 namespace renderer::gl::VertexBufferManager
 {
@@ -129,6 +131,11 @@ void BindToPipeline(VertexBufferHandle handle)
   glBindBuffer(GL_ARRAY_BUFFER, bufferHandle);
 }
 
+u32 GetGLHandle(VertexBufferHandle handle)
+{
+  return sVBManager.mHandles[handle];
+}
+
 } // namespace gl::VertexBufferManager
 
 
@@ -175,11 +182,12 @@ IndexBufferDescriptor GetDescriptor(IndexBufferHandle handle)
   return sIBManager.mDescriptors[handle];
 }
 
-// Only for use by the Draw*() methods
-void BindToPipeline(IndexBufferHandle handle)
+u32 GetGLHandle(IndexBufferHandle handle)
 {
-  auto bufferHandle = sIBManager.mHandles[handle];
-  glBindBuffer(GL_ARRAY_BUFFER, bufferHandle);
+  return sIBManager.mHandles[handle];
 }
 
+
 } // namespace gl::VertexBufferManager
+#endif
+

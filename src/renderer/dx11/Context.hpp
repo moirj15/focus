@@ -14,7 +14,9 @@ void Init(WNDPROC messageHandler, HINSTANCE instanceHandle);
 
 renderer::Window MakeWindow(s32 width, s32 height);
 
+#if 0
 Shader *CreateShaderFromSource(const std::string &vSource, const std::string &fSource);
+#endif
 
 //Shader CreateShader(const char *vBinary, const char *pBinary);
 

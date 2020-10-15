@@ -10,11 +10,13 @@ namespace renderer
 {
 
 struct ConstantBuffer {
-  std::vector<VarType> mTypes;
+  std::string mName;
+  std::vector<VarType> mTypes; // TODO: consider if this is necessary
+  u32 mSlot;
 };
 
 struct InputBufferDescriptor {
-  const char *mName; // name of the variable, not the semantic used.
+  std::string mName; // name of the variable, not the semantic used.
   VarType mType;
   u32 mSlot;
   u32 mByteOffset;

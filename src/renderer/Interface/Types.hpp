@@ -14,6 +14,8 @@ enum class VarType {
   Sampler1D,
   Sampler2D,
   Sampler3D,
+
+  Invalid
 };
 
 enum class PrecisionType {
