@@ -1,10 +1,13 @@
 #include "Context.hpp"
 
 #include "BufferManager.hpp"
-#include <GLFW/glfw3.h>
+#include "ShaderManager.hpp"
+#include "Utils.hpp"
 #include "glad.h"
 
-#ifdef WIN32
+#include <GLFW/glfw3.h>
+
+#ifdef _WIN32
 #include <GL/gl.h>
 #include <Windows.h>
 #include <gl/glext.h>
@@ -17,6 +20,15 @@ namespace renderer::gl::context
 #ifdef _WIN32
 static WNDPROC sMessageHandler;
 static HINSTANCE sInstanceHandle;
+static BufferManager<VertexBufferHandle, VertexBufferDescriptor> sVBManager;
+static BufferManager<IndexBufferHandle, IndexBufferDescriptor> sIBManager;
+static BufferManager<ConstantBufferHandle, ConstantBufferDescriptor> sCBManager;
+static u32 sVAO;
+
+static void DBCallBack(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, GLchar const *message, void const *userParam) 
+{
+  printf("DBG: %s\n", message);
+}
 
 void Init(WNDPROC messageHandler, HINSTANCE instanceHandle)
 {
@@ -131,13 +143,20 @@ Window MakeWindow(s32 width, s32 height)
   SetWindowText(windowHandle, (LPCSTR)glGetString(GL_VERSION));
   ShowWindow(windowHandle, true);
 
+#ifdef _DEBUG
+  glEnable(GL_DEBUG_OUTPUT);
+  glDebugMessageCallback(DBCallBack, nullptr);
+#endif
+
+  glGenVertexArrays(1, &sVAO);
+
   return {
       .mWidth = width,
       .mHeight = height,
       .mWindowHandle = windowHandle,
   };
 }
-#else 
+#else
 void Init()
 {
   printf("Initializing OpenGL Renderer");
@@ -158,118 +177,118 @@ Window MakeWindow(s32 width, s32 height)
   assert(gladLoadGL());
   glViewport(0, 0, width, height);
   return {
-    .mWidth = width,
-    .mHeight = height,
-    .mGLFWWindow = glfwWindow,
+      .mWidth = width,
+      .mHeight = height,
+      .mGLFWWindow = glfwWindow,
   };
 }
 #endif
 
-static constexpr VarType AttribTypeToVarType(GLenum attribType)
+renderer::ShaderHandle CreateShaderFromSource(const char *name, const std::string &vSource, const std::string &fSource)
 {
-  switch (attribType) {
-  case GL_FLOAT:
-    return VarType::Float;
-  case GL_FLOAT_VEC2:
-    return VarType::Vec2;
-  case GL_FLOAT_VEC3:
-    return VarType::Vec3;
-  case GL_FLOAT_VEC4:
-    return VarType::Vec4;
-  case GL_FLOAT_MAT2:
-    return VarType::Mat2;
-  case GL_FLOAT_MAT3:
-    return VarType::Mat3;
-  case GL_FLOAT_MAT4:
-    return VarType::Mat4;
-  }
-}
-
-ShaderHandle CreateShaderFromSource(const char *vSource, const char *fSource)
-{
-
-#if 0
-  s32 vSourceLen = strlen(vSource);
-  s32 fSourceLen = strlen(fSource);
-
-  u32 vHandle = glCreateShader(GL_VERTEX_SHADER);
-  u32 fHandle = glCreateShader(GL_FRAGMENT_SHADER);
-
-  glShaderSource(vHandle, 1, &vSource, &vSourceLen);
-  glShaderSource(fHandle, 1, &fSource, &fSourceLen);
-
-  glCompileShader(vHandle);
-
-  s32 success = 0;
-  char compileLog[512] = {};
-  glGetShaderiv(vHandle, GL_COMPILE_STATUS, &success);
-  if (!success) {
-    glGetShaderInfoLog(vHandle, 512, nullptr, compileLog);
-    printf("Vertex Shader Compile Error: %s\n", compileLog);
-    assert(0);
-  }
-
-  glCompileShader(fHandle);
-  glGetShaderiv(fHandle, GL_COMPILE_STATUS, &success);
-  if (!success) {
-    glGetShaderInfoLog(fHandle, 512, nullptr, compileLog);
-    printf("Fragment Shader Compile Error: %s\n", compileLog);
-    assert(0);
-  }
-
-  u32 handle = glCreateProgram();
-  glAttachShader(handle, vHandle);
-  glAttachShader(handle, fHandle);
-  glLinkProgram(handle);
-
-  glGetProgramiv(handle, GL_LINK_STATUS, &success);
-  if (!success) {
-    glGetProgramInfoLog(handle, sizeof(compileLog), nullptr, compileLog);
-    printf("Shader Link Error: %s\n", compileLog);
-  }
-
-  glDeleteShader(vHandle);
-  glDeleteShader(fHandle);
-
-  s32 attributeCount = 0;
-  glGetProgramiv(handle, GL_ACTIVE_ATTRIBUTES, &attributeCount);
-  std::vector<VertexAttribute> attributes(attributeCount);
-  char attributeName[64] = {};
-  s32 attribNameLen;
-  s32 attribSize;
-  GLenum attribType;
-  for (s32 i = 0; i < attributeCount; i++) {
-    glGetActiveAttrib(handle, i, sizeof(attributeName), &attribNameLen, &attribSize, &attribType, attributeName);
-    attributes[i] = {
-        .mName = attributeName,
-        .mLocation = (u32)i,
-        .mType = AttribTypeToVarType(attribType),
-    };
-  }
-#endif
-
-  // TODO
-  return INVALID_HANDLE;
+  return ShaderManager::AddShader(name, vSource, fSource);
 }
 
 VertexBufferHandle CreateVertexBuffer(void *data, u32 sizeInBytes, VertexBufferDescriptor descriptor)
 {
-  return gVBManager.Create(data, sizeInBytes, descriptor);
+  return sVBManager.Create(data, sizeInBytes, descriptor);
 }
 
 void DestroyVertexBuffer(VertexBufferHandle handle)
 {
-  gVBManager.Destroy(handle);
+  sVBManager.Destroy(handle);
 }
 
 IndexBufferHandle CreateIndexBuffer(void *data, u32 sizeInBytes, IndexBufferDescriptor descriptor)
 {
-  return gIBManager.Create(data, sizeInBytes, descriptor);
+  return sIBManager.Create(data, sizeInBytes, descriptor);
 }
 
 void DestroyIndexBuffer(IndexBufferHandle handle)
 {
-  gIBManager.Destroy(handle);
+  sIBManager.Destroy(handle);
+}
+
+// TODO: do automatic batching
+static RenderState sCachedRenderState;
+
+void Draw(Primitive primitive, RenderState renderState, ShaderHandle shader, SceneState sceneState)
+{
+  GLenum glPrimitive = utils::PrimitiveToGL(primitive);
+  // TODO: sort based on bit flags?
+  if (renderState.depthTest != sCachedRenderState.depthTest) {
+    if (renderState.depthTest.mEnabled) {
+      glEnable(GL_DEPTH_TEST);
+      GLenum compFunc = utils::ComparisonFunctionToGL(renderState.depthTest.mFunction);
+      glDepthFunc(compFunc);
+      glDepthMask(renderState.depthTest.mWriteToDepthBuffer);
+    } else {
+      glDisable(GL_DEPTH_TEST);
+    }
+  }
+  if (renderState.cullState != sCachedRenderState.cullState) {
+    if (renderState.cullState.mEnabled) {
+      glEnable(GL_CULL_FACE);
+      GLenum cullFace = utils::TriangleFaceToGL(renderState.cullState.mFace);
+      glCullFace(cullFace);
+      GLenum frontFace = utils::WindingOrderToGL(renderState.cullState.mFrontFace);
+      glFrontFace(frontFace);
+    } else {
+      glDisable(GL_CULL_FACE);
+    }
+  }
+  if (renderState.rasterizationMode != sCachedRenderState.rasterizationMode) {
+    GLenum rasterizationMode = utils::RasterizationModeToGL(renderState.rasterizationMode);
+    // TODO: add the face and rasterization mode to a struct?
+    glPolygonMode(GL_FRONT_AND_BACK, rasterizationMode);
+  }
+  if (renderState.stencilTest != sCachedRenderState.stencilTest) {
+    if (renderState.stencilTest.mEnabled) {
+      glEnable(GL_STENCIL_TEST);
+    } else {
+      glDisable(GL_STENCIL_TEST);
+    }
+  }
+  if (renderState.depthRange != sCachedRenderState.depthRange) {
+    glDepthRange(renderState.depthRange.mNear, renderState.depthRange.mNear);
+  }
+  if (renderState.blendState != sCachedRenderState.blendState) {
+    if (renderState.blendState.mEnabled) {
+      glEnable(GL_BLEND);
+    } else {
+      glDisable(GL_BLEND);
+    }
+  }
+  auto ibDesc = sIBManager.mDescriptors[sceneState.ibHandle];
+  auto shaderInfo = ShaderManager::GetInfo(shader);
+  u32 program = ShaderManager::GetProgram(shader);
+  glUseProgram(program);
+  glBindVertexArray(sVAO);
+  for (const auto &vbHandle : sceneState.vbHandles) {
+    const auto &vbDesc = sVBManager.mDescriptors[vbHandle];
+    const auto &inputDesc = shaderInfo.mInputBufferDescriptors[vbDesc.inputDescriptorName];
+    u32 glVBHandle = sVBManager.Get(vbHandle);
+    glBindBuffer(GL_ARRAY_BUFFER, glVBHandle);
+    glEnableVertexAttribArray(inputDesc.mSlot);
+
+    // glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, (const void *)0);
+    glVertexAttribPointer(inputDesc.mSlot, utils::VarTypeToSlotSizeGL(inputDesc.mType),
+        utils::VarTypeToIndividualTypeGL(inputDesc.mType), false, 0, (const void *)0);
+  }
+  if (sceneState.indexed) {
+    u32 glIBHandle = sIBManager.Get(sceneState.ibHandle);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glIBHandle);
+    glDrawElements(GL_TRIANGLES, ibDesc.sizeInBytes / 4, GL_UNSIGNED_INT, (void *)0);
+  } else {
+    // TODO
+  }
+}
+
+void Clear(ClearState clearState)
+{
+  glClearColor(
+      clearState.clearColor.red, clearState.clearColor.green, clearState.clearColor.blue, clearState.clearColor.alpha);
+  glClear(utils::ClearBufferToGL(clearState.toClear));
 }
 
 } // namespace renderer::gl::context

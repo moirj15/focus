@@ -2,6 +2,8 @@
 
 #include "../../common.h"
 #include "Types.hpp"
+#include "Handles.hpp"
+
 namespace renderer
 {
 
@@ -13,9 +15,10 @@ enum class BufferType {
 
 // TODO: handle various buffer types (offsets, types, etc)
 struct VertexBufferDescriptor {
-  BufferType mBufferType;
-  VarType mType;
-  u32 mSizeInBytes;
+  std::string inputDescriptorName;
+  BufferType bufferType;
+  VarType type;
+  u32 sizeInBytes;
 };
 
 enum class IndexBufferType {
@@ -25,8 +28,13 @@ enum class IndexBufferType {
 };
 
 struct IndexBufferDescriptor {
-  IndexBufferType mType;
-  u32 mSizeInBytes;
+  IndexBufferType type;
+  u32 sizeInBytes;
+};
+
+struct ConstantBufferDescriptor {
+  std::vector<VarType> types;
+  u32 sizeInBytes;
 };
 
 } // namespace renderer

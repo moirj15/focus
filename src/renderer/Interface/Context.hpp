@@ -5,6 +5,7 @@
 #include "IShader.hpp"
 #include "Handles.hpp"
 #include "IBuffer.hpp"
+#include "RenderState.hpp"
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -32,7 +33,7 @@ void Init();
 #endif
 Window MakeWindow(s32 width, s32 height);
 ShaderHandle CreateShaderFromBinary(const char *vBinary, const char *fBinary);
-ShaderHandle CreateShaderFromSource(const char *vSource, const char *fSource);
+ShaderHandle CreateShaderFromSource(const char *name, const std::string &vSource, const std::string &fSource);
 
 VertexBufferHandle CreateVertexBuffer(void *data, u32 sizeInBytes, VertexBufferDescriptor descriptor);
 
@@ -41,6 +42,10 @@ void DestroyVertexBuffer(VertexBufferHandle handle);
 IndexBufferHandle CreateIndexBuffer(void *data, u32 sizeInBytes, IndexBufferDescriptor descriptor);
 
 void DestroyIndexBuffer(IndexBufferHandle handle);
+
+void Draw(Primitive primitive, RenderState renderState, ShaderHandle shader, SceneState sceneState);
+
+void Clear(ClearState clearState);
 
 // PixelBuffer CreatePixelBuffer(u32 width, u32 height, Components components);
 //

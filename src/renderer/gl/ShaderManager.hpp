@@ -10,10 +10,15 @@ namespace renderer::gl::ShaderManager
 // void SetShaderPath(const char *absPath);
 
 // TODO: overloads for other shader types
-ShaderHandle AddShader(const std::string &name, const char *vSource, const char *fSource);
+ShaderHandle AddShader(const char *name, const std::string &vSource, const std::string &fSource);
 
 ShaderHandle GetShader(const std::string &name);
 
+ShaderInfo GetInfo(ShaderHandle handle);
+
+u32 GetProgram(ShaderHandle handle);
+
 void DeleteShader(ShaderHandle handle);
+
 
 }

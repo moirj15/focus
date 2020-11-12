@@ -14,16 +14,56 @@ std::unordered_map<std::string, ShaderHandle> sNameToShaderHandles;
 std::unordered_map<ShaderHandle, u32> sShaderHandles;
 std::unordered_map<ShaderHandle, ShaderInfo> sShaderInfos;
 
-ShaderHandle AddShader(const std::string &name, const char *vSource, const char *fSource)
+static void CompileShader(u32 handle, const std::string &source, const std::string &type)
 {
-  s32 vSourceLen = strlen(vSource);
-  s32 fSourceLen = strlen(fSource);
+  s32 sourceLen = source.size();
+  auto shaderSource = source.c_str();
+  glShaderSource(handle, 1, &shaderSource, &sourceLen);
+  glCompileShader(handle);
+  s32 success = 0;
+  char compileLog[512] = {};
+  glGetShaderiv(handle, GL_COMPILE_STATUS, &success);
+  if (!success) {
+    glGetShaderInfoLog(handle, 512, nullptr, compileLog);
+    printf("%s Shader Compile Error: %s\n", type.c_str(), compileLog);
+    assert(0);
+  }
+  
+}
 
+static void LinkShaderProgram(std::vector<u32> shaderHandles, u32 programHandle)
+{
+  for (u32 sHandle : shaderHandles) {
+    glAttachShader(programHandle, sHandle);
+  }
+  glLinkProgram(programHandle);
+
+  s32 success = 0;
+  char compileLog[512] = {};
+  glGetProgramiv(programHandle, GL_LINK_STATUS, &success);
+  if (!success) {
+    glGetProgramInfoLog(programHandle, sizeof(compileLog), nullptr, compileLog);
+    printf("Shader Link Error: %s\n", compileLog);
+  }
+  for (u32 sHandle : shaderHandles) {
+    glDeleteShader(sHandle);
+  }
+}
+
+renderer::ShaderHandle AddShader(const char *name, const std::string &vSource, const std::string &fSource)
+{
   u32 vHandle = glCreateShader(GL_VERTEX_SHADER);
   u32 fHandle = glCreateShader(GL_FRAGMENT_SHADER);
 
-  glShaderSource(vHandle, 1, &vSource, &vSourceLen);
-  glShaderSource(fHandle, 1, &fSource, &fSourceLen);
+  CompileShader(vHandle, vSource, "Vertex");
+  CompileShader(fHandle, fSource, "Fragment");
+
+  #if 0
+  auto vsh = vSource.c_str();
+  auto fsh = fSource.c_str();
+
+  glShaderSource(vHandle, 1, &vsh, &vSourceLen);
+  glShaderSource(fHandle, 1, &fsh, &fSourceLen);
 
   glCompileShader(vHandle);
 
@@ -43,20 +83,10 @@ ShaderHandle AddShader(const std::string &name, const char *vSource, const char 
     printf("Fragment Shader Compile Error: %s\n", compileLog);
     assert(0);
   }
+  #endif
 
   u32 handle = glCreateProgram();
-  glAttachShader(handle, vHandle);
-  glAttachShader(handle, fHandle);
-  glLinkProgram(handle);
-
-  glGetProgramiv(handle, GL_LINK_STATUS, &success);
-  if (!success) {
-    glGetProgramInfoLog(handle, sizeof(compileLog), nullptr, compileLog);
-    printf("Shader Link Error: %s\n", compileLog);
-  }
-
-  glDeleteShader(vHandle);
-  glDeleteShader(fHandle);
+  LinkShaderProgram({vHandle, fHandle}, handle);
 
   ShaderInfo shaderInfo;
 
@@ -98,6 +128,16 @@ ShaderHandle AddShader(const std::string &name, const char *vSource, const char 
 ShaderHandle GetShaderHandle(const std::string &name)
 {
   return sNameToShaderHandles[name];
+}
+
+ShaderInfo GetInfo(ShaderHandle handle)
+{
+  return sShaderInfos[handle];
+}
+
+u32 GetProgram(ShaderHandle handle)
+{
+  return sShaderHandles[handle];
 }
 
 void DeleteShader(ShaderHandle handle)

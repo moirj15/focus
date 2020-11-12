@@ -58,7 +58,7 @@ Window MakeWindow(s32 width, s32 height)
   if constexpr (sAPI == RendererAPI::OpenGL) {
     return gl::context::MakeWindow(width, height);
   } else if constexpr (sAPI == RendererAPI::Vulkan) {
-  } 
+  }
 }
 #endif
 ShaderHandle CreateShaderFromBinary(const char *vBinary, const char *fBinary)
@@ -74,10 +74,10 @@ ShaderHandle CreateShaderFromBinary(const char *vBinary, const char *fBinary)
   }
 }
 
-ShaderHandle CreateShaderFromSource(const char *vSource, const char *fSource)
+renderer::ShaderHandle CreateShaderFromSource(const char *name, const std::string &vSource, const std::string &fSource)
 {
   if constexpr (sAPI == RendererAPI::OpenGL) {
-    return INVALID_HANDLE;
+    return gl::context::CreateShaderFromSource(name, vSource, fSource);
   } else if constexpr (sAPI == RendererAPI::Vulkan) {
     return INVALID_HANDLE;
   } else if constexpr (sAPI == RendererAPI::DX11) {
@@ -115,6 +115,41 @@ IndexBufferHandle CreateIndexBuffer(void *data, u32 sizeInBytes, IndexBufferDesc
 
 void DestroyIndexBuffer(IndexBufferHandle handle)
 {
+  if constexpr (sAPI == RendererAPI::OpenGL) {
+    gl::context::DestroyIndexBuffer(handle);
+  } else if constexpr (sAPI == RendererAPI::Vulkan) {
+    assert(0);
+  } else if constexpr (sAPI == RendererAPI::DX11) {
+    assert(0);
+  } else if constexpr (sAPI == RendererAPI::DX12) {
+    assert(0);
+  }
+}
+
+void Draw(Primitive primitive, RenderState renderState, ShaderHandle shader, SceneState sceneState)
+{
+  if constexpr (sAPI == RendererAPI::OpenGL) {
+    gl::context::Draw(primitive, renderState, shader, sceneState);
+  } else if constexpr (sAPI == RendererAPI::Vulkan) {
+    assert(0);
+  } else if constexpr (sAPI == RendererAPI::DX11) {
+    assert(0);
+  } else if constexpr (sAPI == RendererAPI::DX12) {
+    assert(0);
+  }
+}
+
+void Clear(ClearState clearState)
+{
+  if constexpr (sAPI == RendererAPI::OpenGL) {
+    gl::context::Clear(clearState);
+  } else if constexpr (sAPI == RendererAPI::Vulkan) {
+    assert(0);
+  } else if constexpr (sAPI == RendererAPI::DX11) {
+    assert(0);
+  } else if constexpr (sAPI == RendererAPI::DX12) {
+    assert(0);
+  }
 }
 
 } // namespace context

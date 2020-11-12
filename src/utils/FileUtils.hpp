@@ -29,7 +29,22 @@ inline FILE *OpenFile(const char *file, FilePermissions permissions)
   return ret;
 }
 
-inline std::vector<u8> ReadEntireFile(const char *file)
+inline std::string ReadEntireFileAsString(const char *file)
+{
+  auto *fp = OpenFile(file, FilePermissions::Read);
+  fseek(fp, 0, SEEK_END);
+  u64 length = ftell(fp);
+  rewind(fp);
+  if (length == 0) {
+    printf("Failed to read file size\n");
+  }
+  std::string data(length, 0);
+  fread(data.data(), sizeof(u8), length, fp);
+  fclose(fp);
+  return data;
+}
+
+inline std::vector<u8> ReadEntireFileAsVector(const char *file)
 {
   auto *fp = OpenFile(file, FilePermissions::BinaryRead);
   fseek(fp, 0, SEEK_END);
@@ -38,7 +53,7 @@ inline std::vector<u8> ReadEntireFile(const char *file)
   if (length == 0) {
     printf("Failed to read file size\n");
   }
-  std::vector<u8> data(length);
+  std::vector<u8> data(length, 0);
   fread(data.data(), sizeof(u8), data.size(), fp);
   fclose(fp);
   return data;

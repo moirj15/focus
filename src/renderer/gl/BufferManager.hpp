@@ -14,12 +14,13 @@ struct BufferManager {
   std::unordered_map<Handle, u32> mHandles;
   std::unordered_map<Handle, Descriptor> mDescriptors;
 
-  Handle Create(void *data, u32 sizeInBytes, Descriptor descriptor)
+  inline Handle Create(void *data, u32 sizeInBytes, Descriptor descriptor)
   {
     // Create the buffer for OpenGL
     u32 handle;
-    glCreateBuffers(1, &handle);
-    glNamedBufferStorage(handle, sizeInBytes, data, GL_DYNAMIC_STORAGE_BIT);
+    glGenBuffers(1, &handle);
+    glBindBuffer(GL_ARRAY_BUFFER, handle);
+    glBufferData(GL_ARRAY_BUFFER, sizeInBytes, data, GL_STATIC_DRAW);
     // Do the actual management of the buffer handle
     mCurrHandle++;
     mDescriptors[mCurrHandle] = descriptor;
@@ -27,25 +28,23 @@ struct BufferManager {
     return mCurrHandle;
   }
 
-  u32 Get(Handle handle) { return mHandles[handle]; }
+  inline u32 Get(Handle handle) { return mHandles[handle]; }
 
-  void WriteTo(void *data, u32 sizeInBytes, Handle handle)
+  inline void WriteTo(void *data, u32 sizeInBytes, Handle handle)
   {
-    auto bufferHandle = mHandles[handle];
-    auto descriptor = mDescriptors[handle];
-    assert(descriptor.mSizeInBytes >= sizeInBytes);
-    glNamedBufferSubData(bufferHandle, 0, sizeInBytes, data);
+    WriteTo(data, sizeInBytes, 0, handle);
   }
-  void WriteTo(void *data, u32 sizeInBytes, u32 offsetInBytes, Handle handle)
+  inline void WriteTo(void *data, u32 sizeInBytes, u32 offsetInBytes, Handle handle)
   {
     auto bufferHandle = mHandles[handle];
     auto descriptor = mDescriptors[handle];
     assert(descriptor.mSizeInBytes >= (sizeInBytes + offsetInBytes));
-    glNamedBufferSubData(bufferHandle, offsetInBytes, sizeInBytes, data);
+    glBindBuffer(GL_ARRAY_BUFFER, bufferHandle);
+    glBufferSubData(GL_ARRAY_BUFFER, offsetInBytes, sizeInBytes, data);
   }
 
   // TODO: refractor so less code is used
-  std::vector<void *> ReadFrom(Handle handle)
+  inline std::vector<void *> ReadFrom(Handle handle)
   {
     const auto &descriptor = mDescriptors[handle];
     std::vector<void *> vertexBuffer(descriptor.mSizeInBytes);
@@ -54,7 +53,7 @@ struct BufferManager {
     return vertexBuffer;
   }
 
-  std::vector<void *> ReadFrom(Handle handle, u32 length)
+  inline std::vector<void *> ReadFrom(Handle handle, u32 length)
   {
     const auto &descriptor = mDescriptors[handle];
     assert(length < descriptor.mSizeInBytes);
@@ -64,7 +63,7 @@ struct BufferManager {
     return vertexBuffer;
   }
 
-  std::vector<void *> ReadFrom(Handle handle, u32 start, u32 end)
+  inline std::vector<void *> ReadFrom(Handle handle, u32 start, u32 end)
   {
     const auto &descriptor = mDescriptors[handle];
     assert(end < descriptor.mSizeInBytes);
@@ -74,7 +73,7 @@ struct BufferManager {
     return vertexBuffer;
   }
 
-  void Destroy(Handle handle)
+  inline void Destroy(Handle handle)
   {
     auto bufferHandle = mHandles[handle];
     mHandles.erase(handle);
@@ -83,8 +82,4 @@ struct BufferManager {
   }
 };
 
-extern BufferManager<VertexBufferHandle, VertexBufferDescriptor> gVBManager;
-extern BufferManager<IndexBufferHandle, IndexBufferDescriptor> gIBManager;
-
 } // namespace renderer::gl
-
