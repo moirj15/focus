@@ -5,7 +5,6 @@
 #include "Utils.hpp"
 #include "glad.h"
 
-#include <GLFW/glfw3.h>
 
 #ifdef _WIN32
 #include <GL/gl.h>
@@ -13,6 +12,8 @@
 #include <gl/glext.h>
 #include <gl/wglext.h>
 #include <winuser.h>
+#else
+#include <GLFW/glfw3.h>
 #endif
 
 namespace renderer::gl::context
