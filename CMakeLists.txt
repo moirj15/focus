@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(vkRenderer)
+project(focus)
 set(CMAKE_UNITY_BUILD ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 #TODO put the defines up here
@@ -16,9 +16,10 @@ file(GLOB RENDERER_VULKAN_SRC CONFIGURE_DEPENDS "src/renderer/vk/*")
 file(GLOB RENDERER_OPENGL_SRC CONFIGURE_DEPENDS "src/renderer/gl/*")
 file(GLOB RENDERER_DX11_SRC CONFIGURE_DEPENDS "src/renderer/dx11/*")
 file(GLOB RENDERER_INTERFACE_SRC CONFIGURE_DEPENDS "src/renderer/Interface/*")
+file(GLOB RENDERER_INTERFACE_HEADERS CONFIGURE_DEPENDS "src/renderer/Interface/*.hpp")
 #file(GLOB SHADER_HLSL_VERTEX_SRC CONFIGURE_DEPENDS "shaders/dx11/*")
 
-set_source_files_properties(${SHADER_HLSL_VERTEX_SRC} PROPERTIES VS_SHADER_TYPE Vertex VS_SHADER_MODEL 5.0 VS_SHADER_ENTRY_POINT main)
+#set_source_files_properties(${SHADER_HLSL_VERTEX_SRC} PROPERTIES VS_SHADER_TYPE Vertex VS_SHADER_MODEL 5.0 VS_SHADER_ENTRY_POINT main)
 
 include_directories(
         ${CMAKE_SOURCE_DIR}/include;
@@ -26,14 +27,16 @@ include_directories(
 
 if (WIN32)
     add_executable(
-            vkRenderer
+            focus_main
             ${SRC}
             ${RENDERER_SRC}
-            ${RENDERER_VULKAN_SRC}
+#            ${RENDERER_VULKAN_SRC}
             ${RENDERER_OPENGL_SRC}
-            ${RENDERER_DX11_SRC}
+#            ${RENDERER_DX11_SRC}
             ${RENDERER_INTERFACE_SRC}
     )
+    add_library(focus STATIC ${RENDERER_INTERFACE_SRC} ${RENDERER_OPENGL_SRC})
+    target_include_directories(focus PUBLIC ${RENDERER_INTERFACE_SRC})
     message("WINDOWS BUILD")
     message("${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
     #    set(CMAKE_CXX_FLAGS "/std:c++latest /MDd /MP /TP /W3 -D_CRT_SECURE_NO_WARNINGS -DGLEW_STATIC -DGLFW_INCLUDE_NONE -DRENDERER_DX11")
@@ -42,8 +45,8 @@ if (WIN32)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:CONSOLE /ENTRY:WinMainCRTStartup")
     find_package(OpenGL REQUIRED)
     target_link_libraries(
-            vkRenderer
-            ${CMAKE_SOURCE_DIR}/libs/windows/vulkan-1.lib
+            focus_main
+#            ${CMAKE_SOURCE_DIR}/libs/windows/vulkan-1.lib
             ${CMAKE_SOURCE_DIR}/libs/windows/glfw3.lib
             d3d11.lib
             dxgi.lib
@@ -53,6 +56,8 @@ if (WIN32)
             opengl32
             #D3D11_1SDKLayers.dll
     )
+    install(TARGETS focus DESTINATION ${CMAKE_SOURCE_DIR}/lib)
+    install(FILES ${RENDERER_INTERFACE_HEADERS} DESTINATION ${CMAKE_SOURCE_DIR}/pub_include)
 else ()
     add_executable(
             vkRenderer
