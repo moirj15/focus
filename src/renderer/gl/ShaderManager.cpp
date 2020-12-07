@@ -4,6 +4,7 @@
 #include "Utils.hpp"
 #include "glad.h"
 
+#include <cassert>
 #include <unordered_map>
 
 namespace renderer::gl::ShaderManager
@@ -28,7 +29,6 @@ static void CompileShader(u32 handle, const std::string &source, const std::stri
     printf("%s Shader Compile Error: %s\n", type.c_str(), compileLog);
     assert(0);
   }
-  
 }
 
 static void LinkShaderProgram(std::vector<u32> shaderHandles, u32 programHandle)
@@ -50,40 +50,89 @@ static void LinkShaderProgram(std::vector<u32> shaderHandles, u32 programHandle)
   }
 }
 
-renderer::ShaderHandle AddShader(const char *name, const std::string &vSource, const std::string &fSource)
+constexpr const char *ShaderTypeToString(GLenum type)
+{
+  switch (type) {
+  case GL_VERTEX_SHADER:
+    return "Vertex";
+  case GL_TESS_CONTROL_SHADER:
+    return "Tesselation Control";
+  case GL_TESS_EVALUATION_SHADER:
+    return "Tesselation Evaluation";
+  case GL_GEOMETRY_SHADER:
+    return "Geometry";
+  case GL_FRAGMENT_SHADER:
+    return "Fragment";
+  case GL_COMPUTE_SHADER:
+    return "Compute";
+  default:
+    assert(0 && "Invalid shader type");
+  }
+}
+
+static std::unordered_map<std::string, ConstantBufferDescriptor> GetConstantBuffers(u32 program)
+{
+  std::unordered_map<std::string, ConstantBufferDescriptor> descriptors;
+  s32 uniformBlockCount = 0;
+  glGetProgramiv(program, GL_ACTIVE_UNIFORM_BLOCKS, &uniformBlockCount);
+  char uniformBlockName[256] = {};
+  s32 uniformBlockNameLength = 0;
+  for (s32 i = 0; i < uniformBlockCount; i++) {
+    glGetActiveUniformBlockName(program, i, sizeof(uniformBlockName), &uniformBlockNameLength, uniformBlockName);
+    ConstantBuffer constantBuffer = {
+        .mName = uniformBlockName,
+        .mSlot = (u32)i,
+    };
+    descriptors.emplace(constantBuffer.mName, constantBuffer);
+  }
+  return descriptors;
+}
+
+static std::unordered_map<std::string, InputBufferDescriptor> GetInputBufferDescriptors(u32 program)
+{
+  std::unordered_map<std::string, InputBufferDescriptor> descriptors;
+  s32 attributeCount = 0;
+  glGetProgramiv(program, GL_ACTIVE_ATTRIBUTES, &attributeCount);
+  char attributeName[64] = {};
+  s32 attribNameLen;
+  s32 attribSize;
+  GLenum attribType;
+  for (s32 i = 0; i < attributeCount; i++) {
+    glGetActiveAttrib(program, i, sizeof(attributeName), &attribNameLen, &attribSize, &attribType, attributeName);
+    InputBufferDescriptor descriptor = {
+        .mName = attributeName,
+        .mType = utils::GLTypeToVarType(attribType),
+        .mSlot = (u32)i,
+        .mByteOffset = (u32)attribSize, // TODO: might not be correct
+    };
+    descriptors.emplace(attributeName, descriptor);
+  }
+  return descriptors;
+}
+
+static ShaderHandle AddShader(const char *name, const std::vector<std::string> &sources, const std::vector<s32> &types)
+{
+  assert(sources.size() == types.size());
+  std::vector<u32> stageHandles;
+  for (u32 i = 0; i < sources.size(); i++) {
+    stageHandles.emplace_back(glCreateShader(types[i]));
+    CompileShader(stageHandles[i], sources[i], ShaderTypeToString(types[i]));
+  }
+  u32 program = glCreateProgram();
+  LinkShaderProgram(stageHandles, program);
+  ShaderInfo shaderInfo = {
+      .mConstantBuffers = GetConstantBuffers(program),
+      .mInputBufferDescriptors = GetInputBufferDescriptors(program),
+  };
+}
+
+ShaderHandle AddShader(const char *name, const std::string &vSource, const std::string &fSource)
 {
   u32 vHandle = glCreateShader(GL_VERTEX_SHADER);
   u32 fHandle = glCreateShader(GL_FRAGMENT_SHADER);
 
   CompileShader(vHandle, vSource, "Vertex");
   CompileShader(fHandle, fSource, "Fragment");
-
-  #if 0
-  auto vsh = vSource.c_str();
-  auto fsh = fSource.c_str();
-
-  glShaderSource(vHandle, 1, &vsh, &vSourceLen);
-  glShaderSource(fHandle, 1, &fsh, &fSourceLen);
-
-  glCompileShader(vHandle);
-
-  s32 success = 0;
-  char compileLog[512] = {};
-  glGetShaderiv(vHandle, GL_COMPILE_STATUS, &success);
-  if (!success) {
-    glGetShaderInfoLog(vHandle, 512, nullptr, compileLog);
-    printf("Vertex Shader Compile Error: %s\n", compileLog);
-    assert(0);
-  }
-
-  glCompileShader(fHandle);
-  glGetShaderiv(fHandle, GL_COMPILE_STATUS, &success);
-  if (!success) {
-    glGetShaderInfoLog(fHandle, 512, nullptr, compileLog);
-    printf("Fragment Shader Compile Error: %s\n", compileLog);
-    assert(0);
-  }
-  #endif
 
   u32 handle = glCreateProgram();
   LinkShaderProgram({vHandle, fHandle}, handle);
@@ -123,6 +172,11 @@ renderer::ShaderHandle AddShader(const char *name, const std::string &vSource, c
   sShaderInfos[sCurrHandle] = shaderInfo;
   sNameToShaderHandles[name] = handle;
   return sCurrHandle;
+}
+
+ShaderHandle AddComputeShader(const char *name, const std::string &source)
+{
+  return AddShader(name, {source}, {GL_COMPUTE_SHADER});
 }
 
 ShaderHandle GetShaderHandle(const std::string &name)

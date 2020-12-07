@@ -12,6 +12,8 @@ namespace renderer::gl::ShaderManager
 // TODO: overloads for other shader types
 ShaderHandle AddShader(const char *name, const std::string &vSource, const std::string &fSource);
 
+ShaderHandle AddComputeShader(const char *name, const std::string &source);
+
 ShaderHandle GetShader(const std::string &name);
 
 ShaderInfo GetInfo(ShaderHandle handle);

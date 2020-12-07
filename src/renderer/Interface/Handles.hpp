@@ -1,12 +1,13 @@
 #pragma once
-#include "../../common.h"
+#include "Types.hpp"
 namespace renderer
 {
 using VertexBufferHandle = u32;
 using IndexBufferHandle = u32;
 using ShaderHandle = u32;
 using ConstantBufferHandle = u32;
+using BufferHandle = u32;
 
-constexpr s32 INVALID_HANDLE = 0xFFFFFFFF;
+constexpr u32 INVALID_HANDLE = 0xFFFFFFFF;
 
 }

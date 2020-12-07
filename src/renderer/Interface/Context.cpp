@@ -152,5 +152,18 @@ void Clear(ClearState clearState)
   }
 }
 
+void DispatchCompute(u32 xGroups, u32 yGroups, u32 zGroups, ShaderHandle shader, ComputeState computeState)
+{
+  if constexpr (sAPI == RendererAPI::OpenGL) {
+    gl::context::DispatchCompute(xGroups, yGroups, zGroups, shader, computeState);
+  } else if constexpr (sAPI == RendererAPI::Vulkan) {
+    assert(0);
+  } else if constexpr (sAPI == RendererAPI::DX11) {
+    assert(0);
+  } else if constexpr (sAPI == RendererAPI::DX12) {
+    assert(0);
+  }
+}
+
 } // namespace context
 } // namespace renderer

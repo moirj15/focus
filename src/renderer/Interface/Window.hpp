@@ -1,6 +1,10 @@
 #pragma once
 
-#include "../../common.h"
+#include "Types.hpp"
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 struct GLFWwindow;
 

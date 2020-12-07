@@ -185,9 +185,14 @@ Window MakeWindow(s32 width, s32 height)
 }
 #endif
 
-renderer::ShaderHandle CreateShaderFromSource(const char *name, const std::string &vSource, const std::string &fSource)
+ShaderHandle CreateShaderFromSource(const char *name, const std::string &vSource, const std::string &fSource)
 {
   return ShaderManager::AddShader(name, vSource, fSource);
+}
+
+ShaderHandle CreateComputeShaderFromSource(const char *name, const std::string &source)
+{
+  return ShaderManager::AddComputeShader(name, source);
 }
 
 VertexBufferHandle CreateVertexBuffer(void *data, u32 sizeInBytes, VertexBufferDescriptor descriptor)
@@ -290,6 +295,13 @@ void Clear(ClearState clearState)
   glClearColor(
       clearState.clearColor.red, clearState.clearColor.green, clearState.clearColor.blue, clearState.clearColor.alpha);
   glClear(utils::ClearBufferToGL(clearState.toClear));
+}
+
+void DispatchCompute(u32 xGroups, u32 yGroups, u32 zGroups, ShaderHandle shader, ComputeState computeState)
+{
+  u32 program = ShaderManager::GetProgram(shader);
+  glUseProgram(program);
+  glDispatchCompute(xGroups, yGroups, zGroups);
 }
 
 } // namespace renderer::gl::context

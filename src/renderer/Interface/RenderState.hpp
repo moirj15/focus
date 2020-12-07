@@ -1,7 +1,9 @@
 #pragma once
 
-#include "../../common.h"
+#include "Types.hpp"
 #include "Handles.hpp"
+
+#include <vector>
 
 namespace renderer
 {
@@ -185,6 +187,11 @@ struct SceneState {
   std::vector<ConstantBufferHandle> cbHandles;
   IndexBufferHandle ibHandle;
   bool indexed = false;
+};
+
+struct ComputeState {
+  std::vector<BufferHandle> bufferHandles;
+  std::vector<ConstantBufferHandle> cbHandles;
 };
 
 } // namespace renderer
