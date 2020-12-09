@@ -98,6 +98,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
   renderer::context::Init(MessageHandler, hInstance);
   auto window = renderer::context::MakeWindow(1920, 1080);
 
+  TriangleTest(window);
   ComputeTest(window);
 
 }

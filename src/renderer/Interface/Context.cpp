@@ -87,6 +87,19 @@ renderer::ShaderHandle CreateShaderFromSource(const char *name, const std::strin
   }
 }
 
+ShaderHandle CreateComputeShaderFromSource(const char *name, const std::string &source)
+{
+  if constexpr (sAPI == RendererAPI::OpenGL) {
+    return gl::context::CreateComputeShaderFromSource(name, source);
+  } else if constexpr (sAPI == RendererAPI::Vulkan) {
+    return INVALID_HANDLE;
+  } else if constexpr (sAPI == RendererAPI::DX11) {
+    return INVALID_HANDLE;
+  } else if constexpr (sAPI == RendererAPI::DX12) {
+    return INVALID_HANDLE;
+  }
+}
+
 VertexBufferHandle CreateVertexBuffer(void *data, u32 sizeInBytes, VertexBufferDescriptor descriptor)
 {
   if constexpr (sAPI == RendererAPI::OpenGL) {
@@ -126,7 +139,7 @@ void DestroyIndexBuffer(IndexBufferHandle handle)
   }
 }
 
-void Draw(Primitive primitive, RenderState renderState, ShaderHandle shader, SceneState sceneState)
+void Draw(Primitive primitive, RenderState renderState, ShaderHandle shader, const SceneState &sceneState)
 {
   if constexpr (sAPI == RendererAPI::OpenGL) {
     gl::context::Draw(primitive, renderState, shader, sceneState);
@@ -152,7 +165,7 @@ void Clear(ClearState clearState)
   }
 }
 
-void DispatchCompute(u32 xGroups, u32 yGroups, u32 zGroups, ShaderHandle shader, ComputeState computeState)
+void DispatchCompute(u32 xGroups, u32 yGroups, u32 zGroups, ShaderHandle shader, const ComputeState &computeState)
 {
   if constexpr (sAPI == RendererAPI::OpenGL) {
     gl::context::DispatchCompute(xGroups, yGroups, zGroups, shader, computeState);

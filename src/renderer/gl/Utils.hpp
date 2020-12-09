@@ -44,6 +44,7 @@ constexpr u32 VarTypeToSlotSizeGL(VarType varType)
     return 4;
   default:
     assert(0 && "Undefined Variable Type");
+    return 0;
   }
 }
 
@@ -57,6 +58,7 @@ constexpr GLenum VarTypeToIndividualTypeGL(VarType varType)
     return GL_FLOAT;
   default:
     assert(0 && "Undefined Variable Type");
+    return GL_INVALID_ENUM;
   }
 }
 
@@ -100,6 +102,7 @@ constexpr u32 PrimitiveToGL(Primitive primitive)
     return GL_TRIANGLE_STRIP_ADJACENCY;
   default:
     assert(0 && "Undefined Primitive");
+    return GL_INVALID_ENUM;
   }
 }
 
@@ -124,6 +127,7 @@ constexpr GLenum ComparisonFunctionToGL(ComparisonFunction func)
     return GL_ALWAYS;
   default:
     assert(0 && "Undefined Comparison Function");
+    return GL_INVALID_ENUM;
   }
 }
 constexpr GLenum TriangleFaceToGL(TriangleFace face)
@@ -135,6 +139,7 @@ constexpr GLenum TriangleFaceToGL(TriangleFace face)
     return GL_BACK;
   default:
     assert(0 && "Undefined Triangle Face");
+    return GL_INVALID_ENUM;
   }
 }
 
@@ -147,6 +152,7 @@ constexpr GLenum WindingOrderToGL(WindingOrder winding)
     return GL_CCW;
   default:
     assert(0 && "Undefined Winding Order");
+    return GL_INVALID_ENUM;
   }
 }
 
@@ -161,6 +167,7 @@ constexpr GLenum RasterizationModeToGL(RasterizationMode mode)
     return GL_FILL;
   default:
     assert(0 && "Undefined Rasterization Mode");
+    return GL_INVALID_ENUM;
   }
 }
 

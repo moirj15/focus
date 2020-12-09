@@ -31,9 +31,5 @@ struct IndexBufferDescriptor {
   u32 sizeInBytes;
 };
 
-struct ConstantBufferDescriptor {
-  std::vector<VarType> types;
-  u32 sizeInBytes;
-};
 
 } // namespace renderer

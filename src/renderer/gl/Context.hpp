@@ -38,10 +38,10 @@ IndexBufferHandle CreateIndexBuffer(void *data, u32 sizeInBytes, IndexBufferDesc
 
 void DestroyIndexBuffer(IndexBufferHandle handle);
 
-void Draw(Primitive primitive, RenderState renderState, ShaderHandle shader, SceneState sceneState);
+void Draw(Primitive primitive, RenderState renderState, ShaderHandle shader, const SceneState &sceneState);
 
 void Clear(ClearState clearState);
 
-void DispatchCompute(u32 xGroups, u32 yGroups, u32 zGroups, ShaderHandle shader, ComputeState computeState);
+void DispatchCompute(u32 xGroups, u32 yGroups, u32 zGroups, ShaderHandle shader, const ComputeState &computeState);
 
 } // namespace gl::Context

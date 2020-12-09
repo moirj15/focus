@@ -56,9 +56,9 @@ constexpr const char *ShaderTypeToString(GLenum type)
   case GL_VERTEX_SHADER:
     return "Vertex";
   case GL_TESS_CONTROL_SHADER:
-    return "Tesselation Control";
+    return "Tessellation Control";
   case GL_TESS_EVALUATION_SHADER:
-    return "Tesselation Evaluation";
+    return "Tessellation Evaluation";
   case GL_GEOMETRY_SHADER:
     return "Geometry";
   case GL_FRAGMENT_SHADER:
@@ -67,23 +67,25 @@ constexpr const char *ShaderTypeToString(GLenum type)
     return "Compute";
   default:
     assert(0 && "Invalid shader type");
+    return "";
   }
 }
 
-static std::unordered_map<std::string, ConstantBufferDescriptor> GetConstantBuffers(u32 program)
+template<typename DescriptorType>
+static std::unordered_map<std::string, ConstantBufferDescriptor> GetBuffers(u32 program, GLenum resourceType)
 {
-  std::unordered_map<std::string, ConstantBufferDescriptor> descriptors;
-  s32 uniformBlockCount = 0;
-  glGetProgramiv(program, GL_ACTIVE_UNIFORM_BLOCKS, &uniformBlockCount);
-  char uniformBlockName[256] = {};
-  s32 uniformBlockNameLength = 0;
-  for (s32 i = 0; i < uniformBlockCount; i++) {
-    glGetActiveUniformBlockName(program, i, sizeof(uniformBlockName), &uniformBlockNameLength, uniformBlockName);
-    ConstantBuffer constantBuffer = {
-        .mName = uniformBlockName,
+  std::unordered_map<std::string, DescriptorType> descriptors;
+  s32 blockCount = 0;
+  glGetProgramInterfaceiv(program, resourceType, GL_ACTIVE_RESOURCES, &blockCount);
+  char blockName[256] = {};
+  s32 blockNameLength = 0;
+  for (s32 i = 0; i < blockCount; i++) {
+    glGetActiveUniformBlockName(program, i, sizeof(blockName), &blockNameLength, blockName);
+    DescriptorType constantBuffer = {
+        .mName = blockName,
         .mSlot = (u32)i,
     };
-    descriptors.emplace(constantBuffer.mName, constantBuffer);
+    descriptors.emplace(blockName, constantBuffer);
   }
   return descriptors;
 }
@@ -110,7 +112,7 @@ static std::unordered_map<std::string, InputBufferDescriptor> GetInputBufferDesc
   return descriptors;
 }
 
-static ShaderHandle AddShader(const char *name, const std::vector<std::string> &sources, const std::vector<s32> &types)
+static ShaderHandle AddShader(const char *name, const std::vector<std::string> &sources, const std::vector<u32> &types)
 {
   assert(sources.size() == types.size());
   std::vector<u32> stageHandles;
@@ -121,62 +123,27 @@ static ShaderHandle AddShader(const char *name, const std::vector<std::string> &
   u32 program = glCreateProgram();
   LinkShaderProgram(stageHandles, program);
   ShaderInfo shaderInfo = {
-      .mConstantBuffers = GetConstantBuffers(program),
+      .mConstantBufferDescriptors = GetBuffers<ConstantBufferDescriptor>(program, GL_UNIFORM_BLOCK),
+      .mShaderBufferDescriptors = GetBuffers<ShaderBufferDescriptor>(program, GL_SHADER_STORAGE_BLOCK),
       .mInputBufferDescriptors = GetInputBufferDescriptors(program),
   };
+
+  sCurrHandle++;
+  sShaderHandles[sCurrHandle] = program;
+  sShaderInfos[sCurrHandle] = shaderInfo;
+  sNameToShaderHandles[name] = program;
+  return sCurrHandle;
 }
 
 ShaderHandle AddShader(const char *name, const std::string &vSource, const std::string &fSource)
 {
-  u32 vHandle = glCreateShader(GL_VERTEX_SHADER);
-  u32 fHandle = glCreateShader(GL_FRAGMENT_SHADER);
-
-  CompileShader(vHandle, vSource, "Vertex");
-  CompileShader(fHandle, fSource, "Fragment");
-
-  u32 handle = glCreateProgram();
-  LinkShaderProgram({vHandle, fHandle}, handle);
-
-  ShaderInfo shaderInfo;
-
-  s32 attributeCount = 0;
-  glGetProgramiv(handle, GL_ACTIVE_ATTRIBUTES, &attributeCount);
-  char attributeName[64] = {};
-  s32 attribNameLen;
-  s32 attribSize;
-  GLenum attribType;
-  for (s32 i = 0; i < attributeCount; i++) {
-    glGetActiveAttrib(handle, i, sizeof(attributeName), &attribNameLen, &attribSize, &attribType, attributeName);
-    InputBufferDescriptor descriptor = {
-        .mName = attributeName,
-        .mType = utils::GLTypeToVarType(attribType),
-        .mSlot = (u32)i,
-        .mByteOffset = (u32)attribSize, // TODO: might not be correct
-    };
-    shaderInfo.mInputBufferDescriptors.emplace(attributeName, descriptor);
-  }
-  s32 uniformBlockCount = 0;
-  glGetProgramiv(handle, GL_ACTIVE_UNIFORM_BLOCKS, &uniformBlockCount);
-  char uniformBlockName[256] = {};
-  s32 uniformBlockNameLength = 0;
-  for (s32 i = 0; i < uniformBlockCount; i++) {
-    glGetActiveUniformBlockName(handle, i, sizeof(uniformBlockName), &uniformBlockNameLength, uniformBlockName);
-    ConstantBuffer constantBuffer = {
-        .mName = uniformBlockName,
-        .mSlot = (u32)i,
-    };
-  }
-
-  sCurrHandle++;
-  sShaderHandles[sCurrHandle] = handle;
-  sShaderInfos[sCurrHandle] = shaderInfo;
-  sNameToShaderHandles[name] = handle;
-  return sCurrHandle;
+  return AddShader(
+      name, std::vector<std::string>{vSource, fSource}, std::vector<u32>{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER});
 }
 
 ShaderHandle AddComputeShader(const char *name, const std::string &source)
 {
-  return AddShader(name, {source}, {GL_COMPUTE_SHADER});
+  return AddShader(name, std::vector<std::string>{source}, std::vector<u32>{GL_COMPUTE_SHADER});
 }
 
 ShaderHandle GetShaderHandle(const std::string &name)

@@ -24,6 +24,7 @@ static HINSTANCE sInstanceHandle;
 static BufferManager<VertexBufferHandle, VertexBufferDescriptor> sVBManager;
 static BufferManager<IndexBufferHandle, IndexBufferDescriptor> sIBManager;
 static BufferManager<ConstantBufferHandle, ConstantBufferDescriptor> sCBManager;
+static BufferManager<BufferHandle, ShaderBufferDescriptor> sSBManager;
 static u32 sVAO;
 
 static void DBCallBack(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, GLchar const *message, void const *userParam) 
@@ -218,7 +219,7 @@ void DestroyIndexBuffer(IndexBufferHandle handle)
 // TODO: do automatic batching
 static RenderState sCachedRenderState;
 
-void Draw(Primitive primitive, RenderState renderState, ShaderHandle shader, SceneState sceneState)
+void Draw(Primitive primitive, RenderState renderState, ShaderHandle shader, const SceneState &sceneState)
 {
   GLenum glPrimitive = utils::PrimitiveToGL(primitive);
   // TODO: sort based on bit flags?
@@ -297,10 +298,13 @@ void Clear(ClearState clearState)
   glClear(utils::ClearBufferToGL(clearState.toClear));
 }
 
-void DispatchCompute(u32 xGroups, u32 yGroups, u32 zGroups, ShaderHandle shader, ComputeState computeState)
+void DispatchCompute(u32 xGroups, u32 yGroups, u32 zGroups, ShaderHandle shader, const ComputeState &computeState)
 {
   u32 program = ShaderManager::GetProgram(shader);
   glUseProgram(program);
+  for (auto bufferHandle : computeState.bufferHandles) {
+    const auto &bufferDesc = sSBManager.mDescriptors[bufferHandle];
+  }
   glDispatchCompute(xGroups, yGroups, zGroups);
 }
 
