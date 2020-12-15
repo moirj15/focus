@@ -1,12 +1,13 @@
 #pragma once
 
+#include "../Interface/IBuffer.hpp"
 #include "../Interface/RenderState.hpp"
 #include "../Interface/Types.hpp"
 #include "glad.h"
 
 typedef unsigned int GLenum;
 
-namespace renderer::gl::utils
+namespace focus::glUtils
 {
 
 constexpr VarType GLTypeToVarType(GLenum type)
@@ -171,4 +172,19 @@ constexpr GLenum RasterizationModeToGL(RasterizationMode mode)
   }
 }
 
-} // namespace renderer::gl::utils
+constexpr GLbitfield AccessModeToGL(AccessMode mode)
+{
+  switch (mode) {
+  case AccessMode::ReadOnly:
+    return GL_READ_ONLY;
+  case AccessMode::WriteOnly:
+    return GL_WRITE_ONLY;
+  case AccessMode::ReadWrite:
+    return GL_READ_WRITE;
+  default:
+    assert(0 && "Undefined Access Mode");
+    return 0xff;
+  }
+}
+
+} // namespace focus::glUtils

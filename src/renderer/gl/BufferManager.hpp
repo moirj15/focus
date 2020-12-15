@@ -3,10 +3,11 @@
 #include "../Interface/Handles.hpp"
 #include "../Interface/IBuffer.hpp"
 #include "../Interface/Types.hpp"
+#include "glad.h"
 
 #include <vector>
 
-namespace renderer::gl
+namespace focus
 {
 template<typename Handle, typename Descriptor>
 struct BufferManager {

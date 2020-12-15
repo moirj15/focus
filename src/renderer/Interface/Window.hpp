@@ -8,7 +8,7 @@
 
 struct GLFWwindow;
 
-namespace renderer
+namespace focus
 {
 
 struct Window {

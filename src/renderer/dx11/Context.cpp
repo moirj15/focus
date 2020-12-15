@@ -42,7 +42,7 @@ void Init(WNDPROC messageHandler, HINSTANCE instanceHandle)
   sContext = context;
 }
 
-renderer::Window MakeWindow(s32 width, s32 height)
+focus::Window MakeWindow(s32 width, s32 height)
 {
   WNDCLASS windowClass = {
       .style = CS_HREDRAW | CS_VREDRAW,

@@ -3,7 +3,9 @@
 #include "Types.hpp"
 #include "Handles.hpp"
 
-namespace renderer
+#include <string>
+
+namespace focus
 {
 
 enum class BufferType {
@@ -29,6 +31,12 @@ enum class IndexBufferType {
 struct IndexBufferDescriptor {
   IndexBufferType type;
   u32 sizeInBytes;
+};
+
+enum class AccessMode {
+  ReadOnly,
+  WriteOnly,
+  ReadWrite,
 };
 
 

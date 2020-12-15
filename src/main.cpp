@@ -18,15 +18,15 @@ LRESULT CALLBACK MessageHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
   return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-void TriangleTest(const renderer::Window& window)
+void TriangleTest(const focus::Window &window)
 {
   char path[256];
   GetModuleFileName(GetModuleHandle(nullptr), path, sizeof(path));
   printf("%s\n", path);
 
-  auto handle = renderer::context::CreateShaderFromSource("UniformColor",
-    utils::ReadEntireFileAsString("shaders/gl/UniformColor.vert"),
-    utils::ReadEntireFileAsString("shaders/gl/UniformColor.frag"));
+  auto handle = focus::gContext->CreateShaderFromSource("UniformColor",
+      utils::ReadEntireFileAsString("shaders/gl/UniformColor.vert"),
+      utils::ReadEntireFileAsString("shaders/gl/UniformColor.frag"));
 
   f32 points[] = {
       0.0f,
@@ -40,23 +40,23 @@ void TriangleTest(const renderer::Window& window)
       0.0f,
   };
 
-  u32 indices[] = { 0, 1, 2 };
+  u32 indices[] = {0, 1, 2};
 
-  renderer::VertexBufferDescriptor vbDescriptor = {
+  focus::VertexBufferDescriptor vbDescriptor = {
       .inputDescriptorName = "aPosition",
-      .bufferType = renderer::BufferType::SingleType,
-      .type = renderer::VarType::Float,
+      .bufferType = focus::BufferType::SingleType,
+      .type = focus::VarType::Float,
       .sizeInBytes = sizeof(points),
   };
 
-  renderer::IndexBufferDescriptor ibDescriptor = {
-      .type = renderer::IndexBufferType::U32,
+  focus::IndexBufferDescriptor ibDescriptor = {
+      .type = focus::IndexBufferType::U32,
       .sizeInBytes = sizeof(indices),
   };
 
-  renderer::SceneState sceneState = {
-      .vbHandles = {renderer::context::CreateVertexBuffer(points, sizeof(points), vbDescriptor)},
-      .ibHandle = renderer::context::CreateIndexBuffer(indices, sizeof(indices), ibDescriptor),
+  focus::SceneState sceneState = {
+      .vbHandles = {focus::gContext->CreateVertexBuffer(points, sizeof(points), vbDescriptor)},
+      .ibHandle = focus::gContext->CreateIndexBuffer(indices, sizeof(indices), ibDescriptor),
       .indexed = true,
   };
 
@@ -67,18 +67,26 @@ void TriangleTest(const renderer::Window& window)
       TranslateMessage(&msg);
       DispatchMessage(&msg);
     }
-    renderer::context::Clear({});
+    focus::gContext->Clear({});
 
-    renderer::context::Draw(renderer::Primitive::Triangles, {}, handle, sceneState);
+    focus::gContext->Draw(focus::Primitive::Triangles, {}, handle, sceneState);
 
     SwapBuffers(dc);
   }
 }
 
-void ComputeTest(const renderer::Window& window)
+void ComputeTest(const focus::Window &window)
 {
 
-  auto handle = renderer::context::CreateComputeShaderFromSource("TestCompute", utils::ReadEntireFileAsString("shaders/gl/test.comp"));
+  auto handle = focus::gContext->CreateComputeShaderFromSource(
+      "TestCompute", utils::ReadEntireFileAsString("shaders/gl/test.comp"));
+
+  focus::ShaderBufferDescriptor sDesc = {
+    .mName = "color_buf",
+    .mSlot = 0
+  };
+  auto sHandle = focus::gContext->CreateShaderBuffer(nullptr, 4 * sizeof(float) * 256 * 256, sDesc);
+
   MSG msg = {};
   auto dc = GetDC(window.mWindowHandle);
   while (msg.message != WM_QUIT) {
@@ -86,7 +94,10 @@ void ComputeTest(const renderer::Window& window)
       TranslateMessage(&msg);
       DispatchMessage(&msg);
     }
-    renderer::context::Clear({});
+    focus::gContext->Clear({});
+    focus::gContext->DispatchCompute(256, 256, 1, sHandle, {{sHandle}, {}});
+    focus::gContext->WaitForMemory(0);
+    float *contents = (float*)focus::gContext->GetBufferPtr(sHandle, focus::AccessMode::ReadOnly);
 
     SwapBuffers(dc);
   }
@@ -95,24 +106,23 @@ void ComputeTest(const renderer::Window& window)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, int showCmd)
 {
   // TODO: maybe switch to an ECS type system and have a window as a component?
-  renderer::context::Init(MessageHandler, hInstance);
-  auto window = renderer::context::MakeWindow(1920, 1080);
+  focus::Context::Init(focus::RendererAPI::OpenGL, MessageHandler, hInstance);
+  auto window = focus::gContext->MakeWindow(1920, 1080);
 
-  TriangleTest(window);
+  //TriangleTest(window);
   ComputeTest(window);
-
 }
 #else
 
 #include <GLFW/glfw3.h>
 #include <cstdio>
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
   (void)argc;
   (void)argv;
   printf("entere\n");
-  renderer::context::Init();
-  auto window = renderer::context::MakeWindow(1920, 1080);
+  focus::context::Init();
+  auto window = focus::context::MakeWindow(1920, 1080);
   printf("made window\n");
   while (!glfwWindowShouldClose(window.mGLFWWindow)) {
     glfwPollEvents();

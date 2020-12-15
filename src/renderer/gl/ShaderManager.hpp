@@ -3,7 +3,7 @@
 #include "../Interface/Handles.hpp"
 #include "../Interface/IShader.hpp"
 
-namespace renderer::gl::ShaderManager
+namespace focus::ShaderManager
 {
 
 // TODO: add functions to specify a shader path and a file to specify the list of shaders/pipelines

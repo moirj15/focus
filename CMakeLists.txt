@@ -20,7 +20,6 @@ file(GLOB RENDERER_INTERFACE_HEADERS CONFIGURE_DEPENDS "src/renderer/Interface/*
 #file(GLOB SHADER_HLSL_VERTEX_SRC CONFIGURE_DEPENDS "shaders/dx11/*")
 
 #set_source_files_properties(${SHADER_HLSL_VERTEX_SRC} PROPERTIES VS_SHADER_TYPE Vertex VS_SHADER_MODEL 5.0 VS_SHADER_ENTRY_POINT main)
-
 include_directories(
         ${CMAKE_SOURCE_DIR}/include;
 )
@@ -35,6 +34,9 @@ if (WIN32)
 #            ${RENDERER_DX11_SRC}
             ${RENDERER_INTERFACE_SRC}
     )
+    set_target_properties(
+        focus_main PROPERTIES
+        VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
     add_library(focus STATIC ${RENDERER_INTERFACE_SRC} ${RENDERER_OPENGL_SRC})
     target_include_directories(focus PUBLIC ${RENDERER_INTERFACE_SRC})
     message("WINDOWS BUILD")

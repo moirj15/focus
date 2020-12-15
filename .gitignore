@@ -15,3 +15,8 @@ cmake-build-debug-visual-studio/*
 /tbuild
 /libs/windows/*.lib
 /libs/linux/*.a
+/pub_include
+.vscode/
+.idea/
+.cache/
+lib/

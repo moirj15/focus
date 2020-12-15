@@ -1,6 +1,6 @@
 #pragma once
 #include "Types.hpp"
-namespace renderer
+namespace focus
 {
 using VertexBufferHandle = u32;
 using IndexBufferHandle = u32;

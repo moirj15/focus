@@ -5,7 +5,7 @@
 
 #include <vector>
 
-namespace renderer
+namespace focus
 {
 struct Color {
   f32 red = 0.0f, green = 0.0f, blue = 0.0f, alpha = 0.0f;

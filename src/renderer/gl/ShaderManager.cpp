@@ -7,7 +7,7 @@
 #include <cassert>
 #include <unordered_map>
 
-namespace renderer::gl::ShaderManager
+namespace focus::ShaderManager
 {
 
 static ShaderHandle sCurrHandle;
@@ -80,7 +80,7 @@ static std::unordered_map<std::string, ConstantBufferDescriptor> GetBuffers(u32 
   char blockName[256] = {};
   s32 blockNameLength = 0;
   for (s32 i = 0; i < blockCount; i++) {
-    glGetActiveUniformBlockName(program, i, sizeof(blockName), &blockNameLength, blockName);
+    glGetProgramResourceName(program, resourceType, i, sizeof(blockName), &blockNameLength, blockName);
     DescriptorType constantBuffer = {
         .mName = blockName,
         .mSlot = (u32)i,
@@ -103,7 +103,7 @@ static std::unordered_map<std::string, InputBufferDescriptor> GetInputBufferDesc
     glGetActiveAttrib(program, i, sizeof(attributeName), &attribNameLen, &attribSize, &attribType, attributeName);
     InputBufferDescriptor descriptor = {
         .mName = attributeName,
-        .mType = utils::GLTypeToVarType(attribType),
+        .mType = glUtils::GLTypeToVarType(attribType),
         .mSlot = (u32)i,
         .mByteOffset = (u32)attribSize, // TODO: might not be correct
     };

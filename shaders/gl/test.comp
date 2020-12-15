@@ -1,0 +1,13 @@
+#version 460
+
+layout (local_size_x = 16, local_size_y = 16) in;
+
+layout (std430, binding = 0) buffer color_buf 
+{
+    vec4 c[];
+};
+
+
+void main() {
+    c[gl_LocalInvocationIndex] = vec4(1.0, 0.0, 0.0, 1.0);
+}
