@@ -5,6 +5,7 @@
 #include "../Interface/Types.hpp"
 #include "glad.h"
 
+#include <unordered_map>
 #include <vector>
 
 namespace focus
@@ -31,10 +32,7 @@ struct BufferManager {
 
   inline u32 Get(Handle handle) { return mHandles[handle]; }
 
-  inline void WriteTo(void *data, u32 sizeInBytes, Handle handle)
-  {
-    WriteTo(data, sizeInBytes, 0, handle);
-  }
+  inline void WriteTo(void *data, u32 sizeInBytes, Handle handle) { WriteTo(data, sizeInBytes, 0, handle); }
   inline void WriteTo(void *data, u32 sizeInBytes, u32 offsetInBytes, Handle handle)
   {
     auto bufferHandle = mHandles[handle];
@@ -83,4 +81,4 @@ struct BufferManager {
   }
 };
 
-} // namespace renderer::gl
+} // namespace focus

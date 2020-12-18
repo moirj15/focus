@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../common.h"
-#include "Types.hpp"
+#include "../Interface/Types.hpp"
 
 #include <unordered_map>
 #include <vector>
@@ -9,6 +9,7 @@
 namespace gl
 {
 
+#if 0
 struct VertexAttribute {
   const char *mName;
   u32 mLocation;
@@ -26,5 +27,6 @@ struct Shader {
   std::unordered_map<std::string_view, VertexAttribute> mAttributes;
   std::unordered_map<std::string_view, UniformBufferObject> mUBOs;
 };
+#endif
 
 } // namespace gl

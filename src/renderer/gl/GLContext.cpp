@@ -5,7 +5,6 @@
 #include "Utils.hpp"
 #include "glad.h"
 
-
 #ifdef _WIN32
 #include <GL/gl.h>
 #include <Windows.h>
@@ -19,24 +18,18 @@
 namespace focus
 {
 #ifdef _WIN32
-static WNDPROC mMessageHandler;
-static HINSTANCE mInstanceHandle;
-static BufferManager<VertexBufferHandle, VertexBufferDescriptor> mVBManager;
-static BufferManager<IndexBufferHandle, IndexBufferDescriptor> mIBManager;
-static BufferManager<ConstantBufferHandle, ConstantBufferDescriptor> mCBManager;
-static BufferManager<BufferHandle, ShaderBufferDescriptor> mSBManager;
-static u32 mVAO;
 
-static void DBCallBack(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, GLchar const *message, void const *userParam) 
+static void DBCallBack(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, GLchar const *message,
+    void const *userParam)
 {
   printf("DBG: %s\n", message);
 }
 
-void Init(WNDPROC messageHandler, HINSTANCE instanceHandle)
-{
-  mMessageHandler = messageHandler;
-  mInstanceHandle = instanceHandle;
-}
+// void Init(WNDPROC messageHandler, HINSTANCE instanceHandle)
+//{
+//  mMessageHandler = messageHandler;
+//  mInstanceHandle = instanceHandle;
+//}
 
 Window GLContext::MakeWindow(s32 width, s32 height)
 {
@@ -185,7 +178,6 @@ Window GLContext::MakeWindow(s32 width, s32 height)
   };
 }
 
-
 #endif
 
 ShaderHandle GLContext::CreateShaderFromBinary(const char *vBinary, const char *fBinary)
@@ -220,12 +212,16 @@ IndexBufferHandle GLContext::CreateIndexBuffer(void *data, u32 sizeInBytes, Inde
 
 BufferHandle GLContext::CreateShaderBuffer(void *data, u32 sizeInBytes, ShaderBufferDescriptor descriptor)
 {
-  return {};
+  return mSBManager.Create(data, sizeInBytes, descriptor);
 }
 
-void *GLContext::GetBufferPtr(BufferHandle handle, AccessMode accessMode)
+void *GLContext::MapBufferPtr(BufferHandle handle, AccessMode accessMode)
 {
   return glMapNamedBuffer(mSBManager.Get(handle), glUtils::AccessModeToGL(accessMode));
+}
+void GLContext::UnmapBufferPtr(BufferHandle handle)
+{
+  glUnmapNamedBuffer(mSBManager.Get(handle));
 }
 
 void GLContext::DestroyIndexBuffer(IndexBufferHandle handle)
@@ -314,7 +310,8 @@ void GLContext::Clear(ClearState clearState)
   glClear(glUtils::ClearBufferToGL(clearState.toClear));
 }
 
-void GLContext::DispatchCompute(u32 xGroups, u32 yGroups, u32 zGroups, ShaderHandle shader, const ComputeState &computeState)
+void GLContext::DispatchCompute(
+    u32 xGroups, u32 yGroups, u32 zGroups, ShaderHandle shader, const ComputeState &computeState)
 {
   u32 program = ShaderManager::GetProgram(shader);
   glUseProgram(program);
@@ -325,10 +322,10 @@ void GLContext::DispatchCompute(u32 xGroups, u32 yGroups, u32 zGroups, ShaderHan
   glDispatchCompute(xGroups, yGroups, zGroups);
 }
 
-void GLContext::WaitForMemory(u64 flags) 
+void GLContext::WaitForMemory(u64 flags)
 {
   // TODO: actually use input
-  glMemoryBarrier(GL_BUFFER_UPDATE_BARRIER_BIT);
+  glMemoryBarrier(GL_ALL_BARRIER_BITS);
 }
 
-} // namespace renderer::gl::context
+} // namespace focus

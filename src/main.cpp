@@ -81,11 +81,13 @@ void ComputeTest(const focus::Window &window)
   auto handle = focus::gContext->CreateComputeShaderFromSource(
       "TestCompute", utils::ReadEntireFileAsString("shaders/gl/test.comp"));
 
-  focus::ShaderBufferDescriptor sDesc = {
-    .mName = "color_buf",
-    .mSlot = 0
-  };
+  focus::ShaderBufferDescriptor sDesc = {.mName = "color_buf", .mSlot = 0};
   auto sHandle = focus::gContext->CreateShaderBuffer(nullptr, 4 * sizeof(float) * 256 * 256, sDesc);
+  float *contents = (float *)focus::gContext->MapBufferPtr(sHandle, focus::AccessMode::ReadOnly);
+  for (int i = 0; i < 256 * 256; i++) {
+    contents[i] = 88.0f;
+  }
+  focus::gContext->UnmapBufferPtr(sHandle);
 
   MSG msg = {};
   auto dc = GetDC(window.mWindowHandle);
@@ -95,9 +97,10 @@ void ComputeTest(const focus::Window &window)
       DispatchMessage(&msg);
     }
     focus::gContext->Clear({});
-    focus::gContext->DispatchCompute(256, 256, 1, sHandle, {{sHandle}, {}});
+    focus::gContext->DispatchCompute(256, 256, 1, handle, {{sHandle}, {}});
     focus::gContext->WaitForMemory(0);
-    float *contents = (float*)focus::gContext->GetBufferPtr(sHandle, focus::AccessMode::ReadOnly);
+    float *contents = (float *)focus::gContext->MapBufferPtr(sHandle, focus::AccessMode::ReadOnly);
+    focus::gContext->UnmapBufferPtr(sHandle);
 
     SwapBuffers(dc);
   }
@@ -109,7 +112,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
   focus::Context::Init(focus::RendererAPI::OpenGL, MessageHandler, hInstance);
   auto window = focus::gContext->MakeWindow(1920, 1080);
 
-  //TriangleTest(window);
+  // TriangleTest(window);
   ComputeTest(window);
 }
 #else

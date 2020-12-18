@@ -51,7 +51,9 @@ public:
 
   // Buffer Access
   // TODO: add partial buffer access too
-  virtual void *GetBufferPtr(BufferHandle handle, AccessMode accessMode) = 0;
+  // TODO: consider adding a scoped pointer for mapped memory
+  virtual void *MapBufferPtr(BufferHandle handle, AccessMode accessMode) = 0;
+  virtual void UnmapBufferPtr(BufferHandle handle) = 0;
 
   // Buffer Destruction
 

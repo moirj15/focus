@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../common.h"
+#include "../Interface/Context.hpp"
 #include "../Interface/Handles.hpp"
 #include "../Interface/IBuffer.hpp"
 #include "../Interface/RenderState.hpp"
@@ -35,6 +36,7 @@ public:
 
   // Shader creation
 
+  // TODO: need to create a shader compile tool
   ShaderHandle CreateShaderFromBinary(const char *vBinary, const char *fBinary) override;
   ShaderHandle CreateShaderFromSource(
       const char *name, const std::string &vSource, const std::string &fSource) override;
@@ -45,7 +47,8 @@ public:
   IndexBufferHandle CreateIndexBuffer(void *data, u32 sizeInBytes, IndexBufferDescriptor descriptor) override;
   BufferHandle CreateShaderBuffer(void *data, u32 sizeInBytes, ShaderBufferDescriptor descriptor) override;
 
-  void *GetBufferPtr(BufferHandle handle, AccessMode accessMode) override;
+  void *MapBufferPtr(BufferHandle handle, AccessMode accessMode) override;
+  void UnmapBufferPtr(BufferHandle handle) override;
 
   // Buffer Destruction
 
