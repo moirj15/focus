@@ -6,7 +6,7 @@
 #include <windows.h>
 #endif
 
-struct GLFWwindow;
+struct SDL_Window;
 
 namespace focus
 {
@@ -14,10 +14,8 @@ namespace focus
 struct Window {
   s32 mWidth;
   s32 mHeight;
-#ifdef _WIN32
-  HWND mWindowHandle;
-#else
-  GLFWwindow *mGLFWWindow;
-#endif
+
+  SDL_Window *mSDLWindow;
 };
-} // namespace renderer
+
+} // namespace focus

@@ -5,19 +5,10 @@
 #include "Utils.hpp"
 #include "glad.h"
 
-#ifdef _WIN32
-#include <GL/gl.h>
-#include <Windows.h>
-#include <gl/glext.h>
-#include <gl/wglext.h>
-#include <winuser.h>
-#else
-#include <GLFW/glfw3.h>
-#endif
+#include <SDL2/SDL.h>
 
 namespace focus
 {
-#ifdef _WIN32
 
 static void DBCallBack(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, GLchar const *message,
     void const *userParam)
@@ -25,141 +16,36 @@ static void DBCallBack(GLenum source, GLenum type, GLuint id, GLenum severity, G
   printf("DBG: %s\n", message);
 }
 
-// void Init(WNDPROC messageHandler, HINSTANCE instanceHandle)
-//{
-//  mMessageHandler = messageHandler;
-//  mInstanceHandle = instanceHandle;
-//}
-
-Window GLContext::MakeWindow(s32 width, s32 height)
-{
-
-  WNDCLASS windowClass = {
-      .style = CS_HREDRAW | CS_VREDRAW,
-      .lpfnWndProc = mMessageHandler,
-      .hInstance = mInstanceHandle,
-      .hIcon = LoadIcon(0, IDI_APPLICATION),
-      .hCursor = LoadCursor(0, IDC_ARROW),
-      .hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH),
-      .lpszClassName = "Core",
-  };
-  assert(RegisterClass(&windowClass) != 0);
-
-  HWND fakeWindow = CreateWindow(
-      "Core", "Fake Window", WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0, 0, 1, 1, nullptr, nullptr, mInstanceHandle, nullptr);
-  HDC fakeDeviceContext = GetDC(fakeWindow);
-  PIXELFORMATDESCRIPTOR fakePFD = {
-      .nSize = sizeof(fakePFD),
-      .nVersion = 1,
-      .dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
-      .iPixelType = PFD_TYPE_RGBA,
-      .cColorBits = 32,
-      .cAlphaBits = 8,
-      .cDepthBits = 24,
-  };
-  s32 fakePFDID = ChoosePixelFormat(fakeDeviceContext, &fakePFD);
-  assert(fakePFDID != 0);
-  assert(SetPixelFormat(fakeDeviceContext, fakePFDID, &fakePFD) != false);
-
-  auto fakeRenderContext = wglCreateContext(fakeDeviceContext);
-  assert(fakeRenderContext != 0);
-  assert(wglMakeCurrent(fakeDeviceContext, fakeRenderContext) != false);
-
-  auto wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
-  assert(wglChoosePixelFormatARB != nullptr);
-
-  auto wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
-  assert(wglCreateContextAttribsARB != nullptr);
-  HWND windowHandle = CreateWindow("Core", "OpenGL Window", WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-      0, 0, width, height, nullptr, nullptr, mInstanceHandle, nullptr);
-  HDC deviceContext = GetDC(windowHandle);
-
-  const s32 pixelAttributes[] = {
-      WGL_DRAW_TO_WINDOW_ARB,
-      GL_TRUE,
-      WGL_SUPPORT_OPENGL_ARB,
-      GL_TRUE,
-      WGL_DOUBLE_BUFFER_ARB,
-      GL_TRUE,
-      WGL_PIXEL_TYPE_ARB,
-      WGL_TYPE_RGBA_ARB,
-      WGL_ACCELERATION_ARB,
-      WGL_FULL_ACCELERATION_ARB,
-      WGL_COLOR_BITS_ARB,
-      32,
-      WGL_ALPHA_BITS_ARB,
-      8,
-      WGL_DEPTH_BITS_ARB,
-      24,
-      WGL_STENCIL_BITS_ARB,
-      8,
-      WGL_SAMPLE_BUFFERS_ARB,
-      GL_TRUE,
-      WGL_SAMPLES_ARB,
-      4,
-      0,
-  };
-  s32 pixelFormatID = 0;
-  u32 numFormats = 0;
-  bool status = wglChoosePixelFormatARB(deviceContext, pixelAttributes, nullptr, 1, &pixelFormatID, &numFormats);
-  assert(status != false);
-  assert(numFormats > 0);
-
-  PIXELFORMATDESCRIPTOR pfd;
-  DescribePixelFormat(deviceContext, pixelFormatID, sizeof(pfd), &pfd);
-  SetPixelFormat(deviceContext, pixelFormatID, &pfd);
-
-  const int major_min = 4, minor_min = 6;
-  int contextAttribs[] = {
-      WGL_CONTEXT_MAJOR_VERSION_ARB,
-      major_min,
-      WGL_CONTEXT_MINOR_VERSION_ARB,
-      minor_min,
-      WGL_CONTEXT_PROFILE_MASK_ARB,
-      WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
-      0,
-  };
-
-  HGLRC renderContext = wglCreateContextAttribsARB(deviceContext, 0, contextAttribs);
-  assert(renderContext != nullptr);
-
-  wglMakeCurrent(nullptr, nullptr);
-  wglDeleteContext(fakeRenderContext);
-  ReleaseDC(fakeWindow, fakeDeviceContext);
-
-  DestroyWindow(fakeWindow);
-  assert(wglMakeCurrent(deviceContext, renderContext));
-
-  if (!gladLoadGL()) {
-    fprintf(stderr, "Failed to load glad\n");
-    exit(EXIT_FAILURE);
-  }
-
-  SetWindowText(windowHandle, (LPCSTR)glGetString(GL_VERSION));
-  ShowWindow(windowHandle, true);
-
-#ifdef _DEBUG
-  glEnable(GL_DEBUG_OUTPUT);
-  glDebugMessageCallback(DBCallBack, nullptr);
-#endif
-
-  glGenVertexArrays(1, &mVAO);
-
-  return {
-      .mWidth = width,
-      .mHeight = height,
-      .mWindowHandle = windowHandle,
-  };
-}
-#else
 void Init()
 {
-  printf("Initializing OpenGL Renderer");
-  assert(glfwInit());
+  if (SDL_Init(SDL_INIT_VIDEO)) {
+    assert(0 && "Failed to init video");
+  }
+  SDL_GL_LoadLibrary(nullptr);
 }
 
 Window GLContext::MakeWindow(s32 width, s32 height)
 {
+  SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
+
+  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+  SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+
+  SDL_Window *window =
+      SDL_CreateWindow("OpenGL", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL);
+
+  assert(window != nullptr);
+
+  // Don't resize window so it doesn't mess with tiling window managers
+  SDL_SetWindowResizable(window, SDL_FALSE);
+
+  auto *context = SDL_GL_CreateContext(window);
+  assert(context);
+  assert(gladLoadGL());
+
+#if 0
   GLFWwindow *glfwWindow = nullptr;
   // need for i3
   glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
@@ -171,14 +57,13 @@ Window GLContext::MakeWindow(s32 width, s32 height)
   glfwMakeContextCurrent(glfwWindow);
   assert(gladLoadGL());
   glViewport(0, 0, width, height);
+#endif
   return {
       .mWidth = width,
       .mHeight = height,
-      .mGLFWWindow = glfwWindow,
+      .mSDLWindow = window,
   };
 }
-
-#endif
 
 ShaderHandle GLContext::CreateShaderFromBinary(const char *vBinary, const char *fBinary)
 {
@@ -326,6 +211,11 @@ void GLContext::WaitForMemory(u64 flags)
 {
   // TODO: actually use input
   glMemoryBarrier(GL_ALL_BARRIER_BITS);
+}
+
+void GLContext::SwapBuffers(const Window &window)
+{
+  SDL_GL_SwapWindow(window.mSDLWindow);
 }
 
 } // namespace focus

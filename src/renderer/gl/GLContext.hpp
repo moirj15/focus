@@ -17,8 +17,6 @@ namespace focus
 
 class GLContext final : public Context
 {
-  WNDPROC mMessageHandler;
-  HINSTANCE mInstanceHandle;
   BufferManager<VertexBufferHandle, VertexBufferDescriptor> mVBManager;
   BufferManager<IndexBufferHandle, IndexBufferDescriptor> mIBManager;
   BufferManager<ConstantBufferHandle, ConstantBufferDescriptor> mCBManager;
@@ -27,10 +25,6 @@ class GLContext final : public Context
   u32 mVAO;
 
 public:
-  GLContext(WNDPROC messageHandler, HINSTANCE instanceHandle) :
-      mMessageHandler(messageHandler), mInstanceHandle(instanceHandle)
-  {
-  }
   // Window creation
   Window MakeWindow(s32 width, s32 height) override;
 
@@ -65,12 +59,8 @@ public:
 
   // Screen clearing
   void Clear(ClearState clearState = {}) override;
-};
 
-#ifdef _WIN32
-// void Init(WNDPROC messageHandler, HINSTANCE instanceHandle);
-#else
-void Init();
-#endif
+  void SwapBuffers(const Window &window) override;
+};
 
 } // namespace focus
