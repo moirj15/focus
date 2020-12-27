@@ -101,5 +101,6 @@ int main(int argc, char **argv)
   ComputeTest(window);
 
   SDL_Quit();
+  return 0;
 }
 

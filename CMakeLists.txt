@@ -12,6 +12,7 @@ file(GLOB RENDERER_SRC CONFIGURE_DEPENDS "src/renderer/*")
 file(GLOB RENDERER_VULKAN_SRC CONFIGURE_DEPENDS "src/renderer/vk/*")
 file(GLOB RENDERER_OPENGL_SRC CONFIGURE_DEPENDS "src/renderer/gl/*")
 file(GLOB RENDERER_DX11_SRC CONFIGURE_DEPENDS "src/renderer/dx11/*")
+file(GLOB RENDERER_DX12_SRC CONFIGURE_DEPENDS "src/renderer/dx12/*")
 file(GLOB RENDERER_INTERFACE_SRC CONFIGURE_DEPENDS "src/renderer/Interface/*")
 file(GLOB RENDERER_INTERFACE_HEADERS CONFIGURE_DEPENDS "src/renderer/Interface/*.hpp")
 include_directories(
@@ -29,8 +30,10 @@ if (WIN32)
 #            ${RENDERER_VULKAN_SRC}
             ${RENDERER_OPENGL_SRC}
 #            ${RENDERER_DX11_SRC}
+            ${RENDERER_DX12_SRC}
             ${RENDERER_INTERFACE_SRC}
     )
+    target_link_directories(focus_main PUBLIC ${CMAKE_SOURCE_DIR}/libs/windows)
     set_target_properties(
         focus_main PROPERTIES
         VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
@@ -56,15 +59,21 @@ if (WIN32)
     find_package(OpenGL REQUIRED)
     target_link_libraries(
             focus_main
+            Setupapi.lib
 #            ${CMAKE_SOURCE_DIR}/libs/windows/vulkan-1.lib
-            ${CMAKE_SOURCE_DIR}/libs/windows/glfw3.lib
+            ${CMAKE_SOURCE_DIR}/libs/windows/SDL2-static.lib
+            ${CMAKE_SOURCE_DIR}/libs/windows/SDL2main.lib
+            msvcrtd.lib
+            winmm.lib
+            imm32.lib
+            version.lib
             d3d11.lib
+            libcmt.lib
             dxgi.lib
             d3dcompiler.lib
             winmm.lib
             gdi32
             opengl32
-            #D3D11_1SDKLayers.dll
     )
 else ()
     add_executable(

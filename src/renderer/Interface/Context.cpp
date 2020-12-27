@@ -9,23 +9,6 @@ namespace focus
 
 Context *gContext = nullptr;
 
-#ifdef _WIN32
-void Context::Init(RendererAPI api, WNDPROC messageHandler, HINSTANCE instanceHandle)
-{
-  assert(gContext == nullptr);
-  assert(api != RendererAPI::Invalid);
-  if (api == RendererAPI::OpenGL) {
-    gContext = new GLContext(messageHandler, instanceHandle);
-  } else if (api == RendererAPI::Vulkan) {
-    assert(0);
-  } else if (api == RendererAPI::DX11) {
-    assert(0);
-  } else if (api == RendererAPI::DX12) {
-    assert(0);
-  }
-}
-#else
-
 void Context::Init(RendererAPI api)
 {
   assert(gContext == nullptr);
@@ -35,7 +18,15 @@ void Context::Init(RendererAPI api)
   } else if (api == RendererAPI::Vulkan) {
     assert(0);
   }
-}
+#if _WIN32
+  else if (api == RendererAPI::DX11) {
+    assert(0);
+  } else if (api == RendererAPI::DX12) {
+    assert(0);
+  }
+#else
+  assert(api != RendererAPI::DX11 || api != RendererAPI::DX12);
 #endif
+}
 
 } // namespace focus
