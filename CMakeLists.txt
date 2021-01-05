@@ -56,15 +56,22 @@ if (WIN32)
     find_package(OpenGL REQUIRED)
     target_link_libraries(
             focus_main
+            Setupapi.lib
 #            ${CMAKE_SOURCE_DIR}/libs/windows/vulkan-1.lib
-            ${CMAKE_SOURCE_DIR}/libs/windows/glfw3.lib
+            ${CMAKE_SOURCE_DIR}/libs/windows/SDL2-static.lib
+            ${CMAKE_SOURCE_DIR}/libs/windows/SDL2main.lib
+            msvcrtd.lib
+            winmm.lib
+            imm32.lib
+            version.lib
             d3d11.lib
+            d3d12.lib
+            libcmt.lib
             dxgi.lib
             d3dcompiler.lib
             winmm.lib
             gdi32
             opengl32
-            #D3D11_1SDKLayers.dll
     )
 else ()
     add_executable(
