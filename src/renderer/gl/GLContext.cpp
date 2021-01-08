@@ -16,7 +16,7 @@ static void DBCallBack(GLenum source, GLenum type, GLuint id, GLenum severity, G
   printf("DBG: %s\n", message);
 }
 
-void Init()
+GLContext::GLContext()
 {
   if (SDL_Init(SDL_INIT_VIDEO)) {
     assert(0 && "Failed to init video");
@@ -26,12 +26,14 @@ void Init()
 
 Window GLContext::MakeWindow(s32 width, s32 height)
 {
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+  SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
   SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
 
-  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-  SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+
 
   SDL_Window *window =
       SDL_CreateWindow("OpenGL", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL);
@@ -44,6 +46,8 @@ Window GLContext::MakeWindow(s32 width, s32 height)
   auto *context = SDL_GL_CreateContext(window);
   assert(context);
   assert(gladLoadGL());
+
+  printf("%s", glGetString(GL_VERSION));
 
 #if 0
   GLFWwindow *glfwWindow = nullptr;
@@ -58,6 +62,7 @@ Window GLContext::MakeWindow(s32 width, s32 height)
   assert(gladLoadGL());
   glViewport(0, 0, width, height);
 #endif
+  glGenVertexArrays(1, &mVAO);
   return {
       .mWidth = width,
       .mHeight = height,
@@ -98,6 +103,11 @@ IndexBufferHandle GLContext::CreateIndexBuffer(void *data, u32 sizeInBytes, Inde
 BufferHandle GLContext::CreateShaderBuffer(void *data, u32 sizeInBytes, ShaderBufferDescriptor descriptor)
 {
   return mSBManager.Create(data, sizeInBytes, descriptor);
+}
+
+ConstantBufferHandle GLContext::CreateConstantBuffer(void *data, u32 sizeInBytes, ConstantBufferDescriptor descriptor)
+{
+  return mCBManager.Create(data, sizeInBytes, descriptor);
 }
 
 void *GLContext::MapBufferPtr(BufferHandle handle, AccessMode accessMode)
@@ -178,6 +188,12 @@ void GLContext::Draw(Primitive primitive, RenderState renderState, ShaderHandle 
     // glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, (const void *)0);
     glVertexAttribPointer(inputDesc.mSlot, glUtils::VarTypeToSlotSizeGL(inputDesc.mType),
         glUtils::VarTypeToIndividualTypeGL(inputDesc.mType), false, 0, (const void *)0);
+  }
+  // setup all the uniform buffers
+  for (const auto &cbHandle : sceneState.cbHandles) {
+    const auto &cbDesc = mCBManager.mDescriptors[cbHandle];
+    glBindBuffer(GL_UNIFORM_BUFFER, mCBManager.Get(cbHandle));
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, mCBManager.Get(cbHandle));
   }
   if (sceneState.indexed) {
     u32 glIBHandle = mIBManager.Get(sceneState.ibHandle);

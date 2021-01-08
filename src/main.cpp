@@ -37,8 +37,16 @@ void TriangleTest(const focus::Window &window)
       .sizeInBytes = sizeof(indices),
   };
 
+  focus::ConstantBufferDescriptor cbDescriptor = {
+      .mName = "Input",
+      .mSlot = 0,
+  };
+
+  f32 color[] = {1.0f, 0.0f, 0.0f, 0.0f};
+
   focus::SceneState sceneState = {
       .vbHandles = {focus::gContext->CreateVertexBuffer(points, sizeof(points), vbDescriptor)},
+      .cbHandles = {focus::gContext->CreateConstantBuffer(color, sizeof(color), cbDescriptor)},
       .ibHandle = focus::gContext->CreateIndexBuffer(indices, sizeof(indices), ibDescriptor),
       .indexed = true,
   };
@@ -95,6 +103,7 @@ int main(int argc, char **argv)
 {
   (void)argc;
   (void)argv;
+  setvbuf(stdout, nullptr, _IONBF, 0);
   focus::Context::Init(focus::RendererAPI::OpenGL);
   auto window = focus::gContext->MakeWindow(1920, 1080);
   TriangleTest(window);
@@ -103,4 +112,3 @@ int main(int argc, char **argv)
   SDL_Quit();
   return 0;
 }
-

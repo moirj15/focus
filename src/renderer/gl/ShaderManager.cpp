@@ -44,6 +44,7 @@ static void LinkShaderProgram(std::vector<u32> shaderHandles, u32 programHandle)
   if (!success) {
     glGetProgramInfoLog(programHandle, sizeof(compileLog), nullptr, compileLog);
     printf("Shader Link Error: %s\n", compileLog);
+    assert(0);
   }
   for (u32 sHandle : shaderHandles) {
     glDeleteShader(sHandle);

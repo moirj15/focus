@@ -25,6 +25,7 @@ class GLContext final : public Context
   u32 mVAO;
 
 public:
+  GLContext();
   // Window creation
   Window MakeWindow(s32 width, s32 height) override;
 
@@ -40,6 +41,7 @@ public:
   VertexBufferHandle CreateVertexBuffer(void *data, u32 sizeInBytes, VertexBufferDescriptor descriptor) override;
   IndexBufferHandle CreateIndexBuffer(void *data, u32 sizeInBytes, IndexBufferDescriptor descriptor) override;
   BufferHandle CreateShaderBuffer(void *data, u32 sizeInBytes, ShaderBufferDescriptor descriptor) override;
+  ConstantBufferHandle CreateConstantBuffer(void* data, u32 sizeInBytes, ConstantBufferDescriptor descriptor) override;
 
   void *MapBufferPtr(BufferHandle handle, AccessMode accessMode) override;
   void UnmapBufferPtr(BufferHandle handle) override;
@@ -61,6 +63,8 @@ public:
   void Clear(ClearState clearState = {}) override;
 
   void SwapBuffers(const Window &window) override;
+
+
 };
 
 } // namespace focus

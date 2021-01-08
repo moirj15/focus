@@ -48,6 +48,7 @@ public:
   virtual VertexBufferHandle CreateVertexBuffer(void *data, u32 sizeInBytes, VertexBufferDescriptor descriptor) = 0;
   virtual IndexBufferHandle CreateIndexBuffer(void *data, u32 sizeInBytes, IndexBufferDescriptor descriptor) = 0;
   virtual BufferHandle CreateShaderBuffer(void *data, u32 sizeInBytes, ShaderBufferDescriptor descriptor) = 0;
+  virtual ConstantBufferHandle CreateConstantBuffer(void *data, u32 sizeInBytes, ConstantBufferDescriptor descriptor) = 0;
 
   // Buffer Access
   // TODO: add partial buffer access too
