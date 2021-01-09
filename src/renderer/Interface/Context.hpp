@@ -34,6 +34,9 @@ public:
    */
   static void Init(RendererAPI api);
 
+  // TODO: think of a better way to do this, maybe have creating the window be agnostic but not init?
+  virtual void Init() {};
+
   // Window creation
   virtual Window MakeWindow(s32 width, s32 height) = 0;
 

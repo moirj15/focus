@@ -68,6 +68,7 @@ if (WIN32)
             imm32.lib
             version.lib
             d3d11.lib
+            d3d12.lib
             libcmt.lib
             dxgi.lib
             d3dcompiler.lib
