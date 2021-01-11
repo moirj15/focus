@@ -1,4 +1,5 @@
 #pragma once
+#if 0
 #include "Types.hpp"
 namespace focus
 {
@@ -11,3 +12,5 @@ using BufferHandle = u32;
 constexpr u32 INVALID_HANDLE = 0xFFFFFFFF;
 
 }
+
+#endif

@@ -1,7 +1,7 @@
 #include "Context.hpp"
 
 #ifdef _WIN32
-#include "../dx11/context.hpp"
+#include "../dx11/DX11Context.hpp"
 #include "../dx12/DX12Context.hpp"
 #endif
 #include "../gl/GLContext.hpp"
@@ -21,7 +21,7 @@ void Context::Init(RendererAPI api)
   }
 #if _WIN32
   else if (api == RendererAPI::DX11) {
-    assert(0);
+    gContext = new DX11Context();
   } else if (api == RendererAPI::DX12) {
     gContext = new DX12Context();
   }
