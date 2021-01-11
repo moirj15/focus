@@ -29,7 +29,7 @@ if (WIN32)
             ${RENDERER_SRC}
 #            ${RENDERER_VULKAN_SRC}
             ${RENDERER_OPENGL_SRC}
-#            ${RENDERER_DX11_SRC}
+            ${RENDERER_DX11_SRC}
             ${RENDERER_DX12_SRC}
             ${RENDERER_INTERFACE_SRC}
     )

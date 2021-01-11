@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <string>
 
+#if 0
 namespace focus
 {
 
@@ -32,3 +33,5 @@ struct ShaderInfo {
 };
 
 }
+
+#endif
