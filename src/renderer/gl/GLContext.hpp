@@ -2,10 +2,6 @@
 
 #include "../../common.h"
 #include "../Interface/Context.hpp"
-//#include "../Interface/Handles.hpp"
-//#include "../Interface/IBuffer.hpp"
-//#include "../Interface/RenderState.hpp"
-//#include "../Interface/Window.hpp"
 #include "Buffer.hpp"
 #include "BufferManager.hpp"
 #include "Shader.hpp"
@@ -39,6 +35,7 @@ public:
   // Buffer Creation
   VertexBufferHandle CreateVertexBuffer(void *data, u32 sizeInBytes, VertexBufferDescriptor descriptor) override;
   IndexBufferHandle CreateIndexBuffer(void *data, u32 sizeInBytes, IndexBufferDescriptor descriptor) override;
+  ConstantBufferHandle CreateConstantBuffer(void *data, u32 sizeInBytes, ConstantBufferDescriptor descriptor) override;
   BufferHandle CreateShaderBuffer(void *data, u32 sizeInBytes, ShaderBufferDescriptor descriptor) override;
 
   void *MapBufferPtr(BufferHandle handle, AccessMode accessMode) override;
@@ -48,6 +45,7 @@ public:
 
   void DestroyVertexBuffer(VertexBufferHandle handle) override;
   void DestroyIndexBuffer(IndexBufferHandle handle) override;
+  void DestroyShaderBuffer(BufferHandle handle) override;
 
   // Draw call submission
   void Draw(Primitive primitive, RenderState renderState, ShaderHandle shader, const SceneState &sceneState) override;

@@ -95,6 +95,11 @@ IndexBufferHandle GLContext::CreateIndexBuffer(void *data, u32 sizeInBytes, Inde
   return mIBManager.Create(data, sizeInBytes, descriptor);
 }
 
+ConstantBufferHandle GLContext::CreateConstantBuffer(void *data, u32 sizeInBytes, ConstantBufferDescriptor descriptor)
+{
+  return INVALID_HANDLE; 
+}
+
 BufferHandle GLContext::CreateShaderBuffer(void *data, u32 sizeInBytes, ShaderBufferDescriptor descriptor)
 {
   return mSBManager.Create(data, sizeInBytes, descriptor);
@@ -112,6 +117,11 @@ void GLContext::UnmapBufferPtr(BufferHandle handle)
 void GLContext::DestroyIndexBuffer(IndexBufferHandle handle)
 {
   mIBManager.Destroy(handle);
+}
+
+void GLContext::DestroyShaderBuffer(BufferHandle handle)
+{
+  mSBManager.Destroy(handle);
 }
 
 // TODO: do automatic batching
@@ -173,11 +183,11 @@ void GLContext::Draw(Primitive primitive, RenderState renderState, ShaderHandle 
     const auto &inputDesc = shaderInfo.mInputBufferDescriptors[vbDesc.inputDescriptorName];
     u32 glVBHandle = mVBManager.Get(vbHandle);
     glBindBuffer(GL_ARRAY_BUFFER, glVBHandle);
-    glEnableVertexAttribArray(inputDesc.mSlot);
+    glEnableVertexAttribArray(inputDesc.slot);
 
     // glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, (const void *)0);
-    glVertexAttribPointer(inputDesc.mSlot, glUtils::VarTypeToSlotSizeGL(inputDesc.mType),
-        glUtils::VarTypeToIndividualTypeGL(inputDesc.mType), false, 0, (const void *)0);
+    glVertexAttribPointer(inputDesc.slot, glUtils::VarTypeToSlotSizeGL(inputDesc.type),
+        glUtils::VarTypeToIndividualTypeGL(inputDesc.type), false, 0, (const void *)0);
   }
   if (sceneState.indexed) {
     u32 glIBHandle = mIBManager.Get(sceneState.ibHandle);
@@ -202,7 +212,7 @@ void GLContext::DispatchCompute(
   glUseProgram(program);
   for (auto bufferHandle : computeState.bufferHandles) {
     const auto &bufferDesc = mSBManager.mDescriptors[bufferHandle];
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, bufferDesc.mSlot, mSBManager.Get(bufferHandle));
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, bufferDesc.slot, mSBManager.Get(bufferHandle));
   }
   glDispatchCompute(xGroups, yGroups, zGroups);
 }

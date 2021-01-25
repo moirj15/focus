@@ -21,9 +21,10 @@ void Context::Init(RendererAPI api)
   }
 #if _WIN32
   else if (api == RendererAPI::DX11) {
-    gContext = new DX11Context();
+    gContext = new dx11::DX11Context();
   } else if (api == RendererAPI::DX12) {
-    gContext = new DX12Context();
+    assert(0);
+    //gContext = new DX12Context();
   }
 #else
   assert(api != RendererAPI::DX11 || api != RendererAPI::DX12);

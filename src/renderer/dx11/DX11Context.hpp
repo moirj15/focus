@@ -1,15 +1,17 @@
 #pragma once
 
 #include "../Interface/Context.hpp"
+#include "BufferManager.h"
+#include "ShaderBufferManager.hpp"
+#include "ShaderManager.hpp"
 
 #include <d3d11.h>
 #include <dxgi.h>
 #include <wrl/client.h>
-#include "ShaderManager.hpp"
-using namespace Microsoft::WRL;
 
-namespace focus
+namespace focus::dx11
 {
+using namespace Microsoft::WRL;
 
 class DX11Context : public Context
 {
@@ -20,9 +22,20 @@ class DX11Context : public Context
   ComPtr<ID3D11RenderTargetView> mBackBufferRenderTargetView;
   ComPtr<ID3D11Texture2D> mDepthStencilBuffer;
   ComPtr<ID3D11DepthStencilView> mDepthStencilView;
+  ComPtr<ID3D11RasterizerState> mRasterizerState;
   D3D11_VIEWPORT mViewport;
 
+  ShaderManager mShaderManager;
+  /// Managers for read-only inputs
+  BufferManager<VertexBufferHandle, VertexBufferDescriptor, D3D11_BIND_VERTEX_BUFFER> mVBManager;
+  BufferManager<IndexBufferHandle, IndexBufferDescriptor, D3D11_BIND_INDEX_BUFFER> mIBManager;
+  BufferManager<ConstantBufferHandle, ConstantBufferDescriptor, D3D11_BIND_CONSTANT_BUFFER> mCBManager;
+  // TODO: find equivalent
+  ShaderBufferManager mSBManager;
+
 public:
+  DX11Context();
+
   void Init() override;
 
   Window MakeWindow(s32 width, s32 height) override;
@@ -38,6 +51,8 @@ public:
 
   IndexBufferHandle CreateIndexBuffer(void *data, u32 sizeInBytes, IndexBufferDescriptor descriptor) override;
 
+  ConstantBufferHandle CreateConstantBuffer(void *data, u32 sizeInBytes, ConstantBufferDescriptor descriptor) override;
+
   BufferHandle CreateShaderBuffer(void *data, u32 sizeInBytes, ShaderBufferDescriptor descriptor) override;
 
   void *MapBufferPtr(BufferHandle handle, AccessMode accessMode) override;
@@ -47,6 +62,8 @@ public:
   void DestroyVertexBuffer(VertexBufferHandle handle) override;
 
   void DestroyIndexBuffer(IndexBufferHandle handle) override;
+
+  void DestroyShaderBuffer(BufferHandle handle) override;
 
   void Draw(Primitive primitive, RenderState renderState, ShaderHandle shader, const SceneState &sceneState) override;
 
@@ -60,4 +77,4 @@ public:
   void SwapBuffers(const Window &window) override;
 };
 
-} // namespace focus
+} // namespace focus::dx11

@@ -150,24 +150,30 @@ struct VertexBufferDescriptor {
   u32 sizeInBytes;
 };
 
+
 struct IndexBufferDescriptor {
   IndexBufferType type;
   u32 sizeInBytes;
 };
 
 struct ConstantBufferDescriptor {
-  std::string mName;
-  std::vector<VarType> mTypes; // TODO: consider if this is necessary
-  u32 mSlot;
+  std::string name;
+  std::vector<VarType> types; // TODO: consider if this is necessary
+  u32 slot;
 };
 
-using ShaderBufferDescriptor = ConstantBufferDescriptor;
+struct ShaderBufferDescriptor {
+  std::string name;
+  u32 slot;
+  AccessMode accessMode;
+};
+
 
 struct InputBufferDescriptor {
-  std::string mName; // name of the variable, not the semantic used.
-  VarType mType;
-  u32 mSlot; // TODO: I guess for D3D this should be used for the intrinisc number? ie POSITION3, 3 is the slot
-  u32 mByteOffset;
+  std::string name; // name of the variable, not the semantic used.
+  VarType type;
+  u32 slot; // TODO: I guess for D3D this should be used for the intrinisc number? ie POSITION3, 3 is the slot
+  u32 byteOffset;
 };
 
 struct ShaderInfo {
@@ -338,6 +344,7 @@ public:
   // Buffer Creation
   virtual VertexBufferHandle CreateVertexBuffer(void *data, u32 sizeInBytes, VertexBufferDescriptor descriptor) = 0;
   virtual IndexBufferHandle CreateIndexBuffer(void *data, u32 sizeInBytes, IndexBufferDescriptor descriptor) = 0;
+  virtual ConstantBufferHandle CreateConstantBuffer(void *data, u32 sizeInBytes, ConstantBufferDescriptor descriptor) = 0;
   virtual BufferHandle CreateShaderBuffer(void *data, u32 sizeInBytes, ShaderBufferDescriptor descriptor) = 0;
 
   // Buffer Access
@@ -350,6 +357,7 @@ public:
 
   virtual void DestroyVertexBuffer(VertexBufferHandle handle) = 0;
   virtual void DestroyIndexBuffer(IndexBufferHandle handle) = 0;
+  virtual void DestroyShaderBuffer(BufferHandle handle) = 0;
 
   // Draw call submission
   virtual void Draw(

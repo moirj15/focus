@@ -72,6 +72,7 @@ if (WIN32)
             libcmt.lib
             dxgi.lib
             d3dcompiler.lib
+            dxguid.lib
             winmm.lib
             gdi32
             opengl32

@@ -8,8 +8,8 @@
 void TriangleTest(const focus::Window &window)
 {
   auto handle = focus::gContext->CreateShaderFromSource("UniformColor",
-      utils::ReadEntireFileAsString("shaders/gl/UniformColor.vert"),
-      utils::ReadEntireFileAsString("shaders/gl/UniformColor.frag"));
+      utils::ReadEntireFileAsString("shaders/dx11/UniformColorVS.hlsl"),
+      utils::ReadEntireFileAsString("shaders/dx11/UniformColorPS.hlsl"));
 
   f32 points[] = {
       0.0f,
@@ -25,6 +25,13 @@ void TriangleTest(const focus::Window &window)
 
   u32 indices[] = {0, 1, 2};
 
+  f32 mvp[] = {
+    1.0f, 0.0f, 0.0f, 0.0f,
+    0.0f, 1.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 1.0f, 0.0f,
+    0.0f, 0.0f, 0.0f, 1.0f,
+  };
+
   focus::VertexBufferDescriptor vbDescriptor = {
       .inputDescriptorName = "aPosition",
       .bufferType = focus::BufferType::SingleType,
@@ -37,11 +44,18 @@ void TriangleTest(const focus::Window &window)
       .sizeInBytes = sizeof(indices),
   };
 
+  focus::ConstantBufferDescriptor mvpDesc = {
+    .name = "Constants",
+    .slot = 0,
+  };
+
   focus::SceneState sceneState = {
       .vbHandles = {focus::gContext->CreateVertexBuffer(points, sizeof(points), vbDescriptor)},
+      .cbHandles = {focus::gContext->CreateConstantBuffer(mvp, sizeof(mvp), mvpDesc)},
       .ibHandle = focus::gContext->CreateIndexBuffer(indices, sizeof(indices), ibDescriptor),
       .indexed = true,
   };
+
 
   bool keepWindowOpen = true;
   SDL_Event e;
@@ -65,7 +79,10 @@ void ComputeTest(const focus::Window &window)
   auto handle = focus::gContext->CreateComputeShaderFromSource(
       "TestCompute", utils::ReadEntireFileAsString("shaders/gl/test.comp"));
 
-  focus::ShaderBufferDescriptor sDesc = {.mName = "color_buf", .mSlot = 0};
+  focus::ShaderBufferDescriptor sDesc = {
+      .name = "color_buf",
+      .slot = 0,
+  };
   auto sHandle = focus::gContext->CreateShaderBuffer(nullptr, 4 * sizeof(float) * 256 * 256, sDesc);
   float *contents = (float *)focus::gContext->MapBufferPtr(sHandle, focus::AccessMode::ReadOnly);
   for (int i = 0; i < 256 * 256; i++) {
@@ -95,7 +112,8 @@ int main(int argc, char **argv)
 {
   (void)argc;
   (void)argv;
-  focus::Context::Init(focus::RendererAPI::OpenGL);
+  setvbuf(stdout, NULL, _IONBF, 0);
+  focus::Context::Init(focus::RendererAPI::DX11);
   auto window = focus::gContext->MakeWindow(1920, 1080);
   TriangleTest(window);
   ComputeTest(window);
@@ -103,4 +121,3 @@ int main(int argc, char **argv)
   SDL_Quit();
   return 0;
 }
-

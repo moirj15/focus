@@ -72,7 +72,7 @@ constexpr const char *ShaderTypeToString(GLenum type)
 }
 
 template<typename DescriptorType>
-static std::unordered_map<std::string, ConstantBufferDescriptor> GetBuffers(u32 program, GLenum resourceType)
+static std::unordered_map<std::string, DescriptorType> GetBuffers(u32 program, GLenum resourceType)
 {
   std::unordered_map<std::string, DescriptorType> descriptors;
   s32 blockCount = 0;
@@ -82,8 +82,8 @@ static std::unordered_map<std::string, ConstantBufferDescriptor> GetBuffers(u32 
   for (s32 i = 0; i < blockCount; i++) {
     glGetProgramResourceName(program, resourceType, i, sizeof(blockName), &blockNameLength, blockName);
     DescriptorType constantBuffer = {
-        .mName = blockName,
-        .mSlot = (u32)i,
+        .name = blockName,
+        .slot = (u32)i,
     };
     descriptors.emplace(blockName, constantBuffer);
   }
@@ -102,10 +102,10 @@ static std::unordered_map<std::string, InputBufferDescriptor> GetInputBufferDesc
   for (s32 i = 0; i < attributeCount; i++) {
     glGetActiveAttrib(program, i, sizeof(attributeName), &attribNameLen, &attribSize, &attribType, attributeName);
     InputBufferDescriptor descriptor = {
-        .mName = attributeName,
-        .mType = glUtils::GLTypeToVarType(attribType),
-        .mSlot = (u32)i,
-        .mByteOffset = (u32)attribSize, // TODO: might not be correct
+        .name = attributeName,
+        .type = glUtils::GLTypeToVarType(attribType),
+        .slot = (u32)i,
+        .byteOffset = (u32)attribSize, // TODO: might not be correct
     };
     descriptors.emplace(attributeName, descriptor);
   }
