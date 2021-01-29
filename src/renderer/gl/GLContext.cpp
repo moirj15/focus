@@ -47,6 +47,11 @@ Window GLContext::MakeWindow(s32 width, s32 height)
   assert(context);
   assert(gladLoadGL());
 
+#ifdef _DEBUG
+  glEnable(GL_DEBUG_OUTPUT);
+  glDebugMessageCallback(DBCallBack, nullptr);
+#endif
+
   printf("%s", glGetString(GL_VERSION));
 
 #if 0
@@ -218,7 +223,13 @@ void GLContext::DispatchCompute(
   glUseProgram(program);
   for (auto bufferHandle : computeState.bufferHandles) {
     const auto &bufferDesc = mSBManager.mDescriptors[bufferHandle];
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, mSBManager.Get(bufferHandle));
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, bufferDesc.mSlot, mSBManager.Get(bufferHandle));
+  }
+  for (const auto &cbHandle : computeState.cbHandles) {
+    const auto &cbDesc = mCBManager.mDescriptors[cbHandle];
+    glBindBuffer(GL_UNIFORM_BUFFER, mCBManager.Get(cbHandle));
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, mCBManager.Get(cbHandle));
   }
   glDispatchCompute(xGroups, yGroups, zGroups);
 }
