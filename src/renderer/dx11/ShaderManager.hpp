@@ -44,6 +44,7 @@ public:
   ShaderHandle AddShader(const char *name, const std::string &vSource, const std::string &pSource);
   ShaderHandle AddComputeShader(const char *name, const std::string &source);
   Shaders GetProgram(ShaderHandle handle);
+  ID3D11ComputeShader *GetComputeShader(ShaderHandle handle);
 
   void DeleteShader(ShaderHandle handle);
 private:

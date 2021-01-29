@@ -66,8 +66,11 @@ ShaderHandle ShaderManager::AddComputeShader(const char *name, const std::string
 {
   ComPtr<ID3DBlob> cBinary;
   ComPtr<ID3DBlob> cErrors;
-  Check(D3DCompile(
-      source.data(), source.size(), nullptr, nullptr, nullptr, "CSMain", "cs_5_0", 0, 0, &cBinary, &cErrors));
+  if (FAILED(D3DCompile(
+          source.data(), source.size(), nullptr, nullptr, nullptr, "CSMain", "cs_5_0", 0, 0, &cBinary, &cErrors))) {
+    printf("Compute ERROR: %s\n", (char *)cErrors->GetBufferPointer());
+    assert(0);
+  }
   ID3D11ComputeShader *cShader;
   Check(mDevice->CreateComputeShader(cBinary->GetBufferPointer(), cBinary->GetBufferSize(), nullptr, &cShader));
   mCurrHandle++;
@@ -80,6 +83,11 @@ ShaderHandle ShaderManager::AddComputeShader(const char *name, const std::string
 Shaders ShaderManager::GetProgram(ShaderHandle handle)
 {
   return mGfxShaders[handle];
+}
+
+ID3D11ComputeShader *ShaderManager::GetComputeShader(ShaderHandle handle)
+{
+  return mComputeShaders[handle].Get();
 }
 
 void ShaderManager::DeleteShader(ShaderHandle handle)

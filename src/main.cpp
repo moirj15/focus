@@ -77,11 +77,12 @@ void ComputeTest(const focus::Window &window)
 {
 
   auto handle = focus::gContext->CreateComputeShaderFromSource(
-      "TestCompute", utils::ReadEntireFileAsString("shaders/gl/test.comp"));
+      "TestCompute", utils::ReadEntireFileAsString("shaders/dx11/testCS.hlsl"));
 
   focus::ShaderBufferDescriptor sDesc = {
       .name = "color_buf",
       .slot = 0,
+      .accessMode = focus::AccessMode::WriteOnly,
   };
   auto sHandle = focus::gContext->CreateShaderBuffer(nullptr, 4 * sizeof(float) * 256 * 256, sDesc);
   float *contents = (float *)focus::gContext->MapBufferPtr(sHandle, focus::AccessMode::ReadOnly);

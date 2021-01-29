@@ -185,12 +185,14 @@ ConstantBufferHandle DX11Context::CreateConstantBuffer(void *data, u32 sizeInByt
 
 void *DX11Context::MapBufferPtr(BufferHandle handle, AccessMode accessMode)
 {
-  throw std::logic_error("The method or operation is not implemented.");
+  D3D11_MAPPED_SUBRESOURCE mappedResource;
+  Check(mContext->Map(mSBManager.mBuffers[handle].Get(), 0, D3D11_MAP_READ_WRITE, 0, &mappedResource));
+  return mappedResource.pData;
 }
 
 void DX11Context::UnmapBufferPtr(BufferHandle handle)
 {
-  throw std::logic_error("The method or operation is not implemented.");
+  mContext->Unmap(mSBManager.mBuffers[handle].Get(), 0);
 }
 
 void DX11Context::DestroyVertexBuffer(VertexBufferHandle handle)
@@ -247,12 +249,25 @@ void DX11Context::Draw(Primitive primitive, RenderState renderState, ShaderHandl
 void DX11Context::DispatchCompute(
     u32 xGroups, u32 yGroups, u32 zGroups, ShaderHandle shader, const ComputeState &computeState)
 {
-  throw std::logic_error("The method or operation is not implemented.");
+  auto cs = mShaderManager.GetComputeShader(shader);
+  mContext->CSSetShader(cs, nullptr, 0);
+  for (auto bHandle : computeState.bufferHandles) {
+    auto buffer = mSBManager.mRWResources[bHandle].Get();
+    u32 uavInitialCounts = -1;
+    mContext->CSSetUnorderedAccessViews(0, 1, &buffer, &uavInitialCounts);
+  }
+  for (auto cbHandle : computeState.cbHandles) {
+    // TODO: figure out a good way to do this for different shader stages
+    // TODO: also need to handle when a shader stage takes multible constant buffers
+    auto *cBuffer = mCBManager.Get(cbHandle);
+    mContext->CSSetConstantBuffers(0, 1, &cBuffer);
+  }
+  mContext->Dispatch(xGroups, yGroups, zGroups);
 }
 
 void DX11Context::WaitForMemory(u64 flags)
 {
-  throw std::logic_error("The method or operation is not implemented.");
+  // Not needed for dx11?
 }
 
 void DX11Context::Clear(ClearState clearState)
