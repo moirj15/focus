@@ -9,9 +9,13 @@ ShaderHandle ShaderManager::AddShader(const char *name, const std::string &vSour
 {
   ComPtr<ID3DBlob> vBinary;
   ComPtr<ID3DBlob> vErrors;
+  u32 flags = 0;
+#ifdef _DEBUG
+  flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
   // TODO: better compile error checking
   if (FAILED(D3DCompile(
-          vSource.data(), vSource.size(), nullptr, nullptr, nullptr, "VSMain", "vs_5_0", 0, 0, &vBinary, &vErrors))) {
+          vSource.data(), vSource.size(), nullptr, nullptr, nullptr, "VSMain", "vs_5_0", flags, 0, &vBinary, &vErrors))) {
     printf("VERT ERROR: %s\n", (char *)vErrors->GetBufferPointer());
     assert(0);
   }
@@ -19,7 +23,7 @@ ShaderHandle ShaderManager::AddShader(const char *name, const std::string &vSour
   ComPtr<ID3DBlob> fBinary;
   ComPtr<ID3DBlob> fErrors;
   if (FAILED(D3DCompile(
-          pSource.data(), pSource.size(), nullptr, nullptr, nullptr, "PSMain", "ps_5_0", 0, 0, &fBinary, &fErrors))) {
+          pSource.data(), pSource.size(), nullptr, nullptr, nullptr, "PSMain", "ps_5_0", flags, 0, &fBinary, &fErrors))) {
     printf("VERT ERROR: %s\n", (char *)vErrors->GetBufferPointer());
     assert(0);
   }
@@ -66,8 +70,12 @@ ShaderHandle ShaderManager::AddComputeShader(const char *name, const std::string
 {
   ComPtr<ID3DBlob> cBinary;
   ComPtr<ID3DBlob> cErrors;
+  u32 flags = 0;
+#ifdef _DEBUG
+  flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
   if (FAILED(D3DCompile(
-          source.data(), source.size(), nullptr, nullptr, nullptr, "CSMain", "cs_5_0", 0, 0, &cBinary, &cErrors))) {
+          source.data(), source.size(), nullptr, nullptr, nullptr, "CSMain", "cs_5_0", flags, 0, &cBinary, &cErrors))) {
     printf("Compute ERROR: %s\n", (char *)cErrors->GetBufferPointer());
     assert(0);
   }

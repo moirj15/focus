@@ -1,5 +1,5 @@
 #pragma once
-
+#if 0
 #include "Types.hpp"
 
 #ifdef _WIN32
@@ -19,3 +19,5 @@ struct Window {
 };
 
 } // namespace focus
+
+#endif

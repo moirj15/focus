@@ -7,8 +7,9 @@
 #include <D3dcompiler.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3d11shader.h>
+#include <vector>
 #include <wrl/client.h>
 
 using Microsoft::WRL::ComPtr;
@@ -22,12 +23,17 @@ DX11Context::DX11Context()
 #if defined(DEBUG) || defined(_DEBUG)
   createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
-  D3D_FEATURE_LEVEL desiredLevel[] = {D3D_FEATURE_LEVEL_11_1, D3D_FEATURE_LEVEL_11_0};
+  D3D_FEATURE_LEVEL desiredLevel[] = {D3D_FEATURE_LEVEL_11_1};
   D3D_FEATURE_LEVEL featureLevel;
   // TODO: get latest dx11
-  Check(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, 0, createDeviceFlags, 0, 0, D3D11_SDK_VERSION, &mDevice,
-      &featureLevel, &mContext));
-  assert(featureLevel == D3D_FEATURE_LEVEL_11_0);
+  ID3D11Device *baseDevice;
+  ID3D11DeviceContext *baseContext;
+  Check(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, 0, createDeviceFlags, desiredLevel, 1, D3D11_SDK_VERSION, &baseDevice,
+      &featureLevel, &baseContext));
+  assert(featureLevel == D3D_FEATURE_LEVEL_11_1);
+
+  baseDevice->QueryInterface(__uuidof(ID3D11Device3), &mDevice);
+  baseContext->QueryInterface(__uuidof(ID3D11DeviceContext3), &mContext);
 
   mShaderManager = ShaderManager(mDevice.Get());
   mVBManager = BufferManager<VertexBufferHandle, VertexBufferDescriptor, D3D11_BIND_VERTEX_BUFFER>(mDevice.Get());
@@ -38,13 +44,11 @@ DX11Context::DX11Context()
   // TODO: temporary rasterizer state, should create a manager for this, maybe create a handle type for this?
   // TODO: maybe an internal handle just for tracking this internaly?
   D3D11_RASTERIZER_DESC rasterizerDesc = {
-    .FillMode = D3D11_FILL_SOLID,
-    .CullMode = D3D11_CULL_NONE,
-    .FrontCounterClockwise = true,
+      .FillMode = D3D11_FILL_SOLID,
+      .CullMode = D3D11_CULL_NONE,
+      .FrontCounterClockwise = true,
   };
   mDevice->CreateRasterizerState(&rasterizerDesc, &mRasterizerState);
-
-
 }
 
 void DX11Context::Init()
@@ -178,9 +182,30 @@ BufferHandle DX11Context::CreateShaderBuffer(void *data, u32 sizeInBytes, Shader
   return mSBManager.Create(data, sizeInBytes, descriptor);
 }
 
-ConstantBufferHandle DX11Context::CreateConstantBuffer(void *data, u32 sizeInBytes, ConstantBufferDescriptor descriptor) 
+ConstantBufferHandle DX11Context::CreateConstantBuffer(void *data, u32 sizeInBytes, ConstantBufferDescriptor descriptor)
 {
   return mCBManager.Create(data, sizeInBytes, descriptor);
+}
+
+void DX11Context::UpdateVertexBuffer(VertexBufferHandle handle, void *data, u32 size)
+{
+  mVBManager.Update(handle, data, size);
+}
+void DX11Context::UpdateIndexBuffer(IndexBufferHandle handle, void *data, u32 size)
+{
+  mIBManager.Update(handle, data, size);
+
+}
+void DX11Context::UpdateConstantBuffer(ConstantBufferHandle handle, void *data, u32 size)
+{
+  mCBManager.Update(handle, data, size);
+
+}
+void DX11Context::UpdateShaderBuffer(BufferHandle handle, void *data, u32 size)
+{
+  assert(0);
+//  mSBManager.Update(handle, data, size);
+
 }
 
 void *DX11Context::MapBufferPtr(BufferHandle handle, AccessMode accessMode)
@@ -210,6 +235,11 @@ void DX11Context::DestroyShaderBuffer(BufferHandle handle)
   mSBManager.Destroy(handle);
 }
 
+void DX11Context::DestroyConstantBuffer(ConstantBufferHandle handle)
+{
+  mCBManager.Destroy(handle);
+}
+
 void DX11Context::Draw(Primitive primitive, RenderState renderState, ShaderHandle shader, const SceneState &sceneState)
 {
   // TODO: some kinda state tracking
@@ -222,10 +252,9 @@ void DX11Context::Draw(Primitive primitive, RenderState renderState, ShaderHandl
   mContext->PSSetShader(programs.pixelShader.Get(), nullptr, 0);
 
   mContext->IASetInputLayout(programs.inputLayout.Get());
-  mContext->IASetPrimitiveTopology(PrimitiveToD3D11(primitive));
+  mContext->IASetPrimitiveTopology(utils::PrimitiveToD3D11(primitive));
 
   mContext->RSSetState(mRasterizerState.Get());
-
 
   for (auto vbHandle : sceneState.vbHandles) {
     // TODO: need to start storing the stride in the descriptor or someplace else
@@ -251,11 +280,18 @@ void DX11Context::DispatchCompute(
 {
   auto cs = mShaderManager.GetComputeShader(shader);
   mContext->CSSetShader(cs, nullptr, 0);
+  std::vector<ID3D11ShaderResourceView *> readResources;
+  std::vector<ID3D11UnorderedAccessView *> writeResources;
   for (auto bHandle : computeState.bufferHandles) {
-    auto buffer = mSBManager.mRWResources[bHandle].Get();
-    u32 uavInitialCounts = -1;
-    mContext->CSSetUnorderedAccessViews(0, 1, &buffer, &uavInitialCounts);
+    if (mSBManager.mResources.contains(bHandle)) {
+      readResources.push_back(mSBManager.mResources[bHandle].Get());
+    } else if (mSBManager.mRWResources.contains(bHandle)) {
+      writeResources.push_back(mSBManager.mRWResources[bHandle].Get());
+    }
   }
+  mContext->CSSetShaderResources(0, readResources.size(), readResources.data());
+  u32 uavInitialCounts = -1;
+  mContext->CSSetUnorderedAccessViews(0, writeResources.size(), writeResources.data(), &uavInitialCounts);
   for (auto cbHandle : computeState.cbHandles) {
     // TODO: figure out a good way to do this for different shader stages
     // TODO: also need to handle when a shader stage takes multible constant buffers
@@ -277,14 +313,14 @@ void DX11Context::Clear(ClearState clearState)
   }
   if ((u32)clearState.toClear & (u32)ClearBuffer::DepthStencil) {
     // TODO: need to add a depth to ClearState
-    mContext->ClearDepthStencilView(mDepthStencilView.Get(), ClearBufferToD3D11(clearState.toClear), 1.0f, 0);
+    mContext->ClearDepthStencilView(mDepthStencilView.Get(), utils::ClearBufferToD3D11(clearState.toClear), 1.0f, 0);
   }
 }
 
 void DX11Context::SwapBuffers(const Window &window)
 {
   mSwapChain->Present(1, 0);
-  //SDL_GL_SwapWindow(window.mSDLWindow);
+  // SDL_GL_SwapWindow(window.mSDLWindow);
 }
 
 } // namespace focus::dx11

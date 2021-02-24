@@ -9,6 +9,7 @@ namespace focus
 {
 
 Context *gContext = nullptr;
+RendererAPI sAPI = RendererAPI::Invalid;
 
 void Context::Init(RendererAPI api)
 {
@@ -29,6 +30,13 @@ void Context::Init(RendererAPI api)
 #else
   assert(api != RendererAPI::DX11 || api != RendererAPI::DX12);
 #endif
+  sAPI = api;
+}
+
+std::pair<ID3D11Device*, ID3D11DeviceContext*> GetDeviceAndContext() {
+  assert(sAPI == RendererAPI::DX11);
+  auto *dx11 = (dx11::DX11Context*)gContext;
+  return {dx11->GetDevice(), dx11->GetContext()};
 }
 
 } // namespace focus

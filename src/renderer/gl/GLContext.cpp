@@ -105,6 +105,26 @@ BufferHandle GLContext::CreateShaderBuffer(void *data, u32 sizeInBytes, ShaderBu
   return mSBManager.Create(data, sizeInBytes, descriptor);
 }
 
+void GLContext::UpdateVertexBuffer(VertexBufferHandle handle, void *data, u32 size)
+{
+  assert(0);
+}
+void GLContext::UpdateIndexBuffer(IndexBufferHandle handle, void *data, u32 size)
+{
+
+  assert(0);
+}
+void GLContext::UpdateConstantBuffer(ConstantBufferHandle handle, void *data, u32 size)
+{
+
+  assert(0);
+}
+void GLContext::UpdateShaderBuffer(BufferHandle handle, void *data, u32 size)
+{
+
+  assert(0);
+}
+
 void *GLContext::MapBufferPtr(BufferHandle handle, AccessMode accessMode)
 {
   return glMapNamedBuffer(mSBManager.Get(handle), glUtils::AccessModeToGL(accessMode));
@@ -122,6 +142,10 @@ void GLContext::DestroyIndexBuffer(IndexBufferHandle handle)
 void GLContext::DestroyShaderBuffer(BufferHandle handle)
 {
   mSBManager.Destroy(handle);
+}
+void GLContext::DestroyConstantBuffer(ConstantBufferHandle handle)
+{
+  mCBManager.Destroy(handle);
 }
 
 // TODO: do automatic batching

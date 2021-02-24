@@ -6,6 +6,7 @@
 #include "ShaderManager.hpp"
 
 #include <d3d11.h>
+#include <d3d11_3.h>
 #include <dxgi.h>
 #include <wrl/client.h>
 
@@ -15,8 +16,10 @@ using namespace Microsoft::WRL;
 
 class DX11Context : public Context
 {
-  ComPtr<ID3D11Device> mDevice;
-  ComPtr<ID3D11DeviceContext> mContext;
+  ComPtr<ID3D11Device3> mDevice;
+  ComPtr<ID3D11DeviceContext3> mContext;
+
+private:
   ComPtr<IDXGISwapChain> mSwapChain;
   ComPtr<ID3D11Texture2D> mBackBuffer;
   ComPtr<ID3D11RenderTargetView> mBackBufferRenderTargetView;
@@ -35,6 +38,9 @@ class DX11Context : public Context
 
 public:
   DX11Context();
+
+  inline ID3D11Device *GetDevice() { return mDevice.Get(); }
+  inline ID3D11DeviceContext *GetContext() { return mContext.Get(); }
 
   void Init() override;
 
@@ -55,6 +61,11 @@ public:
 
   BufferHandle CreateShaderBuffer(void *data, u32 sizeInBytes, ShaderBufferDescriptor descriptor) override;
 
+  void UpdateVertexBuffer(VertexBufferHandle handle, void *data, u32 size) override;
+  void UpdateIndexBuffer(IndexBufferHandle handle, void *data, u32 size) override;
+  void UpdateConstantBuffer(ConstantBufferHandle handle, void *data, u32 size) override;
+  void UpdateShaderBuffer(BufferHandle handle, void *data, u32 size) override;
+
   void *MapBufferPtr(BufferHandle handle, AccessMode accessMode) override;
 
   void UnmapBufferPtr(BufferHandle handle) override;
@@ -64,6 +75,7 @@ public:
   void DestroyIndexBuffer(IndexBufferHandle handle) override;
 
   void DestroyShaderBuffer(BufferHandle handle) override;
+  void DestroyConstantBuffer(ConstantBufferHandle handle) override;
 
   void Draw(Primitive primitive, RenderState renderState, ShaderHandle shader, const SceneState &sceneState) override;
 

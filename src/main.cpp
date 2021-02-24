@@ -83,6 +83,7 @@ void ComputeTest(const focus::Window &window)
       .name = "color_buf",
       .slot = 0,
       .accessMode = focus::AccessMode::WriteOnly,
+      .types = { focus::VarType::Float },
   };
   auto sHandle = focus::gContext->CreateShaderBuffer(nullptr, 4 * sizeof(float) * 256 * 256, sDesc);
   float *contents = (float *)focus::gContext->MapBufferPtr(sHandle, focus::AccessMode::ReadOnly);

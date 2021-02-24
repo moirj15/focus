@@ -1,8 +1,8 @@
 #pragma once
 #include <cstdint>
 #include <string>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 typedef uint8_t u8;
 typedef uint16_t u16;
@@ -16,6 +16,8 @@ typedef float f32;
 typedef double f64;
 
 struct SDL_Window;
+struct ID3D11Device;
+struct ID3D11DeviceContext;
 namespace focus
 {
 
@@ -35,9 +37,17 @@ enum class AccessMode {
 
 enum class VarType {
   Float,
+  Int,
+  UInt,
   Vec2,
   Vec3,
   Vec4,
+  Int2,
+  Int3,
+  Int4,
+  UInt2,
+  UInt3,
+  UInt4,
   Mat2,
   Mat3,
   Mat4,
@@ -140,34 +150,50 @@ enum class BufferType {
   Combined,    // (vvvnnnttt)
 };
 
-enum class IndexBufferType { U8, U16, U32, };
+enum class IndexBufferType {
+  U8,
+  U16,
+  U32,
+};
 
+enum class BufferUsage {
+  Default,
+  Dynamic,
+  Static,
+  Staging,
+};
+
+// TODO: consider different ways of defining these types since they are fairly similar
 // TODO: handle various buffer types (offsets, types, etc)
 struct VertexBufferDescriptor {
   std::string inputDescriptorName;
   BufferType bufferType;
   VarType type;
   u32 sizeInBytes;
+  BufferUsage usage;
 };
-
 
 struct IndexBufferDescriptor {
   IndexBufferType type;
   u32 sizeInBytes;
+  BufferUsage usage;
 };
 
 struct ConstantBufferDescriptor {
   std::string name;
   std::vector<VarType> types; // TODO: consider if this is necessary
   u32 slot;
+  BufferUsage usage;
+  u32 sizeInBytes;
 };
 
 struct ShaderBufferDescriptor {
   std::string name;
   u32 slot;
   AccessMode accessMode;
+  std::vector<VarType> types;
+  BufferUsage usage;
 };
-
 
 struct InputBufferDescriptor {
   std::string name; // name of the variable, not the semantic used.
@@ -344,8 +370,14 @@ public:
   // Buffer Creation
   virtual VertexBufferHandle CreateVertexBuffer(void *data, u32 sizeInBytes, VertexBufferDescriptor descriptor) = 0;
   virtual IndexBufferHandle CreateIndexBuffer(void *data, u32 sizeInBytes, IndexBufferDescriptor descriptor) = 0;
-  virtual ConstantBufferHandle CreateConstantBuffer(void *data, u32 sizeInBytes, ConstantBufferDescriptor descriptor) = 0;
+  virtual ConstantBufferHandle CreateConstantBuffer(
+      void *data, u32 sizeInBytes, ConstantBufferDescriptor descriptor) = 0;
   virtual BufferHandle CreateShaderBuffer(void *data, u32 sizeInBytes, ShaderBufferDescriptor descriptor) = 0;
+
+  virtual void UpdateVertexBuffer(VertexBufferHandle handle, void *data, u32 size) = 0;
+  virtual void UpdateIndexBuffer(IndexBufferHandle handle, void *data, u32 size) = 0;
+  virtual void UpdateConstantBuffer(ConstantBufferHandle handle, void *data, u32 size) = 0;
+  virtual void UpdateShaderBuffer(BufferHandle handle, void *data, u32 size) = 0;
 
   // Buffer Access
   // TODO: add partial buffer access too
@@ -358,6 +390,7 @@ public:
   virtual void DestroyVertexBuffer(VertexBufferHandle handle) = 0;
   virtual void DestroyIndexBuffer(IndexBufferHandle handle) = 0;
   virtual void DestroyShaderBuffer(BufferHandle handle) = 0;
+  virtual void DestroyConstantBuffer(ConstantBufferHandle handle) = 0;
 
   // Draw call submission
   virtual void Draw(
@@ -376,5 +409,12 @@ public:
   virtual void SwapBuffers(const Window &window) = 0;
 };
 extern Context *gContext;
+
+/**
+ * @brief Returns the Device and DeviceContext as a pair. Will fail if the api used isn't dx11.
+ *
+ * @return std::pair<ID3D11Device*, ID3D11DeviceContext*>
+ */
+std::pair<ID3D11Device *, ID3D11DeviceContext *> GetDeviceAndContext();
 
 } // namespace focus
