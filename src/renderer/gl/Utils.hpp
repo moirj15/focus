@@ -1,8 +1,6 @@
 #pragma once
 
-#include "../Interface/IBuffer.hpp"
-#include "../Interface/RenderState.hpp"
-#include "../Interface/Types.hpp"
+#include "../Interface/Context.hpp"
 #include "glad.h"
 
 typedef unsigned int GLenum;

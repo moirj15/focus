@@ -12,13 +12,14 @@ file(GLOB RENDERER_SRC CONFIGURE_DEPENDS "src/renderer/*")
 file(GLOB RENDERER_VULKAN_SRC CONFIGURE_DEPENDS "src/renderer/vk/*")
 file(GLOB RENDERER_OPENGL_SRC CONFIGURE_DEPENDS "src/renderer/gl/*")
 file(GLOB RENDERER_DX11_SRC CONFIGURE_DEPENDS "src/renderer/dx11/*")
+file(GLOB RENDERER_DX12_SRC CONFIGURE_DEPENDS "src/renderer/dx12/*")
 file(GLOB RENDERER_INTERFACE_SRC CONFIGURE_DEPENDS "src/renderer/Interface/*")
 file(GLOB RENDERER_INTERFACE_HEADERS CONFIGURE_DEPENDS "src/renderer/Interface/*.hpp")
 include_directories(
         ${CMAKE_SOURCE_DIR}/include;
 )
 
-add_library(focus STATIC ${RENDERER_INTERFACE_SRC} ${RENDERER_OPENGL_SRC})
+add_library(focus STATIC ${RENDERER_INTERFACE_SRC} ${RENDERER_OPENGL_SRC} ${RENDERER_DX11_SRC})
 install(TARGETS focus DESTINATION ${CMAKE_SOURCE_DIR}/lib)
 install(FILES ${RENDERER_INTERFACE_HEADERS} DESTINATION ${CMAKE_SOURCE_DIR}/pub_include)
 if (WIN32)
@@ -28,9 +29,11 @@ if (WIN32)
             ${RENDERER_SRC}
 #            ${RENDERER_VULKAN_SRC}
             ${RENDERER_OPENGL_SRC}
-#            ${RENDERER_DX11_SRC}
+            ${RENDERER_DX11_SRC}
+            ${RENDERER_DX12_SRC}
             ${RENDERER_INTERFACE_SRC}
     )
+    target_link_directories(focus_main PUBLIC ${CMAKE_SOURCE_DIR}/libs/windows)
     set_target_properties(
         focus_main PROPERTIES
         VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
@@ -69,6 +72,7 @@ if (WIN32)
             libcmt.lib
             dxgi.lib
             d3dcompiler.lib
+            dxguid.lib
             winmm.lib
             gdi32
             opengl32

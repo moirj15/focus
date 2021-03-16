@@ -1,9 +1,10 @@
 #pragma once
-
+#if 0
 #include "Types.hpp"
 #include "Handles.hpp"
 
 #include <string>
+
 
 namespace focus
 {
@@ -41,3 +42,4 @@ enum class AccessMode {
 
 
 } // namespace renderer
+#endif
