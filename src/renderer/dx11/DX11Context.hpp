@@ -66,6 +66,8 @@ public:
   void UpdateConstantBuffer(ConstantBufferHandle handle, void *data, u32 size) override;
   void UpdateShaderBuffer(BufferHandle handle, void *data, u32 size) override;
 
+  std::vector<u8> ReadShaderBuffer(BufferHandle handle) override;
+
   void *MapBufferPtr(BufferHandle handle, AccessMode accessMode) override;
 
   void UnmapBufferPtr(BufferHandle handle) override;
@@ -87,6 +89,8 @@ public:
   void Clear(ClearState clearState = {}) override;
 
   void SwapBuffers(const Window &window) override;
+
+
 };
 
 } // namespace focus::dx11

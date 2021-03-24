@@ -46,6 +46,7 @@ public:
   void *MapBufferPtr(BufferHandle handle, AccessMode accessMode) override;
   void UnmapBufferPtr(BufferHandle handle) override;
 
+  std::vector<u8> ReadShaderBuffer(BufferHandle handle) override;
   // Buffer Destruction
 
   void DestroyVertexBuffer(VertexBufferHandle handle) override;
@@ -65,6 +66,8 @@ public:
   void Clear(ClearState clearState = {}) override;
 
   void SwapBuffers(const Window &window) override;
+
+
 };
 
 } // namespace focus

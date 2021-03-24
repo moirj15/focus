@@ -124,6 +124,10 @@ void GLContext::UpdateShaderBuffer(BufferHandle handle, void *data, u32 size)
 
   assert(0);
 }
+std::vector<u8> GLContext::ReadShaderBuffer(BufferHandle handle)
+{
+  throw std::logic_error("The method or operation is not implemented.");
+}
 
 void *GLContext::MapBufferPtr(BufferHandle handle, AccessMode accessMode)
 {
@@ -251,5 +255,6 @@ void GLContext::SwapBuffers(const Window &window)
 {
   SDL_GL_SwapWindow(window.mSDLWindow);
 }
+
 
 } // namespace focus
