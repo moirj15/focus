@@ -110,6 +110,30 @@ BufferHandle GLContext::CreateShaderBuffer(void *data, u32 sizeInBytes, ShaderBu
   return mSBManager.Create(data, sizeInBytes, descriptor);
 }
 
+void GLContext::UpdateVertexBuffer(VertexBufferHandle handle, void *data, u32 size)
+{
+  assert(0);
+}
+void GLContext::UpdateIndexBuffer(IndexBufferHandle handle, void *data, u32 size)
+{
+
+  assert(0);
+}
+void GLContext::UpdateConstantBuffer(ConstantBufferHandle handle, void *data, u32 size)
+{
+
+  assert(0);
+}
+void GLContext::UpdateShaderBuffer(BufferHandle handle, void *data, u32 size)
+{
+
+  assert(0);
+}
+std::vector<u8> GLContext::ReadShaderBuffer(BufferHandle handle)
+{
+  throw std::logic_error("The method or operation is not implemented.");
+}
+
 ConstantBufferHandle GLContext::CreateConstantBuffer(void *data, u32 sizeInBytes, ConstantBufferDescriptor descriptor)
 {
   return mCBManager.Create(data, sizeInBytes, descriptor);
@@ -127,6 +151,15 @@ void GLContext::UnmapBufferPtr(BufferHandle handle)
 void GLContext::DestroyIndexBuffer(IndexBufferHandle handle)
 {
   mIBManager.Destroy(handle);
+}
+
+void GLContext::DestroyShaderBuffer(BufferHandle handle)
+{
+  mSBManager.Destroy(handle);
+}
+void GLContext::DestroyConstantBuffer(ConstantBufferHandle handle)
+{
+  mCBManager.Destroy(handle);
 }
 
 // TODO: do automatic batching
@@ -188,11 +221,11 @@ void GLContext::Draw(Primitive primitive, RenderState renderState, ShaderHandle 
     const auto &inputDesc = shaderInfo.mInputBufferDescriptors[vbDesc.inputDescriptorName];
     u32 glVBHandle = mVBManager.Get(vbHandle);
     glBindBuffer(GL_ARRAY_BUFFER, glVBHandle);
-    glEnableVertexAttribArray(inputDesc.mSlot);
+    glEnableVertexAttribArray(inputDesc.slot);
 
     // glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, (const void *)0);
-    glVertexAttribPointer(inputDesc.mSlot, glUtils::VarTypeToSlotSizeGL(inputDesc.mType),
-        glUtils::VarTypeToIndividualTypeGL(inputDesc.mType), false, 0, (const void *)0);
+    glVertexAttribPointer(inputDesc.slot, glUtils::VarTypeToSlotSizeGL(inputDesc.type),
+        glUtils::VarTypeToIndividualTypeGL(inputDesc.type), false, 0, (const void *)0);
   }
   // setup all the uniform buffers
   for (const auto &cbHandle : sceneState.cbHandles) {
@@ -244,5 +277,6 @@ void GLContext::SwapBuffers(const Window &window)
 {
   SDL_GL_SwapWindow(window.mSDLWindow);
 }
+
 
 } // namespace focus

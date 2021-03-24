@@ -1,12 +1,22 @@
 [
 {
-  "directory": "/home/moirj15/Documents/cpp/IPhysics/focus/build",
-  "command": "/usr/bin/c++   -I/home/moirj15/Documents/cpp/IPhysics/focus/include  -std=c++2a -g -Wall -Wextra -pedantic -D_DEBUG -DGLFW_INCLUDE_NONE -DRENDERER_OPENGL -DGLFW_INCLUDE_VULKAN   -o CMakeFiles/vkRenderer.dir/Unity/unity_0_cxx.cxx.o -c /home/moirj15/Documents/cpp/IPhysics/focus/build/CMakeFiles/vkRenderer.dir/Unity/unity_0_cxx.cxx",
-  "file": "/home/moirj15/Documents/cpp/IPhysics/focus/build/CMakeFiles/vkRenderer.dir/Unity/unity_0_cxx.cxx"
+  "directory": "E:/projects/focus/out/build/x64-Debug (default)",
+  "command": "C:\\PROGRA~2\\MICROS~1\\2019\\COMMUN~1\\VC\\Tools\\MSVC\\1428~1.293\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -I..\\..\\..\\include -I..\\..\\..\\src\\renderer\\Interface\\Context.cpp -I..\\..\\..\\src\\renderer\\Interface\\Context.hpp -I..\\..\\..\\src\\renderer\\Interface\\Handles.hpp -I..\\..\\..\\src\\renderer\\Interface\\IBuffer.hpp -I..\\..\\..\\src\\renderer\\Interface\\IShader.hpp -I..\\..\\..\\src\\renderer\\Interface\\RenderState.hpp -I..\\..\\..\\src\\renderer\\Interface\\Types.hpp -I..\\..\\..\\src\\renderer\\Interface\\Window.hpp /std:c++latest /MTd /MP /TP /W3 -D_CRT_SECURE_NO_WARNINGS -DGLEW_STATIC -DGLFW_INCLUDE_NONE -DRENDERER_OPENGL /MTd /Zi /Ob0 /Od /RTC1 -DGLFW_INCLUDE_NONE -D_DEBUG /FoCMakeFiles\\focus.dir\\Unity\\unity_0_cxx.cxx.obj /FdTARGET_COMPILE_PDB /FS -c \"E:\\projects\\focus\\out\\build\\x64-Debug (default)\\CMakeFiles\\focus.dir\\Unity\\unity_0_cxx.cxx\"",
+  "file": "E:/projects/focus/out/build/x64-Debug (default)/CMakeFiles/focus.dir/Unity/unity_0_cxx.cxx"
 },
 {
-  "directory": "/home/moirj15/Documents/cpp/IPhysics/focus/build",
-  "command": "/usr/bin/cc  -I/home/moirj15/Documents/cpp/IPhysics/focus/include    -o CMakeFiles/vkRenderer.dir/Unity/unity_0_c.c.o   -c /home/moirj15/Documents/cpp/IPhysics/focus/build/CMakeFiles/vkRenderer.dir/Unity/unity_0_c.c",
-  "file": "/home/moirj15/Documents/cpp/IPhysics/focus/build/CMakeFiles/vkRenderer.dir/Unity/unity_0_c.c"
+  "directory": "E:/projects/focus/out/build/x64-Debug (default)",
+  "command": "C:\\PROGRA~2\\MICROS~1\\2019\\COMMUN~1\\VC\\Tools\\MSVC\\1428~1.293\\bin\\Hostx64\\x64\\cl.exe  /nologo -I..\\..\\..\\include -I..\\..\\..\\src\\renderer\\Interface\\Context.cpp -I..\\..\\..\\src\\renderer\\Interface\\Context.hpp -I..\\..\\..\\src\\renderer\\Interface\\Handles.hpp -I..\\..\\..\\src\\renderer\\Interface\\IBuffer.hpp -I..\\..\\..\\src\\renderer\\Interface\\IShader.hpp -I..\\..\\..\\src\\renderer\\Interface\\RenderState.hpp -I..\\..\\..\\src\\renderer\\Interface\\Types.hpp -I..\\..\\..\\src\\renderer\\Interface\\Window.hpp /DWIN32 /D_WINDOWS /W3 /MTd /Zi /Ob0 /Od /RTC1 /FoCMakeFiles\\focus.dir\\Unity\\unity_0_c.c.obj /FdTARGET_COMPILE_PDB /FS -c \"E:\\projects\\focus\\out\\build\\x64-Debug (default)\\CMakeFiles\\focus.dir\\Unity\\unity_0_c.c\"",
+  "file": "E:/projects/focus/out/build/x64-Debug (default)/CMakeFiles/focus.dir/Unity/unity_0_c.c"
+},
+{
+  "directory": "E:/projects/focus/out/build/x64-Debug (default)",
+  "command": "C:\\PROGRA~2\\MICROS~1\\2019\\COMMUN~1\\VC\\Tools\\MSVC\\1428~1.293\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -I..\\..\\..\\include /std:c++latest /MTd /MP /TP /W3 -D_CRT_SECURE_NO_WARNINGS -DGLEW_STATIC -DGLFW_INCLUDE_NONE -DRENDERER_OPENGL /MTd /Zi /Ob0 /Od /RTC1 -DGLFW_INCLUDE_NONE -D_DEBUG /FoCMakeFiles\\focus_main.dir\\Unity\\unity_0_cxx.cxx.obj /FdTARGET_COMPILE_PDB /FS -c \"E:\\projects\\focus\\out\\build\\x64-Debug (default)\\CMakeFiles\\focus_main.dir\\Unity\\unity_0_cxx.cxx\"",
+  "file": "E:/projects/focus/out/build/x64-Debug (default)/CMakeFiles/focus_main.dir/Unity/unity_0_cxx.cxx"
+},
+{
+  "directory": "E:/projects/focus/out/build/x64-Debug (default)",
+  "command": "C:\\PROGRA~2\\MICROS~1\\2019\\COMMUN~1\\VC\\Tools\\MSVC\\1428~1.293\\bin\\Hostx64\\x64\\cl.exe  /nologo -I..\\..\\..\\include /DWIN32 /D_WINDOWS /W3 /MTd /Zi /Ob0 /Od /RTC1 /FoCMakeFiles\\focus_main.dir\\Unity\\unity_0_c.c.obj /FdTARGET_COMPILE_PDB /FS -c \"E:\\projects\\focus\\out\\build\\x64-Debug (default)\\CMakeFiles\\focus_main.dir\\Unity\\unity_0_c.c\"",
+  "file": "E:/projects/focus/out/build/x64-Debug (default)/CMakeFiles/focus_main.dir/Unity/unity_0_c.c"
 }
 ]

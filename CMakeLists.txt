@@ -9,16 +9,69 @@ set(SRC
         src/common.h
         )
 file(GLOB RENDERER_SRC CONFIGURE_DEPENDS "src/renderer/*")
+
+# Opengl Backend
+set(OPENGL_BACKEND_DIR ${CMAKE_SOURCE_DIR}/src/renderer/gl)
+set(OPENGL_BACKEND_SRC
+        ${OPENGL_BACKEND_DIR}/Buffer.cpp
+        ${OPENGL_BACKEND_DIR}/BufferManager.cpp
+        ${OPENGL_BACKEND_DIR}/GLContext.cpp
+        ${OPENGL_BACKEND_DIR}/ShaderManager.cpp
+        ${OPENGL_BACKEND_DIR}/Buffer.cpp
+        ${OPENGL_BACKEND_DIR}/glad.c
+        )
+set(OPENGL_BACKEND_HEADERS
+        ${OPENGL_BACKEND_DIR}/Buffer.hpp
+        ${OPENGL_BACKEND_DIR}/BufferManager.hpp
+        ${OPENGL_BACKEND_DIR}/GLContext.hpp
+        ${OPENGL_BACKEND_DIR}/ShaderManager.hpp
+        ${OPENGL_BACKEND_DIR}/Buffer.hpp
+        ${OPENGL_BACKEND_DIR}/Utils.hpp
+        ${OPENGL_BACKEND_DIR}/Types.hpp
+        ${OPENGL_BACKEND_DIR}/glad.h
+        )
+
+# vulkan backend
 file(GLOB RENDERER_VULKAN_SRC CONFIGURE_DEPENDS "src/renderer/vk/*")
-file(GLOB RENDERER_OPENGL_SRC CONFIGURE_DEPENDS "src/renderer/gl/*")
-file(GLOB RENDERER_DX11_SRC CONFIGURE_DEPENDS "src/renderer/dx11/*")
-file(GLOB RENDERER_INTERFACE_SRC CONFIGURE_DEPENDS "src/renderer/Interface/*")
-file(GLOB RENDERER_INTERFACE_HEADERS CONFIGURE_DEPENDS "src/renderer/Interface/*.hpp")
+
+# DX11 backend
+
+set(DX11_BACKEND_DIR ${CMAKE_SOURCE_DIR}/src/renderer/dx11)
+set(DX11_BACKEND_SRC
+        ${DX11_BACKEND_DIR}/DX11Context.cpp
+        ${DX11_BACKEND_DIR}/ShaderManager.cpp
+        )
+set(DX11_BACKEND_HEADERS
+        ${DX11_BACKEND_DIR}/DX11Context.hpp
+        ${DX11_BACKEND_DIR}/ShaderManager.hpp
+        ${DX11_BACKEND_DIR}/BufferManager.hpp
+        ${DX11_BACKEND_DIR}/ShaderBufferManager.hpp
+        ${DX11_BACKEND_DIR}/Types.hpp
+        ${DX11_BACKEND_DIR}/Utils.hpp
+        )
+
+# DX12 backend
+file(GLOB RENDERER_DX12_SRC CONFIGURE_DEPENDS "src/renderer/dx12/*")
+
+# Interface
+set(INTERFACE_DIR ${CMAKE_SOURCE_DIR}/src/renderer/interface)
+set(INTERFACE_SRC
+        ${INTERFACE_DIR}/Context.cpp)
+set(INTERFACE_HEADERS
+        ${INTERFACE_DIR}/Context.hpp)
+
 include_directories(
         ${CMAKE_SOURCE_DIR}/include;
 )
 
-add_library(focus STATIC ${RENDERER_INTERFACE_SRC} ${RENDERER_OPENGL_SRC})
+add_library(focus STATIC
+        ${INTERFACE_SRC}
+        ${INTERFACE_HEADERS}
+        ${OPENGL_BACKEND_SRC}
+        ${OPENGL_BACKEND_HEADERS}
+        ${DX11_BACKEND_SRC}
+        ${DX11_BACKEND_SRC}
+        )
 install(TARGETS focus DESTINATION ${CMAKE_SOURCE_DIR}/lib)
 install(FILES ${RENDERER_INTERFACE_HEADERS} DESTINATION ${CMAKE_SOURCE_DIR}/pub_include)
 if (WIN32)
@@ -26,14 +79,18 @@ if (WIN32)
             focus_main
             ${SRC}
             ${RENDERER_SRC}
-#            ${RENDERER_VULKAN_SRC}
-            ${RENDERER_OPENGL_SRC}
-#            ${RENDERER_DX11_SRC}
-            ${RENDERER_INTERFACE_SRC}
+            ${OPENGL_BACKEND_SRC}
+            ${OPENGL_BACKEND_HEADERS}
+            ${DX11_BACKEND_SRC}
+            ${DX11_BACKEND_SRC}
+            ${RENDERER_DX12_SRC}
+            ${INTERFACE_SRC}
+            ${INTERFACE_HEADERS}
     )
+    target_link_directories(focus_main PUBLIC ${CMAKE_SOURCE_DIR}/libs/windows)
     set_target_properties(
-        focus_main PROPERTIES
-        VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
+            focus_main PROPERTIES
+            VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
     target_include_directories(focus PUBLIC ${RENDERER_INTERFACE_SRC})
     message("WINDOWS BUILD")
     message("${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
@@ -48,16 +105,16 @@ if (WIN32)
             CMAKE_C_FLAGS_DEBUG
             CMAKE_C_FLAGS_RELEASE
             )
-    foreach(CompilerFlag ${CompilerFlags})
+    foreach (CompilerFlag ${CompilerFlags})
         string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
         string(REPLACE "/MDd" "/MTd" ${CompilerFlag} "${${CompilerFlag}}")
-    endforeach()
+    endforeach ()
 
     find_package(OpenGL REQUIRED)
     target_link_libraries(
             focus_main
             Setupapi.lib
-#            ${CMAKE_SOURCE_DIR}/libs/windows/vulkan-1.lib
+            #            ${CMAKE_SOURCE_DIR}/libs/windows/vulkan-1.lib
             ${CMAKE_SOURCE_DIR}/libs/windows/SDL2-static.lib
             ${CMAKE_SOURCE_DIR}/libs/windows/SDL2main.lib
             msvcrtd.lib
@@ -69,6 +126,7 @@ if (WIN32)
             libcmt.lib
             dxgi.lib
             d3dcompiler.lib
+            dxguid.lib
             winmm.lib
             gdi32
             opengl32
