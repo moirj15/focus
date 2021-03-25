@@ -22,7 +22,7 @@ struct BufferManager {
   ID3D11DeviceContext *mContext;
 
   BufferManager() = default; // TODO: temp hack for constructing D3D11Context
-  BufferManager(ID3D11Device *device) : mDevice(device) {}
+  BufferManager(ID3D11Device *device, ID3D11DeviceContext *context) : mDevice(device), mContext(context) {}
 
   inline HandleType Create(void *data, u32 sizeInBytes, DescriptorType descriptor)
   {
@@ -58,15 +58,16 @@ struct BufferManager {
     auto descriptor = mDescriptors[handle];
     if (descriptor.sizeInBytes < sizeInBytes) {
       buffer.Reset();
+      descriptor.sizeInBytes = sizeInBytes;
       Create(data, sizeInBytes, descriptor, handle);
     } else {
       D3D11_MAPPED_SUBRESOURCE mappedResource;
-      Check(mContext->Map(buffer.Get(), 0, D3D11_MAP_READ_WRITE, 0, &mappedResource));
+      Check(mContext->Map(buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
       auto *mappedData = (u8*)mappedResource.pData;
       for (u32 i = 0; i < sizeInBytes; i += mappedResource.RowPitch) {
         memcpy(((u8*)mappedResource.pData) + i, ((u8*)data) + i, mappedResource.RowPitch);
       }
-      mContext->Unmap(mBuffers[handle].Get(), 0);
+      mContext->Unmap(buffer.Get(), 0);
     }
   }
 

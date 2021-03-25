@@ -36,10 +36,10 @@ DX11Context::DX11Context()
   baseContext->QueryInterface(__uuidof(ID3D11DeviceContext3), &mContext);
 
   mShaderManager = ShaderManager(mDevice.Get());
-  mVBManager = BufferManager<VertexBufferHandle, VertexBufferDescriptor, D3D11_BIND_VERTEX_BUFFER>(mDevice.Get());
-  mIBManager = BufferManager<IndexBufferHandle, IndexBufferDescriptor, D3D11_BIND_INDEX_BUFFER>(mDevice.Get());
-  mCBManager = BufferManager<ConstantBufferHandle, ConstantBufferDescriptor, D3D11_BIND_CONSTANT_BUFFER>(mDevice.Get());
-  mSBManager = ShaderBufferManager(mDevice.Get());
+  mVBManager = BufferManager<VertexBufferHandle, VertexBufferDescriptor, D3D11_BIND_VERTEX_BUFFER>(mDevice.Get(), mContext.Get());
+  mIBManager = BufferManager<IndexBufferHandle, IndexBufferDescriptor, D3D11_BIND_INDEX_BUFFER>(mDevice.Get(), mContext.Get());
+  mCBManager = BufferManager<ConstantBufferHandle, ConstantBufferDescriptor, D3D11_BIND_CONSTANT_BUFFER>(mDevice.Get(), mContext.Get());
+  mSBManager = ShaderBufferManager(mDevice.Get(), mContext.Get());
 
   // TODO: temporary rasterizer state, should create a manager for this, maybe create a handle type for this?
   // TODO: maybe an internal handle just for tracking this internaly?
@@ -203,9 +203,12 @@ void DX11Context::UpdateConstantBuffer(ConstantBufferHandle handle, void *data, 
 }
 void DX11Context::UpdateShaderBuffer(BufferHandle handle, void *data, u32 size)
 {
-  assert(0);
-//  mSBManager.Update(handle, data, size);
+  mSBManager.Update(handle, data, size);
+}
 
+std::vector<u8> DX11Context::ReadShaderBuffer(BufferHandle handle)
+{
+  return mSBManager.ReadAll(handle);
 }
 
 void *DX11Context::MapBufferPtr(BufferHandle handle, AccessMode accessMode)
@@ -322,5 +325,6 @@ void DX11Context::SwapBuffers(const Window &window)
   mSwapChain->Present(1, 0);
   // SDL_GL_SwapWindow(window.mSDLWindow);
 }
+
 
 } // namespace focus::dx11

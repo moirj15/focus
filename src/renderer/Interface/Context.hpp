@@ -193,6 +193,7 @@ struct ShaderBufferDescriptor {
   AccessMode accessMode;
   std::vector<VarType> types;
   BufferUsage usage;
+  u32 sizeInBytes;
 };
 
 struct InputBufferDescriptor {
@@ -379,6 +380,8 @@ public:
   virtual void UpdateIndexBuffer(IndexBufferHandle handle, void *data, u32 size) = 0;
   virtual void UpdateConstantBuffer(ConstantBufferHandle handle, void *data, u32 size) = 0;
   virtual void UpdateShaderBuffer(BufferHandle handle, void *data, u32 size) = 0;
+
+  virtual std::vector<u8> ReadShaderBuffer(BufferHandle handle) = 0;
 
   // Buffer Access
   // TODO: add partial buffer access too

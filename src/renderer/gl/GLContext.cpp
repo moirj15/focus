@@ -105,11 +105,6 @@ IndexBufferHandle GLContext::CreateIndexBuffer(void *data, u32 sizeInBytes, Inde
   return mIBManager.Create(data, sizeInBytes, descriptor);
 }
 
-ConstantBufferHandle GLContext::CreateConstantBuffer(void *data, u32 sizeInBytes, ConstantBufferDescriptor descriptor)
-{
-  return INVALID_HANDLE; 
-}
-
 BufferHandle GLContext::CreateShaderBuffer(void *data, u32 sizeInBytes, ShaderBufferDescriptor descriptor)
 {
   return mSBManager.Create(data, sizeInBytes, descriptor);
@@ -133,6 +128,15 @@ void GLContext::UpdateShaderBuffer(BufferHandle handle, void *data, u32 size)
 {
 
   assert(0);
+}
+std::vector<u8> GLContext::ReadShaderBuffer(BufferHandle handle)
+{
+  throw std::logic_error("The method or operation is not implemented.");
+}
+
+ConstantBufferHandle GLContext::CreateConstantBuffer(void *data, u32 sizeInBytes, ConstantBufferDescriptor descriptor)
+{
+  return mCBManager.Create(data, sizeInBytes, descriptor);
 }
 
 void *GLContext::MapBufferPtr(BufferHandle handle, AccessMode accessMode)
@@ -252,7 +256,8 @@ void GLContext::DispatchCompute(
   glUseProgram(program);
   for (auto bufferHandle : computeState.bufferHandles) {
     const auto &bufferDesc = mSBManager.mDescriptors[bufferHandle];
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, bufferDesc.slot, mSBManager.Get(bufferHandle));
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, mSBManager.Get(bufferHandle));
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, bufferDesc.mSlot, mSBManager.Get(bufferHandle));
   }
   for (const auto &cbHandle : computeState.cbHandles) {
     const auto &cbDesc = mCBManager.mDescriptors[cbHandle];
@@ -272,5 +277,6 @@ void GLContext::SwapBuffers(const Window &window)
 {
   SDL_GL_SwapWindow(window.mSDLWindow);
 }
+
 
 } // namespace focus

@@ -48,6 +48,7 @@ public:
   void *MapBufferPtr(BufferHandle handle, AccessMode accessMode) override;
   void UnmapBufferPtr(BufferHandle handle) override;
 
+  std::vector<u8> ReadShaderBuffer(BufferHandle handle) override;
   // Buffer Destruction
 
   void DestroyVertexBuffer(VertexBufferHandle handle) override;
