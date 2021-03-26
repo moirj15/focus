@@ -166,10 +166,11 @@ enum class BufferUsage {
 // TODO: consider different ways of defining these types since they are fairly similar
 // TODO: handle various buffer types (offsets, types, etc)
 struct VertexBufferDescriptor {
-  std::string inputDescriptorName;
+  std::vector<std::string> inputDescriptorName;
   BufferType bufferType;
-  VarType type;
+  std::vector<VarType> types;
   u32 sizeInBytes;
+  u32 elementSizeInBytes;
   BufferUsage usage;
 };
 
@@ -374,7 +375,6 @@ public:
   virtual ConstantBufferHandle CreateConstantBuffer(
       void *data, u32 sizeInBytes, ConstantBufferDescriptor descriptor) = 0;
   virtual BufferHandle CreateShaderBuffer(void *data, u32 sizeInBytes, ShaderBufferDescriptor descriptor) = 0;
-  virtual ConstantBufferHandle CreateConstantBuffer(void *data, u32 sizeInBytes, ConstantBufferDescriptor descriptor) = 0;
 
   virtual void UpdateVertexBuffer(VertexBufferHandle handle, void *data, u32 size) = 0;
   virtual void UpdateIndexBuffer(IndexBufferHandle handle, void *data, u32 size) = 0;

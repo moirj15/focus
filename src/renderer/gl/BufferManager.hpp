@@ -37,7 +37,7 @@ struct BufferManager {
   {
     auto bufferHandle = mHandles[handle];
     auto descriptor = mDescriptors[handle];
-    assert(descriptor.mSizeInBytes >= (sizeInBytes + offsetInBytes));
+    assert(descriptor.sizeInBytes >= (sizeInBytes + offsetInBytes));
     glBindBuffer(GL_ARRAY_BUFFER, bufferHandle);
     glBufferSubData(GL_ARRAY_BUFFER, offsetInBytes, sizeInBytes, data);
   }

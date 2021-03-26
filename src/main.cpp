@@ -8,8 +8,8 @@
 void TriangleTest(const focus::Window &window)
 {
   auto handle = focus::gContext->CreateShaderFromSource("UniformColor",
-      utils::ReadEntireFileAsString("shaders/dx11/UniformColorVS.hlsl"),
-      utils::ReadEntireFileAsString("shaders/dx11/UniformColorPS.hlsl"));
+      utils::ReadEntireFileAsString("shaders/gl/UniformColor.vert"),
+      utils::ReadEntireFileAsString("shaders/gl/UniformColor.frag"));
 
   f32 points[] = {
       0.0f,
@@ -33,9 +33,9 @@ void TriangleTest(const focus::Window &window)
   };
 
   focus::VertexBufferDescriptor vbDescriptor = {
-      .inputDescriptorName = "aPosition",
+      .inputDescriptorName = {"aPosition"},
       .bufferType = focus::BufferType::SingleType,
-      .type = focus::VarType::Float,
+      .types = {focus::VarType::Vec3},
       .sizeInBytes = sizeof(points),
   };
 
@@ -52,6 +52,65 @@ void TriangleTest(const focus::Window &window)
   focus::SceneState sceneState = {
       .vbHandles = {focus::gContext->CreateVertexBuffer(points, sizeof(points), vbDescriptor)},
       .cbHandles = {focus::gContext->CreateConstantBuffer(mvp, sizeof(mvp), mvpDesc)},
+      .ibHandle = focus::gContext->CreateIndexBuffer(indices, sizeof(indices), ibDescriptor),
+      .indexed = true,
+  };
+
+
+  bool keepWindowOpen = true;
+  SDL_Event e;
+  while (keepWindowOpen) {
+    while (SDL_PollEvent(&e) > 0) {
+      if (e.type == SDL_QUIT) {
+        return;
+      }
+    }
+    focus::gContext->Clear({});
+
+    focus::gContext->Draw(focus::Primitive::Triangles, {}, handle, sceneState);
+
+    focus::gContext->SwapBuffers(window);
+  }
+}
+
+void TriangleTestInterleavedBuffer(const focus::Window& window)
+{
+  auto handle = focus::gContext->CreateShaderFromSource("UniformColor",
+      utils::ReadEntireFileAsString("shaders/gl/UniformColorInterleaved.vert"),
+      utils::ReadEntireFileAsString("shaders/gl/UniformColorInterleaved.frag"));
+
+  f32 vertexData[] = {
+      0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+      -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+      1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+  };
+
+  u32 indices[] = {0, 1, 2};
+
+  f32 mvp[] = {
+    1.0f, 0.0f, 0.0f, 0.0f,
+    0.0f, 1.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 1.0f, 0.0f,
+    0.0f, 0.0f, 0.0f, 1.0f,
+  };
+
+  focus::VertexBufferDescriptor vbDescriptor = {
+      .inputDescriptorName = {"aPosition", "aColor"},
+      .bufferType = focus::BufferType::InterLeaved,
+      .types = {focus::VarType::Vec3, focus::VarType::Vec3},
+      .sizeInBytes = sizeof(vertexData),
+      .elementSizeInBytes = sizeof(vertexData) / 3,
+      .usage = focus::BufferUsage::Static,
+  };
+
+  focus::IndexBufferDescriptor ibDescriptor = {
+      .type = focus::IndexBufferType::U32,
+      .sizeInBytes = sizeof(indices),
+  };
+
+  focus::SceneState sceneState = {
+      .vbHandles = {focus::gContext->CreateVertexBuffer(vertexData, sizeof(vertexData), vbDescriptor)},
+      .cbHandles = {},
       .ibHandle = focus::gContext->CreateIndexBuffer(indices, sizeof(indices), ibDescriptor),
       .indexed = true,
   };
@@ -118,6 +177,7 @@ int main(int argc, char **argv)
   focus::Context::Init(focus::RendererAPI::OpenGL);
   auto window = focus::gContext->MakeWindow(1920, 1080);
   TriangleTest(window);
+  TriangleTestInterleavedBuffer(window);
   ComputeTest(window);
 
   SDL_Quit();

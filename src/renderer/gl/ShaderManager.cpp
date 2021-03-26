@@ -93,24 +93,39 @@ static std::unordered_map<std::string, DescriptorType> GetBuffers(u32 program, G
 
 static std::unordered_map<std::string, InputBufferDescriptor> GetInputBufferDescriptors(u32 program)
 {
-  std::unordered_map<std::string, InputBufferDescriptor> descriptors;
+  std::unordered_map<std::string, InputBufferDescriptor> descriptorsMap;
   s32 attributeCount = 0;
   glGetProgramiv(program, GL_ACTIVE_ATTRIBUTES, &attributeCount);
   char attributeName[64] = {};
   s32 attribNameLen;
   s32 attribSize;
   GLenum attribType;
+  std::vector<InputBufferDescriptor> descriptors;
   for (s32 i = 0; i < attributeCount; i++) {
     glGetActiveAttrib(program, i, sizeof(attributeName), &attribNameLen, &attribSize, &attribType, attributeName);
+    u32 slot = glGetAttribLocation(program, attributeName);
     InputBufferDescriptor descriptor = {
         .name = attributeName,
         .type = glUtils::GLTypeToVarType(attribType),
-        .slot = (u32)i,
-        .byteOffset = (u32)attribSize, // TODO: might not be correct
+        .slot = slot,
+        .byteOffset = 0,// (u32)attribSize * glUtils::GLTypeSizeInBytes(attribType), // TODO: might not be correct
     };
-    descriptors.emplace(attributeName, descriptor);
+    descriptors.push_back(descriptor);
   }
-  return descriptors;
+  std::sort(descriptors.begin(), descriptors.end(), [](const auto &a, const auto &b) {
+    return a.slot < b.slot;
+  });
+  u32 currOffset = 0;
+  descriptorsMap.emplace(descriptors[0].name, descriptors[0]);
+  for (u32 i = 1; i < descriptors.size(); i++) {
+    // TODO: this may cause issues for matrices
+    auto &desc = descriptors[i];
+    auto &prev = descriptors[i - 1];
+    currOffset += glUtils::VarTypeSizeInBytes(prev.type);
+    desc.byteOffset = currOffset;
+    descriptorsMap.emplace(desc.name, desc);
+  }
+  return descriptorsMap;
 }
 
 static ShaderHandle AddShader(const char *name, const std::vector<std::string> &sources, const std::vector<u32> &types)

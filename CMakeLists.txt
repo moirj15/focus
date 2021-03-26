@@ -54,7 +54,7 @@ set(DX11_BACKEND_HEADERS
 file(GLOB RENDERER_DX12_SRC CONFIGURE_DEPENDS "src/renderer/dx12/*")
 
 # Interface
-set(INTERFACE_DIR ${CMAKE_SOURCE_DIR}/src/renderer/interface)
+set(INTERFACE_DIR ${CMAKE_SOURCE_DIR}/src/renderer/Interface)
 set(INTERFACE_SRC
         ${INTERFACE_DIR}/Context.cpp)
 set(INTERFACE_HEADERS
@@ -73,7 +73,7 @@ add_library(focus STATIC
         ${DX11_BACKEND_SRC}
         )
 install(TARGETS focus DESTINATION ${CMAKE_SOURCE_DIR}/lib)
-install(FILES ${RENDERER_INTERFACE_HEADERS} DESTINATION ${CMAKE_SOURCE_DIR}/pub_include)
+install(FILES ${INTERFACE_HEADERS} DESTINATION ${CMAKE_SOURCE_DIR}/pub_include)
 if (WIN32)
     add_executable(
             focus_main

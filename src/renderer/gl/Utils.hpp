@@ -30,6 +30,40 @@ constexpr VarType GLTypeToVarType(GLenum type)
   }
 }
 
+inline u32 GLTypeSizeInBytes(GLenum type)
+{
+  switch (type) {
+  case GL_FLOAT:
+    return sizeof(f32);
+  case GL_FLOAT_VEC2:
+    return sizeof(f32) * 2;
+  case GL_FLOAT_VEC3:
+    return sizeof(f32) * 3;
+  case GL_FLOAT_VEC4:
+    return sizeof(f32) * 4;
+  default:
+    assert(0);
+    return 0;
+  }
+}
+
+inline u32 VarTypeSizeInBytes(VarType type)
+{
+  switch (type) {
+  case VarType::Float:
+    return sizeof(f32);
+  case VarType::Vec2:
+    return sizeof(f32) * 2;
+  case VarType::Vec3:
+    return sizeof(f32) * 3;
+  case VarType::Vec4:
+    return sizeof(f32) * 4;
+  default:
+    assert(0);
+    return 0;
+  }
+}
+
 constexpr u32 VarTypeToSlotSizeGL(VarType varType)
 {
   switch (varType) {

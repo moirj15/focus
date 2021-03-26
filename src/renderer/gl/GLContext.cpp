@@ -121,8 +121,7 @@ void GLContext::UpdateIndexBuffer(IndexBufferHandle handle, void *data, u32 size
 }
 void GLContext::UpdateConstantBuffer(ConstantBufferHandle handle, void *data, u32 size)
 {
-
-  assert(0);
+  mCBManager.WriteTo(data, size, handle);
 }
 void GLContext::UpdateShaderBuffer(BufferHandle handle, void *data, u32 size)
 {
@@ -216,22 +215,40 @@ void GLContext::Draw(Primitive primitive, RenderState renderState, ShaderHandle 
   u32 program = ShaderManager::GetProgram(shader);
   glUseProgram(program);
   glBindVertexArray(mVAO);
+  // TODO: for now I'll assume that there is either one interleaved vbo or multiple single-type buffers
   for (const auto &vbHandle : sceneState.vbHandles) {
     const auto &vbDesc = mVBManager.mDescriptors[vbHandle];
-    const auto &inputDesc = shaderInfo.mInputBufferDescriptors[vbDesc.inputDescriptorName];
     u32 glVBHandle = mVBManager.Get(vbHandle);
-    glBindBuffer(GL_ARRAY_BUFFER, glVBHandle);
-    glEnableVertexAttribArray(inputDesc.slot);
+    if (vbDesc.bufferType == BufferType::SingleType) {
+      const auto &inputDesc = shaderInfo.mInputBufferDescriptors[vbDesc.inputDescriptorName[0]];
+      glBindBuffer(GL_ARRAY_BUFFER, glVBHandle);
+      glEnableVertexAttribArray(inputDesc.slot);
 
-    // glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, (const void *)0);
-    glVertexAttribPointer(inputDesc.slot, glUtils::VarTypeToSlotSizeGL(inputDesc.type),
-        glUtils::VarTypeToIndividualTypeGL(inputDesc.type), false, 0, (const void *)0);
+      // glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, (const void *)0);
+      glVertexAttribPointer(inputDesc.slot, glUtils::VarTypeToSlotSizeGL(vbDesc.types[0]),
+          glUtils::VarTypeToIndividualTypeGL(inputDesc.type), false, 0, (const void *)0);
+    } else if (vbDesc.bufferType == BufferType::InterLeaved) {
+      glBindBuffer(GL_ARRAY_BUFFER, glVBHandle);
+      for (u32 i = 0; i < shaderInfo.mInputBufferDescriptors.size(); i++) {
+        const auto &inputDesc = shaderInfo.mInputBufferDescriptors[vbDesc.inputDescriptorName[i]];
+        glEnableVertexAttribArray(inputDesc.slot);
+
+        // glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, (const void *)0);
+        glVertexAttribPointer(inputDesc.slot, glUtils::VarTypeToSlotSizeGL(vbDesc.types[i]),
+            glUtils::VarTypeToIndividualTypeGL(inputDesc.type), false, vbDesc.elementSizeInBytes, (const void *)inputDesc.byteOffset);
+      }
+    } else {
+      assert(0);
+    }
   }
   // setup all the uniform buffers
   for (const auto &cbHandle : sceneState.cbHandles) {
     const auto &cbDesc = mCBManager.mDescriptors[cbHandle];
-    glBindBuffer(GL_UNIFORM_BUFFER, mCBManager.Get(cbHandle));
-    glBindBufferBase(GL_UNIFORM_BUFFER, 0, mCBManager.Get(cbHandle));
+    u32 glCBHandle = mCBManager.Get(cbHandle);
+    glBindBuffer(GL_UNIFORM_BUFFER, glCBHandle);
+    // TODO: figure out multiple binding points
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, glCBHandle);
+    glUniformBlockBinding(program, cbDesc.slot, 0);
   }
   if (sceneState.indexed) {
     u32 glIBHandle = mIBManager.Get(sceneState.ibHandle);
@@ -257,7 +274,7 @@ void GLContext::DispatchCompute(
   for (auto bufferHandle : computeState.bufferHandles) {
     const auto &bufferDesc = mSBManager.mDescriptors[bufferHandle];
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, mSBManager.Get(bufferHandle));
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, bufferDesc.mSlot, mSBManager.Get(bufferHandle));
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, bufferDesc.slot, mSBManager.Get(bufferHandle));
   }
   for (const auto &cbHandle : computeState.cbHandles) {
     const auto &cbDesc = mCBManager.mDescriptors[cbHandle];

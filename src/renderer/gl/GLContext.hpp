@@ -38,7 +38,6 @@ public:
   IndexBufferHandle CreateIndexBuffer(void *data, u32 sizeInBytes, IndexBufferDescriptor descriptor) override;
   ConstantBufferHandle CreateConstantBuffer(void *data, u32 sizeInBytes, ConstantBufferDescriptor descriptor) override;
   BufferHandle CreateShaderBuffer(void *data, u32 sizeInBytes, ShaderBufferDescriptor descriptor) override;
-  ConstantBufferHandle CreateConstantBuffer(void* data, u32 sizeInBytes, ConstantBufferDescriptor descriptor) override;
 
   void UpdateVertexBuffer(VertexBufferHandle handle, void *data, u32 size);
   void UpdateIndexBuffer(IndexBufferHandle handle, void *data, u32 size);
