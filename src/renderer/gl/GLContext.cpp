@@ -112,12 +112,11 @@ BufferHandle GLContext::CreateShaderBuffer(void *data, u32 sizeInBytes, ShaderBu
 
 void GLContext::UpdateVertexBuffer(VertexBufferHandle handle, void *data, u32 size)
 {
-  assert(0);
+  mVBManager.WriteTo(data, size, handle);
 }
 void GLContext::UpdateIndexBuffer(IndexBufferHandle handle, void *data, u32 size)
 {
-
-  assert(0);
+  mIBManager.WriteTo(data, size, handle);
 }
 void GLContext::UpdateConstantBuffer(ConstantBufferHandle handle, void *data, u32 size)
 {
@@ -253,9 +252,9 @@ void GLContext::Draw(Primitive primitive, RenderState renderState, ShaderHandle 
   if (sceneState.indexed) {
     u32 glIBHandle = mIBManager.Get(sceneState.ibHandle);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glIBHandle);
-    glDrawElements(GL_TRIANGLES, ibDesc.sizeInBytes / 4, GL_UNSIGNED_INT, (void *)0);
+    glDrawElements(glPrimitive, ibDesc.sizeInBytes / 4, GL_UNSIGNED_INT, (void *)0);
   } else {
-    // TODO
+    glDrawArrays(glPrimitive, 0, (mVBManager.mDescriptors[sceneState.vbHandles[0]].sizeInBytes / mVBManager.mDescriptors[sceneState.vbHandles[0]].elementSizeInBytes) / 3);
   }
 }
 
