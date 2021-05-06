@@ -25,7 +25,7 @@ void Context::Init(RendererAPI api)
     gContext = new dx11::DX11Context();
   } else if (api == RendererAPI::DX12) {
     assert(0);
-    //gContext = new DX12Context();
+    // gContext = new DX12Context();
   }
 #else
   assert(api != RendererAPI::DX11 || api != RendererAPI::DX12);
@@ -33,10 +33,15 @@ void Context::Init(RendererAPI api)
   sAPI = api;
 }
 
-std::pair<ID3D11Device*, ID3D11DeviceContext*> GetDeviceAndContext() {
+std::pair<ID3D11Device *, ID3D11DeviceContext *> GetDeviceAndContext()
+{
+#if _WIN32
   assert(sAPI == RendererAPI::DX11);
-  auto *dx11 = (dx11::DX11Context*)gContext;
+  auto *dx11 = (dx11::DX11Context *)gContext;
   return {dx11->GetDevice(), dx11->GetContext()};
+#else
+  return {nullptr, nullptr};
+#endif
 }
 
 } // namespace focus

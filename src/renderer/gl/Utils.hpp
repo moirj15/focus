@@ -3,6 +3,8 @@
 #include "../Interface/Context.hpp"
 #include "glad.h"
 
+#include <cassert>
+
 typedef unsigned int GLenum;
 
 namespace focus::glUtils

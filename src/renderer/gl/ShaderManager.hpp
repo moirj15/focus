@@ -1,7 +1,6 @@
 #pragma once
 
-#include "../Interface/Handles.hpp"
-#include "../Interface/IShader.hpp"
+#include "../Interface/Context.hpp"
 
 namespace focus::ShaderManager
 {
@@ -22,5 +21,4 @@ u32 GetProgram(ShaderHandle handle);
 
 void DeleteShader(ShaderHandle handle);
 
-
-}
+} // namespace focus::ShaderManager

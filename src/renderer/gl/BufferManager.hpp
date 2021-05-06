@@ -1,8 +1,6 @@
 #pragma once
 
-#include "../Interface/Handles.hpp"
-#include "../Interface/IBuffer.hpp"
-#include "../Interface/Types.hpp"
+#include "../Interface/Context.hpp"
 #include "glad.h"
 
 #include <unordered_map>

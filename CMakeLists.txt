@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(focus)
-set(CMAKE_UNITY_BUILD ON)
+#set(CMAKE_UNITY_BUILD ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 #TODO put the defines up here
 
@@ -69,8 +69,8 @@ add_library(focus STATIC
         ${INTERFACE_HEADERS}
         ${OPENGL_BACKEND_SRC}
         ${OPENGL_BACKEND_HEADERS}
-        ${DX11_BACKEND_SRC}
-        ${DX11_BACKEND_SRC}
+        #${DX11_BACKEND_SRC}
+        #${DX11_BACKEND_SRC}
         )
 install(TARGETS focus DESTINATION ${CMAKE_SOURCE_DIR}/lib)
 install(FILES ${INTERFACE_HEADERS} DESTINATION ${CMAKE_SOURCE_DIR}/pub_include)
@@ -136,10 +136,10 @@ else ()
             focus_main
             ${SRC}
             ${RENDERER_SRC}
-            # comment out while working on opengl stuff
-            #${RENDERER_VULKAN_SRC}
-            ${RENDERER_OPENGL_SRC}
-            ${RENDERER_INTERFACE_SRC}
+            ${OPENGL_BACKEND_SRC}
+            ${OPENGL_BACKEND_HEADERS}
+            ${INTERFACE_SRC}
+            ${INTERFACE_HEADERS}
     )
     message("LINUX BUILD")
 
