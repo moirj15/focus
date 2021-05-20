@@ -48,8 +48,8 @@ Window GLContext::MakeWindow(s32 width, s32 height)
   assert(gladLoadGL());
 
 #ifdef _DEBUG
-  glEnable(GL_DEBUG_OUTPUT);
-  glDebugMessageCallback(DBCallBack, nullptr);
+//  glEnable(GL_DEBUG_OUTPUT);
+//  glDebugMessageCallback(DBCallBack, nullptr);
 #endif
 
   printf("%s", glGetString(GL_VERSION));
@@ -164,6 +164,13 @@ void GLContext::DestroyConstantBuffer(ConstantBufferHandle handle)
 
 void GLContext::Draw(Primitive primitive, RenderState renderState, ShaderHandle shader, const SceneState &sceneState)
 {
+  // TODO: temporary, need some sort of init pass
+  static bool once;
+  if (!once) {
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_DEPTH_TEST);
+    once = true;
+  }
   GLenum glPrimitive = glUtils::PrimitiveToGL(primitive);
   // TODO: sort based on bit flags?
   if (renderState.depthTest != mCachedRenderState.depthTest) {
@@ -240,15 +247,19 @@ void GLContext::Draw(Primitive primitive, RenderState renderState, ShaderHandle 
       assert(0);
     }
   }
+
   // setup all the uniform buffers
+  int bindPoint = 0;
   for (const auto &cbHandle : sceneState.cbHandles) {
     const auto &cbDesc = mCBManager.mDescriptors[cbHandle];
     u32 glCBHandle = mCBManager.Get(cbHandle);
     glBindBuffer(GL_UNIFORM_BUFFER, glCBHandle);
+    glUniformBlockBinding(program, cbDesc.slot, bindPoint);
     // TODO: figure out multiple binding points
-    glBindBufferBase(GL_UNIFORM_BUFFER, 0, glCBHandle);
-    glUniformBlockBinding(program, cbDesc.slot, 0);
+    glBindBufferBase(GL_UNIFORM_BUFFER, bindPoint, glCBHandle);
+    bindPoint++;
   }
+
   if (sceneState.indexed) {
     u32 glIBHandle = mIBManager.Get(sceneState.ibHandle);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glIBHandle);

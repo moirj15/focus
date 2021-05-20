@@ -44,22 +44,40 @@ void TriangleTest(const focus::Window &window)
       .sizeInBytes = sizeof(indices),
   };
 
-  focus::ConstantBufferDescriptor mvpDesc = {
+  f32 color1[] = {
+      0.0, 1.0, 0.0, 1.0,
+  };
+  f32 color2[] = {
+      1.0, 0.0, 0.0, 1.0,
+  };
+
+  focus::ConstantBufferDescriptor vertConstDesc = {
     .name = "Constants",
-    .slot = 0,
+      .types = {focus::VarType::Vec4},
+      .slot = 0,
+      .usage = focus::BufferUsage::Static,
+      .sizeInBytes = sizeof(color1),
+  };
+
+
+  focus::ConstantBufferDescriptor fragConstDesc = {
+      .name = "FragInput",
+      .types = {focus::VarType::Vec4},
+      .slot = 1,
+      .usage = focus::BufferUsage::Static,
+      .sizeInBytes = sizeof(color2),
   };
 
   focus::SceneState sceneState = {
       .vbHandles = {focus::gContext->CreateVertexBuffer(points, sizeof(points), vbDescriptor)},
-      .cbHandles = {focus::gContext->CreateConstantBuffer(mvp, sizeof(mvp), mvpDesc)},
+      .cbHandles = {focus::gContext->CreateConstantBuffer(color1, sizeof(color1), vertConstDesc), focus::gContext->CreateConstantBuffer(color2, sizeof(color2), fragConstDesc)},
       .ibHandle = focus::gContext->CreateIndexBuffer(indices, sizeof(indices), ibDescriptor),
       .indexed = true,
   };
 
 
-  bool keepWindowOpen = true;
   SDL_Event e;
-  while (keepWindowOpen) {
+  while (true) {
     while (SDL_PollEvent(&e) > 0) {
       if (e.type == SDL_QUIT) {
         return;
@@ -116,9 +134,8 @@ void TriangleTestInterleavedBuffer(const focus::Window& window)
   };
 
 
-  bool keepWindowOpen = true;
   SDL_Event e;
-  while (keepWindowOpen) {
+  while (true) {
     while (SDL_PollEvent(&e) > 0) {
       if (e.type == SDL_QUIT) {
         return;

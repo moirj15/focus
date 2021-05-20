@@ -211,7 +211,7 @@ struct ShaderInfo {
   std::unordered_map<std::string, InputBufferDescriptor> mInputBufferDescriptors;
 };
 struct Color {
-  f32 red = 0.0f, green = 0.0f, blue = 0.0f, alpha = 0.0f;
+  f32 red = 0.0f, green = 0.0f, blue = 0.0f, alpha = 1.0f;
   bool operator!=(const Color &o) { return red != o.red || green != o.green || blue != o.blue || alpha != o.alpha; }
 };
 
