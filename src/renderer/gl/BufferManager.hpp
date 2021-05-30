@@ -14,13 +14,13 @@ struct BufferManager {
   std::unordered_map<Handle, u32> mHandles;
   std::unordered_map<Handle, Descriptor> mDescriptors;
 
-  inline Handle Create(void *data, u32 sizeInBytes, Descriptor descriptor)
+  inline Handle Create(void *data, Descriptor descriptor)
   {
     // Create the buffer for OpenGL
     u32 handle;
     glGenBuffers(1, &handle);
     glBindBuffer(GL_ARRAY_BUFFER, handle);
-    glBufferData(GL_ARRAY_BUFFER, sizeInBytes, data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, descriptor.sizeInBytes, data, GL_STATIC_DRAW);
     // Do the actual management of the buffer handle
     mCurrHandle++;
     mDescriptors[mCurrHandle] = descriptor;

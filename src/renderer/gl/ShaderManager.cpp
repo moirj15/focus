@@ -1,23 +1,22 @@
 #include "ShaderManager.hpp"
 
-#include "../Interface/IShader.hpp"
 #include "Utils.hpp"
 #include "glad.h"
 
+#include <algorithm>
 #include <cassert>
-#include <unordered_map>
 
-namespace focus::ShaderManager
+namespace focus
 {
 
-static ShaderHandle sCurrHandle;
-std::unordered_map<std::string, ShaderHandle> sNameToShaderHandles;
-std::unordered_map<ShaderHandle, u32> sShaderHandles;
-std::unordered_map<ShaderHandle, ShaderInfo> sShaderInfos;
+// static ShaderHandle sCurrHandle;
+// std::unordered_map<std::string, ShaderHandle> sNameToShaderHandles;
+// std::unordered_map<ShaderHandle, u32> sShaderHandles;
+// std::unordered_map<ShaderHandle, ShaderInfo> sShaderInfos;
 
-static void CompileShader(u32 handle, const std::string &source, const std::string &type)
+void ShaderManager::CompileShader(u32 handle, const std::string &source, const std::string &type)
 {
-  s32 sourceLen = source.size();
+  const s32 sourceLen = source.size();
   auto shaderSource = source.c_str();
   glShaderSource(handle, 1, &shaderSource, &sourceLen);
   glCompileShader(handle);
@@ -31,7 +30,7 @@ static void CompileShader(u32 handle, const std::string &source, const std::stri
   }
 }
 
-static void LinkShaderProgram(std::vector<u32> shaderHandles, u32 programHandle)
+void ShaderManager::LinkShaderProgram(std::vector<u32> shaderHandles, u32 programHandle)
 {
   for (u32 sHandle : shaderHandles) {
     glAttachShader(programHandle, sHandle);
@@ -51,7 +50,7 @@ static void LinkShaderProgram(std::vector<u32> shaderHandles, u32 programHandle)
   }
 }
 
-constexpr const char *ShaderTypeToString(GLenum type)
+const char *ShaderManager::ShaderTypeToString(GLenum type)
 {
   switch (type) {
   case GL_VERTEX_SHADER:
@@ -91,7 +90,7 @@ static std::unordered_map<std::string, DescriptorType> GetBuffers(u32 program, G
   return descriptors;
 }
 
-static std::unordered_map<std::string, InputBufferDescriptor> GetInputBufferDescriptors(u32 program)
+std::unordered_map<std::string, InputBufferDescriptor> ShaderManager::GetInputBufferDescriptors(u32 program)
 {
   std::unordered_map<std::string, InputBufferDescriptor> descriptorsMap;
   s32 attributeCount = 0;
@@ -108,13 +107,11 @@ static std::unordered_map<std::string, InputBufferDescriptor> GetInputBufferDesc
         .name = attributeName,
         .type = glUtils::GLTypeToVarType(attribType),
         .slot = slot,
-        .byteOffset = 0,// (u32)attribSize * glUtils::GLTypeSizeInBytes(attribType), // TODO: might not be correct
+        .byteOffset = 0, // (u32)attribSize * glUtils::GLTypeSizeInBytes(attribType), // TODO: might not be correct
     };
     descriptors.push_back(descriptor);
   }
-  std::sort(descriptors.begin(), descriptors.end(), [](const auto &a, const auto &b) {
-    return a.slot < b.slot;
-  });
+  std::sort(descriptors.begin(), descriptors.end(), [](const auto &a, const auto &b) { return a.slot < b.slot; });
   u32 currOffset = 0;
   descriptorsMap.emplace(descriptors[0].name, descriptors[0]);
   for (u32 i = 1; i < descriptors.size(); i++) {
@@ -128,7 +125,8 @@ static std::unordered_map<std::string, InputBufferDescriptor> GetInputBufferDesc
   return descriptorsMap;
 }
 
-static ShaderHandle AddShader(const char *name, const std::vector<std::string> &sources, const std::vector<u32> &types)
+ShaderHandle ShaderManager::AddShader(
+    const char *name, const std::vector<std::string> &sources, const std::vector<u32> &types)
 {
   assert(sources.size() == types.size());
   std::vector<u32> stageHandles;
@@ -145,43 +143,38 @@ static ShaderHandle AddShader(const char *name, const std::vector<std::string> &
   };
 
   sCurrHandle++;
-  sShaderHandles[sCurrHandle] = program;
-  sShaderInfos[sCurrHandle] = shaderInfo;
-  sNameToShaderHandles[name] = program;
+  mShaderHandles[sCurrHandle] = program;
+  mShaderInfos[sCurrHandle] = shaderInfo;
+  mNameToShaderHandles[name] = sCurrHandle;
   return sCurrHandle;
 }
 
-ShaderHandle AddShader(const char *name, const std::string &vSource, const std::string &fSource)
+ShaderHandle ShaderManager::AddShader(const char *name, const std::string &vSource, const std::string &fSource)
 {
   return AddShader(
       name, std::vector<std::string>{vSource, fSource}, std::vector<u32>{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER});
 }
 
-ShaderHandle AddComputeShader(const char *name, const std::string &source)
+ShaderHandle ShaderManager::AddComputeShader(const char *name, const std::string &source)
 {
   return AddShader(name, std::vector<std::string>{source}, std::vector<u32>{GL_COMPUTE_SHADER});
 }
 
-ShaderHandle GetShaderHandle(const std::string &name)
+ShaderInfo ShaderManager::GetInfo(ShaderHandle handle)
 {
-  return sNameToShaderHandles[name];
+  return mShaderInfos[handle];
 }
 
-ShaderInfo GetInfo(ShaderHandle handle)
+u32 ShaderManager::GetProgram(ShaderHandle handle)
 {
-  return sShaderInfos[handle];
+  return mShaderHandles[handle];
 }
 
-u32 GetProgram(ShaderHandle handle)
+void ShaderManager::DeleteShader(ShaderHandle handle)
 {
-  return sShaderHandles[handle];
+  glDeleteShader(mShaderHandles[handle]);
+  mShaderHandles.erase(handle);
+  mShaderInfos.erase(handle);
 }
 
-void DeleteShader(ShaderHandle handle)
-{
-  glDeleteShader(sShaderHandles[handle]);
-  sShaderHandles.erase(handle);
-  sShaderInfos.erase(handle);
-}
-
-} // namespace renderer::gl::ShaderManager
+} // namespace focus

@@ -53,8 +53,8 @@ Core::~Core()
   //CreateTextureImage();
   //CreateTextureImageView();
   //CreateTextureSampler();
-  //CreateVertexBuffer();
-  //CreateIndexBuffer();
+  //create_vertex_buffer();
+  //create_index_buffer();
   //CreateUniformBuffers();
   //CreateDescriptorPool();
   //CreateDescriptorSets();

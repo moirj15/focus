@@ -1560,7 +1560,7 @@ extern DECLSPEC void SDLCALL SDL_DelHintCallback(const char *name,
                                                  void *userdata);
 
 /**
- *  \brief  Clear all hints
+ *  \brief  clear_back_buffer all hints
  *
  *  This function is called during SDL_Quit() to free stored hints.
  */

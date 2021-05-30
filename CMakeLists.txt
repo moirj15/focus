@@ -13,19 +13,15 @@ file(GLOB RENDERER_SRC CONFIGURE_DEPENDS "src/renderer/*")
 # Opengl Backend
 set(OPENGL_BACKEND_DIR ${CMAKE_SOURCE_DIR}/src/renderer/gl)
 set(OPENGL_BACKEND_SRC
-        ${OPENGL_BACKEND_DIR}/Buffer.cpp
         ${OPENGL_BACKEND_DIR}/BufferManager.cpp
         ${OPENGL_BACKEND_DIR}/GLContext.cpp
         ${OPENGL_BACKEND_DIR}/ShaderManager.cpp
-        ${OPENGL_BACKEND_DIR}/Buffer.cpp
         ${OPENGL_BACKEND_DIR}/glad.c
         )
 set(OPENGL_BACKEND_HEADERS
-        ${OPENGL_BACKEND_DIR}/Buffer.hpp
         ${OPENGL_BACKEND_DIR}/BufferManager.hpp
         ${OPENGL_BACKEND_DIR}/GLContext.hpp
         ${OPENGL_BACKEND_DIR}/ShaderManager.hpp
-        ${OPENGL_BACKEND_DIR}/Buffer.hpp
         ${OPENGL_BACKEND_DIR}/Utils.hpp
         ${OPENGL_BACKEND_DIR}/Types.hpp
         ${OPENGL_BACKEND_DIR}/glad.h

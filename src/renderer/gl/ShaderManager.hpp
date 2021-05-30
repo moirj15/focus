@@ -1,24 +1,40 @@
 #pragma once
 
 #include "../Interface/Context.hpp"
+#include "glad.h"
 
-namespace focus::ShaderManager
+#include <string>
+#include <unordered_map>
+
+namespace focus
 {
 
-// TODO: add functions to specify a shader path and a file to specify the list of shaders/pipelines
-// void SetShaderPath(const char *absPath);
+class ShaderManager
+{
+  inline static ShaderHandle sCurrHandle{0};
+  std::unordered_map<std::string, ShaderHandle> mNameToShaderHandles;
+  std::unordered_map<ShaderHandle, u32> mShaderHandles;
+  std::unordered_map<ShaderHandle, ShaderInfo> mShaderInfos;
 
-// TODO: overloads for other shader types
-ShaderHandle AddShader(const char *name, const std::string &vSource, const std::string &fSource);
+public:
+  ShaderHandle AddShader(const char *name, const std::string &vSource, const std::string &fSource);
 
-ShaderHandle AddComputeShader(const char *name, const std::string &source);
+  ShaderHandle AddComputeShader(const char *name, const std::string &source);
 
-ShaderHandle GetShader(const std::string &name);
+  ShaderHandle GetShader(const std::string &name);
 
-ShaderInfo GetInfo(ShaderHandle handle);
+  ShaderInfo GetInfo(ShaderHandle handle);
 
-u32 GetProgram(ShaderHandle handle);
+  u32 GetProgram(ShaderHandle handle);
 
-void DeleteShader(ShaderHandle handle);
+  void DeleteShader(ShaderHandle handle);
 
-} // namespace focus::ShaderManager
+private:
+  void CompileShader(u32 handle, const std::string &source, const std::string &type);
+  void LinkShaderProgram(std::vector<u32> shaderHandles, u32 programHandle);
+  const char *ShaderTypeToString(GLenum type);
+  std::unordered_map<std::string, InputBufferDescriptor> GetInputBufferDescriptors(u32 program);
+  ShaderHandle AddShader(const char *name, const std::vector<std::string> &sources, const std::vector<u32> &types);
+};
+
+} // namespace focus
