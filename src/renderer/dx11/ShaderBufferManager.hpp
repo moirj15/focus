@@ -15,14 +15,14 @@ using Microsoft::WRL::ComPtr;
 struct ShaderBufferManager {
   ID3D11Device3 *mDevice;
   ID3D11DeviceContext3 *mContext;
-  std::unordered_map<BufferHandle, ComPtr<ID3D11Buffer>> mBuffers;
-  std::unordered_map<BufferHandle, ShaderBufferDescriptor> mDescriptors;
-  std::unordered_map<BufferHandle, ComPtr<ID3D11ShaderResourceView>> mResources;
-  std::unordered_map<BufferHandle, ComPtr<ID3D11UnorderedAccessView1>> mRWResources;
+  std::unordered_map<ShaderBufferHandle, ComPtr<ID3D11Buffer>> mBuffers;
+  std::unordered_map<ShaderBufferHandle, ShaderBufferDescriptor> mDescriptors;
+  std::unordered_map<ShaderBufferHandle, ComPtr<ID3D11ShaderResourceView>> mResources;
+  std::unordered_map<ShaderBufferHandle, ComPtr<ID3D11UnorderedAccessView1>> mRWResources;
   // TODO: temporary hacky solution for synchronous reads from compute shader results
   ComPtr<ID3D11Buffer> mStagingBuffer;
   u32 mStagingBufferSize = 0;
-  BufferHandle mCurrentHandle = 0;
+  ShaderBufferHandle mCurrentHandle{0};
 
   ShaderBufferManager() = default; // TODO: temp hack for constructing D3D11Context
   explicit ShaderBufferManager(ID3D11Device3 *device, ID3D11DeviceContext3 *context) :
@@ -30,18 +30,18 @@ struct ShaderBufferManager {
   {
   }
 
-  inline BufferHandle Create(void *data, u32 sizeInBytes, const ShaderBufferDescriptor &descriptor)
+  inline ShaderBufferHandle Create(void *data, const ShaderBufferDescriptor &descriptor)
   {
-    return Create(data, sizeInBytes, descriptor, 0);
+    return Create(data, descriptor, ShaderBufferHandle{0});
   }
 
-  void Update(BufferHandle handle, void *data, u32 sizeInBytes)
+  void Update(ShaderBufferHandle handle, void *data, u32 sizeInBytes)
   {
     auto descriptor = mDescriptors[handle];
-    if (descriptor.sizeInBytes < sizeInBytes) {
+    if (descriptor.size_in_bytes < sizeInBytes) {
       Destroy(handle);
-      descriptor.sizeInBytes = sizeInBytes;
-      Create(data, sizeInBytes, descriptor, handle);
+      descriptor.size_in_bytes = sizeInBytes;
+      Create(data, descriptor, handle);
     } else {
       auto buffer = mBuffers[handle];
       D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -54,19 +54,19 @@ struct ShaderBufferManager {
     }
   }
 
-  std::vector<u8> ReadAll(BufferHandle handle)
+  std::vector<u8> ReadAll(ShaderBufferHandle handle)
   {
     if (!mDescriptors.contains(handle)) {
       return {};
     }
     auto descriptor = mDescriptors[handle];
-    if (mStagingBufferSize < descriptor.sizeInBytes) {
-      mStagingBufferSize = descriptor.sizeInBytes;
+    if (mStagingBufferSize < descriptor.size_in_bytes) {
+      mStagingBufferSize = descriptor.size_in_bytes;
 
       // TODO: cleanup
       mStagingBuffer.Reset();
       D3D11_BUFFER_DESC bufferDesc = {
-          .ByteWidth = descriptor.sizeInBytes,
+          .ByteWidth = descriptor.size_in_bytes,
           .Usage = D3D11_USAGE_STAGING,
           .BindFlags = 0,
           .CPUAccessFlags = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE, // TODO: figure out dynamic cpu access stuff
@@ -85,7 +85,7 @@ struct ShaderBufferManager {
     return data;
   }
 
-  void Destroy(BufferHandle handle)
+  void Destroy(ShaderBufferHandle handle)
   {
     mBuffers.erase(handle);
     mResources.erase(handle);
@@ -93,13 +93,13 @@ struct ShaderBufferManager {
   }
 
 private:
-  BufferHandle Create(void *data, u32 sizeInBytes, const ShaderBufferDescriptor &descriptor, BufferHandle handle)
+  ShaderBufferHandle Create(void *data, const ShaderBufferDescriptor &descriptor, ShaderBufferHandle handle)
   {
     D3D11_BUFFER_DESC bufferDesc = {
-        .ByteWidth = sizeInBytes,
+        .ByteWidth = descriptor.size_in_bytes,
         .Usage = D3D11_USAGE_DEFAULT,
-        .BindFlags = (u32)(
-            descriptor.accessMode == AccessMode::ReadOnly ? D3D11_BIND_SHADER_RESOURCE : D3D11_BIND_UNORDERED_ACCESS),
+        .BindFlags = (u32)(descriptor.accessMode == AccessMode::ReadOnly ? D3D11_BIND_SHADER_RESOURCE
+                                                                         : D3D11_BIND_UNORDERED_ACCESS),
         .CPUAccessFlags = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE, // TODO: figure out dynamic cpu access stuff
         .MiscFlags = 0,
         .StructureByteStride = 0,
@@ -121,11 +121,11 @@ private:
       mCurrentHandle++;
       mBuffers.emplace(mCurrentHandle, buffer);
       mDescriptors.emplace(mCurrentHandle, descriptor);
-      mDescriptors[mCurrentHandle].sizeInBytes = sizeInBytes;
+      mDescriptors[mCurrentHandle].size_in_bytes = descriptor.size_in_bytes;
     } else {
       mBuffers[handle] = buffer;
       mDescriptors[handle] = descriptor;
-      mDescriptors[handle].sizeInBytes = sizeInBytes;
+      mDescriptors[handle].size_in_bytes = descriptor.size_in_bytes;
     }
     // TODO: need to find a better way of passing in the size, should it be in the descriptor or passed as a parameter?
     if (descriptor.accessMode == AccessMode::ReadOnly) {
@@ -135,7 +135,7 @@ private:
           .ViewDimension = D3D11_SRV_DIMENSION_BUFFEREX,
           .BufferEx = {
               .FirstElement = 0,
-              .NumElements = sizeInBytes / utils::BytesPerVarType(descriptor.types[0]),
+              .NumElements = descriptor.size_in_bytes / utils::BytesPerVarType(descriptor.types[0]),
               .Flags = 0,
           }, // TODO: this is probably wrong
       };
@@ -154,7 +154,7 @@ private:
           .ViewDimension = D3D11_UAV_DIMENSION_BUFFER,
           .Buffer = {
               .FirstElement = 0,
-              .NumElements = sizeInBytes / utils::BytesPerVarType(descriptor.types[0]),
+              .NumElements = descriptor.size_in_bytes / utils::BytesPerVarType(descriptor.types[0]),
               .Flags = 0,
           }, // TODO: this is probably wrong
       };

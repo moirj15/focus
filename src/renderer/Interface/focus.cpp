@@ -8,7 +8,7 @@ namespace focus
 
 static Context *context = nullptr;
 
-void init(RendererAPI api)
+void Init(RendererAPI api)
 {
   if (context != nullptr) {
     printf("Focus was already initialized, terminating program\n");
@@ -25,93 +25,98 @@ void init(RendererAPI api)
   } else if (api == RendererAPI::Invalid) {
   }
 }
-ShaderHandle create_shader_from_binary(const std::vector<u8> &vBinary, const std::vector<u8> &fBinary)
+Window MakeWindow(int32_t width, int32_t height)
 {
-  return context->create_shader_from_binary(vBinary, fBinary);
+  return context->MakeWindow(width, height);
 }
-ShaderHandle create_shader_from_source(const char *name, const std::string &vSource, const std::string &fSource)
+
+ShaderHandle CreateShaderFromBinary(const std::vector<u8> &vBinary, const std::vector<u8> &fBinary)
 {
-  return context->create_shader_from_source(name, vSource, fSource);
+  return context->CreateShaderFromBinary(vBinary, fBinary);
 }
-ShaderHandle create_compute_shader_from_source(const char *name, const std::string &source)
+ShaderHandle CreateShaderFromSource(const char *name, const std::string &vSource, const std::string &fSource)
 {
-  return context->create_compute_shader_from_source(name, source);
+  return context->CreateShaderFromSource(name, vSource, fSource);
 }
-VertexBufferHandle create_vertex_buffer(void *data, VertexBufferDescriptor descriptor)
+ShaderHandle CreateComputeShaderFromSource(const char *name, const std::string &source)
 {
-  return context->create_vertex_buffer(data, VertexBufferDescriptor());
+  return context->CreateComputeShaderFromSource(name, source);
 }
-IndexBufferHandle create_index_buffer(void *data, IndexBufferDescriptor descriptor)
+VertexBufferHandle CreateVertexBuffer(void *data, VertexBufferDescriptor descriptor)
 {
-  return context->create_index_buffer(data, descriptor);
+  return context->CreateVertexBuffer(data, descriptor);
 }
-ConstantBufferHandle create_constant_buffer(void *data, ConstantBufferDescriptor descriptor)
+IndexBufferHandle CreateIndexBuffer(void *data, IndexBufferDescriptor descriptor)
 {
-  return context->create_constant_buffer(data, descriptor);
+  return context->CreateIndexBuffer(data, descriptor);
 }
-BufferHandle create_shader_buffer(void *data, ShaderBufferDescriptor descriptor)
+ConstantBufferHandle CreateConstantBuffer(void *data, ConstantBufferDescriptor descriptor)
 {
-  return context->create_shader_buffer(data, descriptor);
+  return context->CreateConstantBuffer(data, descriptor);
 }
-void update_vertex_buffer(VertexBufferHandle handle, void *data, u32 size)
+ShaderBufferHandle CreateShaderBuffer(void *data, ShaderBufferDescriptor descriptor)
 {
-  context->update_vertex_buffer(handle, data, size);
+  return context->CreateShaderBuffer(data, descriptor);
 }
-void update_index_buffer(IndexBufferHandle handle, void *data, u32 size)
+void UpdateVertexBuffer(VertexBufferHandle handle, void *data, u32 size)
 {
-  context->update_index_buffer(handle, data, size);
+  context->UpdateVertexBuffer(handle, data, size);
 }
-void update_constant_buffer(ConstantBufferHandle handle, void *data, u32 size)
+void UpdateIndexBuffer(IndexBufferHandle handle, void *data, u32 size)
 {
-  context->update_constant_buffer(handle, data, size);
+  context->UpdateIndexBuffer(handle, data, size);
 }
-void update_shader_buffer(BufferHandle handle, void *data, u32 size)
+void UpdateConstantBuffer(ConstantBufferHandle handle, void *data, u32 size)
 {
-  context->update_shader_buffer(handle, data, size);
+  context->UpdateConstantBuffer(handle, data, size);
 }
-void *map_buffer(BufferHandle handle, AccessMode access_mode)
+void UpdateShaderBuffer(ShaderBufferHandle handle, void *data, u32 size)
 {
-  return context->map_buffer(handle, access_mode);
+  context->UpdateShaderBuffer(handle, data, size);
 }
-void unmap_buffer(BufferHandle handle)
+void *MapBuffer(ShaderBufferHandle handle, AccessMode access_mode)
 {
-  context->unmap_buffer(handle);
+  return context->MapBuffer(handle, access_mode);
 }
-void destroy_vertex_buffer(VertexBufferHandle handle)
+void UnmapBuffer(ShaderBufferHandle handle)
 {
-  context->destroy_vertex_buffer(handle);
+  context->UnmapBuffer(handle);
 }
-void destroy_index_buffer(IndexBufferHandle handle)
+void DestroyVertexBuffer(VertexBufferHandle handle)
 {
-  context->destroy_index_buffer(handle);
+  context->DestroyVertexBuffer(handle);
 }
-void destroy_shader_buffer(BufferHandle handle)
+void DestroyIndexBuffer(IndexBufferHandle handle)
 {
-  context->destroy_shader_buffer(handle);
+  context->DestroyIndexBuffer(handle);
 }
-void destroy_constant_buffer(ConstantBufferHandle handle)
+void DestroyShaderBuffer(ShaderBufferHandle handle)
 {
-  context->destroy_constant_buffer(handle);
+  context->DestroyShaderBuffer(handle);
 }
-void draw(Primitive primitive, RenderState render_state, ShaderHandle shader, const SceneState &scene_state)
+void DestroyConstantBuffer(ConstantBufferHandle handle)
 {
-  context->draw(primitive, render_state, shader, scene_state);
+  context->DestroyConstantBuffer(handle);
 }
-void dispatch_compute(u32 x_groups, u32 y_groups, u32 z_groups, ShaderHandle shader, const ComputeState &compute_state)
+void Draw(Primitive primitive, RenderState render_state, ShaderHandle shader, const SceneState &scene_state)
 {
-  context->dispatch_compute(x_groups, y_groups, z_groups, shader, compute_state);
+  context->Draw(primitive, render_state, shader, scene_state);
 }
-void wait_for_memory(u64 flags)
+void DispatchCompute(u32 x_groups, u32 y_groups, u32 z_groups, ShaderHandle shader, const ComputeState &compute_state)
 {
-  context->wait_for_memory(flags);
+  context->DispatchCompute(x_groups, y_groups, z_groups, shader, compute_state);
 }
-void clear_back_buffer(ClearState clear_state)
+void WaitForMemory(u64 flags)
 {
-  context->clear_back_buffer(clear_state);
+  context->WaitForMemory(flags);
+}
+void ClearBackBuffer(ClearState clear_state)
+{
+  context->ClearBackBuffer(clear_state);
 }
 void swap_buffers(const Window &window)
 {
-  context->swap_buffers(window);
+  context->SwapBuffers(window);
 }
 
 } // namespace focus

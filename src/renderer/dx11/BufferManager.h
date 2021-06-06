@@ -14,7 +14,7 @@ namespace focus::dx11
 using Microsoft::WRL::ComPtr;
 template<typename HandleType, typename DescriptorType, D3D11_BIND_FLAG BindFlag>
 struct BufferManager {
-  HandleType mCurrHandle = 0;
+  HandleType mCurrHandle{0};
   std::unordered_map<HandleType, ComPtr<ID3D11Buffer>> mBuffers;
   std::unordered_map<HandleType, DescriptorType> mDescriptors;
   ID3D11Device *mDevice;
@@ -24,9 +24,9 @@ struct BufferManager {
   BufferManager() = default; // TODO: temp hack for constructing D3D11Context
   BufferManager(ID3D11Device *device, ID3D11DeviceContext *context) : mDevice(device), mContext(context) {}
 
-  inline HandleType Create(void *data, u32 sizeInBytes, DescriptorType descriptor)
+  inline HandleType Create(void *data, DescriptorType descriptor)
   {
-    return Create(data, sizeInBytes, descriptor, 0);
+    return Create(data, descriptor, HandleType{0});
 //    D3D11_BUFFER_DESC bufferDesc = {
 //        .ByteWidth = sizeInBytes,
 //        .Usage = D3D11_USAGE_DYNAMIC, // making everything dynamic for now, need to look at adding a usage member in the
@@ -56,10 +56,10 @@ struct BufferManager {
   {
     auto buffer = mBuffers[handle];
     auto descriptor = mDescriptors[handle];
-    if (descriptor.sizeInBytes < sizeInBytes) {
+    if (descriptor.size_in_bytes < sizeInBytes) {
       buffer.Reset();
-      descriptor.sizeInBytes = sizeInBytes;
-      Create(data, sizeInBytes, descriptor, handle);
+      descriptor.size_in_bytes = sizeInBytes;
+      Create(data, descriptor, handle);
     } else {
       D3D11_MAPPED_SUBRESOURCE mappedResource;
       Check(mContext->Map(buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
@@ -78,10 +78,10 @@ struct BufferManager {
   }
 
 private:
-  inline HandleType Create(void *data, u32 sizeInBytes, DescriptorType descriptor, HandleType handle)
+  inline HandleType Create(void *data, DescriptorType descriptor, HandleType handle)
   {
     D3D11_BUFFER_DESC bufferDesc = {
-        .ByteWidth = sizeInBytes,
+        .ByteWidth = descriptor.size_in_bytes,
         .Usage = D3D11_USAGE_DYNAMIC, // making everything dynamic for now, need to look at adding a usage member in the
                                       // descriptors
         .BindFlags = BindFlag,

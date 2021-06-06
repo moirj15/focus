@@ -63,7 +63,7 @@ Core::~Core()
 void Core::Init()
 {
   // Create the glfw window
-  passert("Failed to init glfw", glfwInit() == GLFW_TRUE);
+  passert("Failed to Init glfw", glfwInit() == GLFW_TRUE);
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
   mWindow = glfwCreateWindow(800, 600, "Vulkan window", nullptr, nullptr);
   glfwSetWindowUserPointer(mWindow, this);

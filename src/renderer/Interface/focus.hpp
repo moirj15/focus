@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include <functional>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -27,7 +28,10 @@ public:
 
   friend bool operator==(Handle a, Handle b) { return a._value == b._value; }
   friend bool operator!=(Handle a, Handle b) { return a._value != b._value; }
-  T operator++(int) { _value++; }
+  bool operator==(T b) { return _value == b; }
+  bool operator!=(T b) { return _value != b; }
+  T operator++(int) { return _value++; }
+  size_t Hash() const { return std::hash<T>()(_value); }
 };
 
 struct VertexBufferHandleTag {
@@ -233,28 +237,31 @@ struct ShaderInfo {
 
 struct Color {
   float red = 0.0f, green = 0.0f, blue = 0.0f, alpha = 0.0f;
-  bool operator!=(const Color &o) { return red != o.red || green != o.green || blue != o.blue || alpha != o.alpha; }
+  bool operator!=(const Color &o) const
+  {
+    return red != o.red || green != o.green || blue != o.blue || alpha != o.alpha;
+  }
 };
 
 struct DepthTest {
-  ComparisonFunction mFunction = ComparisonFunction::Less;
-  bool mEnabled = true;
-  bool mWriteToDepthBuffer = true;
+  ComparisonFunction function = ComparisonFunction::Less;
+  bool enabled = true;
+  bool write_to_depth_buffer = true;
 
-  bool operator!=(const DepthTest &o)
+  bool operator!=(const DepthTest &o) const
   {
-    return mFunction != o.mFunction || mEnabled != o.mEnabled || mWriteToDepthBuffer != o.mWriteToDepthBuffer;
+    return function != o.function || enabled != o.enabled || write_to_depth_buffer != o.write_to_depth_buffer;
   }
 };
 
 struct CullingState {
-  TriangleFace mFace = TriangleFace::Back;
-  WindingOrder mFrontFace = WindingOrder::CounterClockwise;
-  bool mEnabled = true;
+  TriangleFace face = TriangleFace::Back;
+  WindingOrder front_face = WindingOrder::CounterClockwise;
+  bool enabled = true;
 
-  bool operator!=(const CullingState &o)
+  bool operator!=(const CullingState &o) const
   {
-    return mFace != o.mFace || mFrontFace != o.mFrontFace || mEnabled != o.mEnabled;
+    return face != o.face || front_face != o.front_face || enabled != o.enabled;
   }
 };
 
@@ -266,24 +273,24 @@ enum class RasterizationMode {
 
 struct StencilTest {
   struct StencilFace {
-    ComparisonFunction mFunc = ComparisonFunction::Always;
-    TriangleFace mFace;
-    uint32_t mMask;
-    StencilOp mOp;
+    ComparisonFunction func = ComparisonFunction::Always;
+    TriangleFace face;
+    uint32_t mask;
+    StencilOp op;
 
-    bool operator!=(const StencilFace &o)
+    bool operator!=(const StencilFace &o) const
     {
-      return mFunc != o.mFunc || mFace != o.mFace || mMask != o.mMask || mOp != o.mOp;
+      return func != o.func || face != o.face || mask != o.mask || op != o.op;
     }
-  } mFront, mBack;
+  } front, back;
   // If true, mFront and mBack will be used for seperate stencil tests of front and back facing triangles.
   // Otherwise, the values set in mFront will be used for both.
-  bool mSeperate = false;
-  bool mEnabled = false;
+  bool seperate = false;
+  bool enabled = false;
 
-  bool operator!=(const StencilTest &o)
+  bool operator!=(const StencilTest &o) const
   {
-    return mFront != o.mFront || mBack != o.mBack || mSeperate != o.mSeperate || mEnabled != o.mEnabled;
+    return front != o.front || back != o.back || seperate != o.seperate || enabled != o.enabled;
   }
 };
 
@@ -365,52 +372,52 @@ enum class RendererAPI {
   Invalid,
 };
 
-void init(RendererAPI api);
+void Init(RendererAPI api);
 
 // Window creation
-Window make_window(int32_t width, int32_t height);
+Window MakeWindow(int32_t width, int32_t height);
 
 // Shader creation
-ShaderHandle create_shader_from_binary(const std::vector<uint8_t> &vBinary, const std::vector<uint8_t> &fBinary);
-ShaderHandle create_shader_from_source(const char *name, const std::string &vSource, const std::string &fSource);
-ShaderHandle create_compute_shader_from_source(const char *name, const std::string &source);
+ShaderHandle CreateShaderFromBinary(const std::vector<uint8_t> &vBinary, const std::vector<uint8_t> &fBinary);
+ShaderHandle CreateShaderFromSource(const char *name, const std::string &vSource, const std::string &fSource);
+ShaderHandle CreateComputeShaderFromSource(const char *name, const std::string &source);
 
 // Buffer Creation
-VertexBufferHandle create_vertex_buffer(void *data, VertexBufferDescriptor descriptor);
-IndexBufferHandle create_index_buffer(void *data, IndexBufferDescriptor descriptor);
-ConstantBufferHandle create_constant_buffer(void *data, ConstantBufferDescriptor descriptor);
-ShaderBufferHandle create_shader_buffer(void *data, ShaderBufferDescriptor descriptor);
+VertexBufferHandle CreateVertexBuffer(void *data, VertexBufferDescriptor descriptor);
+IndexBufferHandle CreateIndexBuffer(void *data, IndexBufferDescriptor descriptor);
+ConstantBufferHandle CreateConstantBuffer(void *data, ConstantBufferDescriptor descriptor);
+ShaderBufferHandle CreateShaderBuffer(void *data, ShaderBufferDescriptor descriptor);
 
-void update_vertex_buffer(VertexBufferHandle handle, void *data, uint32_t size);
-void update_index_buffer(IndexBufferHandle handle, void *data, uint32_t size);
-void update_constant_buffer(ConstantBufferHandle handle, void *data, uint32_t size);
-void update_shader_buffer(ShaderBufferHandle handle, void *data, uint32_t size);
+void UpdateVertexBuffer(VertexBufferHandle handle, void *data, uint32_t size);
+void UpdateIndexBuffer(IndexBufferHandle handle, void *data, uint32_t size);
+void UpdateConstantBuffer(ConstantBufferHandle handle, void *data, uint32_t size);
+void UpdateShaderBuffer(ShaderBufferHandle handle, void *data, uint32_t size);
 
 // Buffer Access
 // TODO: add partial buffer access too
 // TODO: consider adding a scoped pointer for mapped memory
-void *map_buffer(ShaderBufferHandle handle, AccessMode access_mode);
-void unmap_buffer(ShaderBufferHandle handle);
+void *MapBuffer(ShaderBufferHandle handle, AccessMode access_mode);
+void UnmapBuffer(ShaderBufferHandle handle);
 
 // Buffer Destruction
 
-void destroy_vertex_buffer(VertexBufferHandle handle);
-void destroy_index_buffer(IndexBufferHandle handle);
-void destroy_shader_buffer(ShaderBufferHandle handle);
-void destroy_constant_buffer(ConstantBufferHandle handle);
+void DestroyVertexBuffer(VertexBufferHandle handle);
+void DestroyIndexBuffer(IndexBufferHandle handle);
+void DestroyShaderBuffer(ShaderBufferHandle handle);
+void DestroyConstantBuffer(ConstantBufferHandle handle);
 
 // draw call submission
-void draw(Primitive primitive, RenderState render_state, ShaderHandle shader, const SceneState &scene_state);
+void Draw(Primitive primitive, RenderState render_state, ShaderHandle shader, const SceneState &scene_state);
 
 // Compute shader dispatch
-void dispatch_compute(
+void DispatchCompute(
     uint32_t x_groups, uint32_t y_groups, uint32_t z_groups, ShaderHandle shader, const ComputeState &compute_state);
 
 // TODO: better naming
-void wait_for_memory(uint64_t flags);
+void WaitForMemory(uint64_t flags);
 
 // Screen clearing
-void clear_back_buffer(ClearState clear_state);
+void ClearBackBuffer(ClearState clear_state);
 
 void swap_buffers(const Window &window);
 

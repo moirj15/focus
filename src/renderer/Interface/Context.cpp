@@ -8,6 +8,7 @@
 namespace focus
 {
 
+#if 0
 std::pair<ID3D11Device *, ID3D11DeviceContext *> GetDeviceAndContext()
 {
 #if _WIN32
@@ -18,5 +19,6 @@ std::pair<ID3D11Device *, ID3D11DeviceContext *> GetDeviceAndContext()
   return {nullptr, nullptr};
 #endif
 }
+#endif
 
 } // namespace focus

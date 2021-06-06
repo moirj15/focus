@@ -5,12 +5,13 @@
 
 #include <unordered_map>
 #include <vector>
+#include <cassert>
 
 namespace focus
 {
 template<typename Handle, typename Descriptor>
 struct BufferManager {
-  Handle mCurrHandle = 0;
+  Handle mCurrHandle{0};
   std::unordered_map<Handle, u32> mHandles;
   std::unordered_map<Handle, Descriptor> mDescriptors;
 
@@ -20,7 +21,7 @@ struct BufferManager {
     u32 handle;
     glGenBuffers(1, &handle);
     glBindBuffer(GL_ARRAY_BUFFER, handle);
-    glBufferData(GL_ARRAY_BUFFER, descriptor.sizeInBytes, data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, descriptor.size_in_bytes, data, GL_STATIC_DRAW);
     // Do the actual management of the buffer handle
     mCurrHandle++;
     mDescriptors[mCurrHandle] = descriptor;
@@ -30,14 +31,14 @@ struct BufferManager {
 
   inline u32 Get(Handle handle) { return mHandles[handle]; }
 
-  inline void WriteTo(void *data, u32 sizeInBytes, Handle handle) { WriteTo(data, sizeInBytes, 0, handle); }
-  inline void WriteTo(void *data, u32 sizeInBytes, u32 offsetInBytes, Handle handle)
+  inline void WriteTo(void *data, u32 size_in_bytes, Handle handle) { WriteTo(data, size_in_bytes, 0, handle); }
+  inline void WriteTo(void *data, u32 size_in_bytes, u32 offset_in_bytes, Handle handle)
   {
     auto bufferHandle = mHandles[handle];
     auto descriptor = mDescriptors[handle];
-    assert(descriptor.sizeInBytes >= (sizeInBytes + offsetInBytes));
+    assert(descriptor.size_in_bytes >= (size_in_bytes + offset_in_bytes));
     glBindBuffer(GL_ARRAY_BUFFER, bufferHandle);
-    glBufferSubData(GL_ARRAY_BUFFER, offsetInBytes, sizeInBytes, data);
+    glBufferSubData(GL_ARRAY_BUFFER, offset_in_bytes, size_in_bytes, data);
   }
 
   // TODO: refractor so less code is used

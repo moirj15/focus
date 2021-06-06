@@ -19,12 +19,12 @@ static void DBCallBack(GLenum source, GLenum type, GLuint id, GLenum severity, G
 GLContext::GLContext()
 {
   if (SDL_Init(SDL_INIT_VIDEO)) {
-    assert(0 && "Failed to init video");
+    assert(0 && "Failed to Init video");
   }
   SDL_GL_LoadLibrary(nullptr);
 }
 
-Window GLContext::make_window(s32 width, s32 height)
+Window GLContext::MakeWindow(s32 width, s32 height)
 {
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -60,110 +60,110 @@ Window GLContext::make_window(s32 width, s32 height)
   };
 }
 
-ShaderHandle GLContext::create_shader_from_binary(const std::vector<u8> &vBinary, const std::vector<u8> &fBinary)
+ShaderHandle GLContext::CreateShaderFromBinary(const std::vector<u8> &vBinary, const std::vector<u8> &fBinary)
 {
   assert(0);
   return {};
 }
 
-ShaderHandle GLContext::create_shader_from_source(
+ShaderHandle GLContext::CreateShaderFromSource(
     const char *name, const std::string &vSource, const std::string &fSource)
 {
   return mShaderManager.AddShader(name, vSource, fSource);
 }
 
-ShaderHandle GLContext::create_compute_shader_from_source(const char *name, const std::string &source)
+ShaderHandle GLContext::CreateComputeShaderFromSource(const char *name, const std::string &source)
 {
   return mShaderManager.AddComputeShader(name, source);
 }
 
-VertexBufferHandle GLContext::create_vertex_buffer(void *data, VertexBufferDescriptor descriptor)
+VertexBufferHandle GLContext::CreateVertexBuffer(void *data, VertexBufferDescriptor descriptor)
 {
   return mVBManager.Create(data, descriptor);
 }
 
-void GLContext::destroy_vertex_buffer(VertexBufferHandle handle)
+void GLContext::DestroyVertexBuffer(VertexBufferHandle handle)
 {
   mVBManager.Destroy(handle);
 }
 
-IndexBufferHandle GLContext::create_index_buffer(void *data, IndexBufferDescriptor descriptor)
+IndexBufferHandle GLContext::CreateIndexBuffer(void *data, IndexBufferDescriptor descriptor)
 {
   return mIBManager.Create(data, descriptor);
 }
 
-ConstantBufferHandle GLContext::create_constant_buffer(void *data, ConstantBufferDescriptor descriptor)
+ConstantBufferHandle GLContext::CreateConstantBuffer(void *data, ConstantBufferDescriptor descriptor)
 {
   return mCBManager.Create(data, descriptor);
 }
 
-BufferHandle GLContext::create_shader_buffer(void *data, ShaderBufferDescriptor descriptor)
+ShaderBufferHandle GLContext::CreateShaderBuffer(void *data, ShaderBufferDescriptor descriptor)
 {
   return mSBManager.Create(data, descriptor);
 }
 
-void GLContext::update_vertex_buffer(VertexBufferHandle handle, void *data, u32 size)
+void GLContext::UpdateVertexBuffer(VertexBufferHandle handle, void *data, u32 size)
 {
   mVBManager.WriteTo(data, size, handle);
 }
-void GLContext::update_index_buffer(IndexBufferHandle handle, void *data, u32 size)
+void GLContext::UpdateIndexBuffer(IndexBufferHandle handle, void *data, u32 size)
 {
   mIBManager.WriteTo(data, size, handle);
 }
-void GLContext::update_constant_buffer(ConstantBufferHandle handle, void *data, u32 size)
+void GLContext::UpdateConstantBuffer(ConstantBufferHandle handle, void *data, u32 size)
 {
   mCBManager.WriteTo(data, size, handle);
 }
-void GLContext::update_shader_buffer(BufferHandle handle, void *data, u32 size)
+void GLContext::UpdateShaderBuffer(ShaderBufferHandle handle, void *data, u32 size)
 {
   assert(0);
 }
 
-void *GLContext::map_buffer(BufferHandle handle, AccessMode accessMode)
+void *GLContext::MapBuffer(ShaderBufferHandle handle, AccessMode accessMode)
 {
   return glMapNamedBuffer(mSBManager.Get(handle), glUtils::AccessModeToGL(accessMode));
 }
-void GLContext::unmap_buffer(BufferHandle handle)
+void GLContext::UnmapBuffer(ShaderBufferHandle handle)
 {
   glUnmapNamedBuffer(mSBManager.Get(handle));
 }
 
-void GLContext::destroy_index_buffer(IndexBufferHandle handle)
+void GLContext::DestroyIndexBuffer(IndexBufferHandle handle)
 {
   mIBManager.Destroy(handle);
 }
 
-void GLContext::destroy_shader_buffer(BufferHandle handle)
+void GLContext::DestroyShaderBuffer(ShaderBufferHandle handle)
 {
   mSBManager.Destroy(handle);
 }
-void GLContext::destroy_constant_buffer(ConstantBufferHandle handle)
+void GLContext::DestroyConstantBuffer(ConstantBufferHandle handle)
 {
   mCBManager.Destroy(handle);
 }
 
 // TODO: do automatic batching
 
-void GLContext::draw(Primitive primitive, RenderState renderState, ShaderHandle shader, const SceneState &sceneState)
+void GLContext::Draw(Primitive primitive, RenderState renderState, ShaderHandle shader, const SceneState &sceneState)
 {
   GLenum glPrimitive = glUtils::PrimitiveToGL(primitive);
   // TODO: sort based on bit flags?
   if (renderState.depth_test != mCachedRenderState.depth_test) {
-    if (renderState.depth_test.mEnabled) {
+    if (renderState.depth_test.enabled) {
       glEnable(GL_DEPTH_TEST);
-      GLenum compFunc = glUtils::ComparisonFunctionToGL(renderState.depth_test.mFunction);
+      GLenum compFunc = glUtils::ComparisonFunctionToGL(renderState.depth_test.function);
       glDepthFunc(compFunc);
-      glDepthMask(renderState.depth_test.mWriteToDepthBuffer);
+      glDepthMask(renderState.depth_test.write_to_depth_buffer);
     } else {
       glDisable(GL_DEPTH_TEST);
     }
   }
   if (renderState.cull_state != mCachedRenderState.cull_state) {
-    if (renderState.cull_state.mEnabled) {
+    if (renderState.cull_state.enabled) {
       glEnable(GL_CULL_FACE);
-      GLenum cullFace = glUtils::TriangleFaceToGL(renderState.cull_state.mFace);
+      GLenum cullFace = glUtils::TriangleFaceToGL(renderState.cull_state.face);
       glCullFace(cullFace);
-      GLenum frontFace = glUtils::WindingOrderToGL(renderState.cull_state.mFrontFace);
+      GLenum frontFace = glUtils::WindingOrderToGL(renderState.cull_state.front_face);
       glFrontFace(frontFace);
     } else {
       glDisable(GL_CULL_FACE);
@@ -175,7 +175,7 @@ void GLContext::draw(Primitive primitive, RenderState renderState, ShaderHandle 
     glPolygonMode(GL_FRONT_AND_BACK, rasterizationMode);
   }
   if (renderState.stencil_test != mCachedRenderState.stencil_test) {
-    if (renderState.stencil_test.mEnabled) {
+    if (renderState.stencil_test.enabled) {
       glEnable(GL_STENCIL_TEST);
     } else {
       glDisable(GL_STENCIL_TEST);
@@ -245,24 +245,24 @@ void GLContext::draw(Primitive primitive, RenderState renderState, ShaderHandle 
   }
 }
 
-void GLContext::clear_back_buffer(ClearState clearState)
+void GLContext::ClearBackBuffer(ClearState clearState)
 {
   glClearColor(
       clearState.clear_color.red, clearState.clear_color.green, clearState.clear_color.blue, clearState.clear_color.alpha);
   glClear(glUtils::ClearBufferToGL(clearState.to_clear));
 }
 
-void GLContext::dispatch_compute(
+void GLContext::DispatchCompute(
     u32 xGroups, u32 yGroups, u32 zGroups, ShaderHandle shader, const ComputeState &computeState)
 {
   u32 program = mShaderManager.GetProgram(shader);
   glUseProgram(program);
-  for (auto bufferHandle : computeState.bufferHandles) {
+  for (auto bufferHandle : computeState.buffer_handles) {
     const auto &bufferDesc = mSBManager.mDescriptors[bufferHandle];
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, mSBManager.Get(bufferHandle));
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, bufferDesc.slot, mSBManager.Get(bufferHandle));
   }
-  for (const auto &cbHandle : computeState.cbHandles) {
+  for (const auto &cbHandle : computeState.cb_handles) {
     const auto &cbDesc = mCBManager.mDescriptors[cbHandle];
     glBindBuffer(GL_UNIFORM_BUFFER, mCBManager.Get(cbHandle));
     glBindBufferBase(GL_UNIFORM_BUFFER, 0, mCBManager.Get(cbHandle));
@@ -270,15 +270,15 @@ void GLContext::dispatch_compute(
   glDispatchCompute(xGroups, yGroups, zGroups);
 }
 
-void GLContext::wait_for_memory(u64 flags)
+void GLContext::WaitForMemory(u64 flags)
 {
   // TODO: actually use input
   glMemoryBarrier(GL_ALL_BARRIER_BITS);
 }
 
-void GLContext::swap_buffers(const Window &window)
+void GLContext::SwapBuffers(const Window &window)
 {
-  SDL_GL_SwapWindow(window.mSDLWindow);
+  SDL_GL_SwapWindow(window.sdl_window);
 }
 
 } // namespace focus

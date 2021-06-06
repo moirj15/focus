@@ -1,14 +1,12 @@
-#include "renderer/Interface/Context.hpp"
+#include "renderer/Interface/focus.hpp"
 #include "utils/FileUtils.hpp"
 
 #include <SDL2/SDL.h>
-#include <cstdio>
-#include <filesystem>
 
 void TriangleTest(const focus::Window &window)
 {
   auto handle =
-      focus::create_shader_from_source("UniformColor", utils::ReadEntireFileAsString("shaders/gl/UniformColor.vert"),
+      focus::CreateShaderFromSource("UniformColor", utils::ReadEntireFileAsString("shaders/gl/UniformColor.vert"),
           utils::ReadEntireFileAsString("shaders/gl/UniformColor.frag"));
 
   float points[] = {
@@ -58,13 +56,16 @@ void TriangleTest(const focus::Window &window)
 
   focus::ConstantBufferDescriptor mvpDesc = {
       .name = "Constants",
+      .types = {focus::VarType::Mat4},
       .slot = 0,
+      .usage = focus::BufferUsage::Static,
+      .size_in_bytes = sizeof(mvp),
   };
 
   focus::SceneState sceneState = {
-      .vb_handles = {focus::create_vertex_buffer(points, focus::VertexBufferDescriptor())},
-      .cb_handles = {focus::create_constant_buffer(mvp, focus::ConstantBufferDescriptor())},
-      .ib_handle = focus::create_index_buffer(indices, focus::IndexBufferDescriptor()),
+      .vb_handles = {focus::CreateVertexBuffer(points, vbDescriptor)},
+      .cb_handles = {focus::CreateConstantBuffer(mvp, mvpDesc)},
+      .ib_handle = focus::CreateIndexBuffer(indices, ibDescriptor),
       .indexed = true,
   };
 
@@ -75,9 +76,9 @@ void TriangleTest(const focus::Window &window)
         return;
       }
     }
-    focus::clear_back_buffer({});
+    focus::ClearBackBuffer({});
 
-    focus::draw(focus::Primitive::Triangles, {}, handle, sceneState);
+    focus::Draw(focus::Primitive::Triangles, {}, handle, sceneState);
 
     focus::swap_buffers(window);
   }
@@ -85,7 +86,7 @@ void TriangleTest(const focus::Window &window)
 
 void TriangleTestInterleavedBuffer(const focus::Window &window)
 {
-  auto handle = focus::create_shader_from_source("UniformColor",
+  auto handle = focus::CreateShaderFromSource("UniformColor",
       utils::ReadEntireFileAsString("shaders/gl/UniformColorInterleaved.vert"),
       utils::ReadEntireFileAsString("shaders/gl/UniformColorInterleaved.frag"));
 
@@ -146,9 +147,9 @@ void TriangleTestInterleavedBuffer(const focus::Window &window)
   };
 
   focus::SceneState sceneState = {
-      .vb_handles = {focus::create_vertex_buffer(vertexData, focus::VertexBufferDescriptor())},
+      .vb_handles = {focus::CreateVertexBuffer(vertexData, vbDescriptor)},
       .cb_handles = {},
-      .ib_handle = focus::create_index_buffer(indices, focus::IndexBufferDescriptor()),
+      .ib_handle = focus::CreateIndexBuffer(indices, ibDescriptor),
       .indexed = true,
   };
 
@@ -159,9 +160,9 @@ void TriangleTestInterleavedBuffer(const focus::Window &window)
         return;
       }
     }
-    focus::clear_back_buffer({});
+    focus::ClearBackBuffer({});
 
-    focus::draw(focus::Primitive::Triangles, {}, handle, sceneState);
+    focus::Draw(focus::Primitive::Triangles, {}, handle, sceneState);
 
     focus::swap_buffers(window);
   }
@@ -170,8 +171,8 @@ void TriangleTestInterleavedBuffer(const focus::Window &window)
 void ComputeTest(const focus::Window &window)
 {
 
-  auto handle = focus::create_compute_shader_from_source(
-      "TestCompute", utils::ReadEntireFileAsString("shaders/dx11/testCS.hlsl"));
+  auto handle =
+      focus::CreateComputeShaderFromSource("TestCompute", utils::ReadEntireFileAsString("shaders/dx11/testCS.hlsl"));
 
   focus::ShaderBufferDescriptor sDesc = {
       .name = "color_buf",
@@ -179,12 +180,12 @@ void ComputeTest(const focus::Window &window)
       .accessMode = focus::AccessMode::WriteOnly,
       .types = {focus::VarType::Float},
   };
-  auto sHandle = focus::create_shader_buffer(nullptr, focus::ShaderBufferDescriptor());
-  auto *contents = (float *)focus::map_buffer(sHandle, focus::AccessMode::ReadOnly);
+  auto sHandle = focus::CreateShaderBuffer(nullptr, focus::ShaderBufferDescriptor());
+  auto *contents = (float *)focus::MapBuffer(sHandle, focus::AccessMode::ReadOnly);
   for (int i = 0; i < 256 * 256; i++) {
     contents[i] = 88.0f;
   }
-  focus::unmap_buffer(sHandle);
+  focus::UnmapBuffer(sHandle);
 
   SDL_Event e;
   while (true) {
@@ -193,11 +194,11 @@ void ComputeTest(const focus::Window &window)
         return;
       }
     }
-    focus::clear_back_buffer({});
-    focus::dispatch_compute(256, 256, 1, handle, {{sHandle}, {}});
-    focus::wait_for_memory(0);
-    auto *contents = (float *)focus::map_buffer(sHandle, focus::AccessMode::ReadOnly);
-    focus::unmap_buffer(sHandle);
+    focus::ClearBackBuffer({});
+    focus::DispatchCompute(256, 256, 1, handle, {{sHandle}, {}});
+    focus::WaitForMemory(0);
+    auto *contents2 = (float *)focus::MapBuffer(sHandle, focus::AccessMode::ReadOnly);
+    focus::UnmapBuffer(sHandle);
 
     focus::swap_buffers(window);
   }
@@ -208,8 +209,8 @@ int main(int argc, char **argv)
   (void)argc;
   (void)argv;
   setvbuf(stdout, nullptr, _IONBF, 0);
-  focus::init(focus::RendererAPI::OpenGL);
-  auto window = focus::make_window(1920, 1080);
+  focus::Init(focus::RendererAPI::OpenGL);
+  auto window = focus::MakeWindow(1920, 1080);
   TriangleTest(window);
   TriangleTestInterleavedBuffer(window);
   ComputeTest(window);

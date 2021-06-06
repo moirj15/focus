@@ -35,7 +35,7 @@ class ShaderManager
   std::unordered_map<ShaderHandle, Shaders> mGfxShaders;
   std::unordered_map<ShaderHandle, ComPtr<ID3D11ComputeShader>> mComputeShaders;
   // TODO: not thread safe, but not anticipating multithreaded shader compilation/creation now or in the future
-  ShaderHandle mCurrHandle = 0;
+  ShaderHandle mCurrHandle{0};
   ID3D11Device *mDevice;
 
 public:

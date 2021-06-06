@@ -74,7 +74,7 @@ extern DECLSPEC const char *SDLCALL SDL_GetError(void);
 extern DECLSPEC char * SDLCALL SDL_GetErrorMsg(char *errstr, int maxlen);
 
 /**
- *  \brief clear_back_buffer the error message for the current thread
+ *  \brief ClearBackBuffer the error message for the current thread
  */
 extern DECLSPEC void SDLCALL SDL_ClearError(void);
 

@@ -3,6 +3,21 @@
 #include "focus.hpp"
 
 struct SDL_Window;
+
+namespace std {
+
+template <typename Tag, typename T, T default_value>
+struct hash<focus::Handle<Tag, T, default_value>>
+{
+  template <typename Tag, typename T, T default_value>
+  size_t operator()(const focus::Handle<Tag, T, default_value> &k) const
+  {
+    return k.Hash();
+  }
+};
+
+}
+
 namespace focus
 {
 
@@ -19,11 +34,6 @@ using s64 = int64_t;
 using f32 = float;
 using f64 = double;
 
-constexpr auto handle_hash = [](const auto &handle) {
-  return std::hash<decltype(handle())>()(handle());
-};
-
-using std::unordered_map<
 
 // TODO: need some better documentation.
 class Context

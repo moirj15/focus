@@ -623,7 +623,7 @@ extern DECLSPEC int SDLCALL SDL_AudioStreamAvailable(SDL_AudioStream *stream);
 extern DECLSPEC int SDLCALL SDL_AudioStreamFlush(SDL_AudioStream *stream);
 
 /**
- *  clear_back_buffer any pending data in the stream without converting it
+ *  ClearBackBuffer any pending data in the stream without converting it
  *
  *  \sa SDL_NewAudioStream
  *  \sa SDL_AudioStreamPut

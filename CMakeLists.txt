@@ -52,9 +52,13 @@ file(GLOB RENDERER_DX12_SRC CONFIGURE_DEPENDS "src/renderer/dx12/*")
 # Interface
 set(INTERFACE_DIR ${CMAKE_SOURCE_DIR}/src/renderer/Interface)
 set(INTERFACE_SRC
-        ${INTERFACE_DIR}/Context.cpp)
+        ${INTERFACE_DIR}/Context.cpp
+        ${INTERFACE_DIR}/focus.cpp
+        )
 set(INTERFACE_HEADERS
-        ${INTERFACE_DIR}/Context.hpp)
+        ${INTERFACE_DIR}/Context.hpp
+        ${INTERFACE_DIR}/focus.hpp
+        )
 
 include_directories(
         ${CMAKE_SOURCE_DIR}/include;

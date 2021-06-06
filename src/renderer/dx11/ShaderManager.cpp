@@ -1,6 +1,8 @@
 #include "ShaderManager.hpp"
 
 #include <cassert>
+#include <d3dcompiler.h>
+#include "Utils.hpp"
 
 namespace focus::dx11
 {

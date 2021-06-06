@@ -895,7 +895,7 @@ extern "C" {
  *  be a valid URL.  For example, "http://www.example.com".
  *
  *  The default value is "", which will prevent SDL from adding a privacy policy
- *  link to the Settings charm.  This hint should only be set during app init.
+ *  link to the Settings charm.  This hint should only be set during app Init.
  *
  *  The label text of an app's "Privacy Policy" link may be customized via another
  *  hint, SDL_HINT_WINRT_PRIVACY_POLICY_LABEL.
@@ -1285,8 +1285,8 @@ extern "C" {
  *    "0"     - Don't use batching to make rendering more efficient.
  *    "1"     - Use batching, but might cause problems if app makes its own direct OpenGL calls.
  *
- *  Up to SDL 2.0.9, the render API would draw immediately when requested. Now
- *  it batches up draw requests and sends them all to the GPU only when forced
+ *  Up to SDL 2.0.9, the render API would Draw immediately when requested. Now
+ *  it batches up Draw requests and sends them all to the GPU only when forced
  *  to (during SDL_RenderPresent, when changing render targets, by updating a
  *  texture that the batch needs, etc). This is significantly more efficient,
  *  but it can cause problems for apps that expect to render on top of the
@@ -1560,7 +1560,7 @@ extern DECLSPEC void SDLCALL SDL_DelHintCallback(const char *name,
                                                  void *userdata);
 
 /**
- *  \brief  clear_back_buffer all hints
+ *  \brief  ClearBackBuffer all hints
  *
  *  This function is called during SDL_Quit() to free stored hints.
  */

@@ -850,7 +850,7 @@ void TriangleApp::DrawFrame()
 
   vkResetFences(mDevice, 1, &mInFlightFences[mCurrentFrame]);
   if (vkQueueSubmit(mGraphicsQueue, 1, &submitInfo, mInFlightFences[mCurrentFrame]) != VK_SUCCESS) {
-    printf("failed to submit draw command buffer\n");
+    printf("failed to submit Draw command buffer\n");
     assert(0);
   }
 

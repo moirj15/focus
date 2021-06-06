@@ -8,7 +8,7 @@
 namespace focus
 {
 
-Window DX12Context::make_window(s32 width, s32 height)
+Window DX12Context::MakeWindow(s32 width, s32 height)
 {
   SDL_Window *window =
       SDL_CreateWindow("DX12", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN);
@@ -21,9 +21,9 @@ Window DX12Context::make_window(s32 width, s32 height)
   Init();
 
   return {
-      .mWidth = width,
-      .mHeight = height,
-      .mSDLWindow = window,
+      .width = width,
+      .height = height,
+      .sdl_window = window,
   };
 }
 
@@ -128,74 +128,69 @@ void DX12Context::Init()
     mDevice->CreateRenderTargetView(mSwapChains[i].Get(), nullptr, rtvHeapHandle);
     rtvHeapHandle.ptr += mRtvDescriptorSize;
   }
-} 
-
-ShaderHandle DX12Context::create_shader_from_binary(const char *vBinary, const char *fBinary)
-{
-  return INVALID_HANDLE;
 }
 
-ShaderHandle DX12Context::create_shader_from_source(
+ShaderHandle DX12Context::CreateShaderFromSource(
     const char *name, const std::string &vSource, const std::string &fSource)
 {
-  return INVALID_HANDLE;
+  return ShaderHandle{INVALID_HANDLE};
 }
 
-ShaderHandle DX12Context::create_compute_shader_from_source(const char *name, const std::string &source)
+ShaderHandle DX12Context::CreateComputeShaderFromSource(const char *name, const std::string &source)
 {
-  return INVALID_HANDLE;
+  return ShaderHandle{INVALID_HANDLE};
 }
 
-VertexBufferHandle DX12Context::create_vertex_buffer(void *data, VertexBufferDescriptor descriptor)
+VertexBufferHandle DX12Context::CreateVertexBuffer(void *data, VertexBufferDescriptor descriptor)
 {
-  return INVALID_HANDLE;
+  return VertexBufferHandle{INVALID_HANDLE};
 }
 
-IndexBufferHandle DX12Context::create_index_buffer(void *data, IndexBufferDescriptor descriptor)
+IndexBufferHandle DX12Context::CreateIndexBuffer(void *data, IndexBufferDescriptor descriptor)
 {
-  return INVALID_HANDLE;
+  return IndexBufferHandle{INVALID_HANDLE};
 }
 
-BufferHandle DX12Context::create_shader_buffer(void *data, ShaderBufferDescriptor descriptor)
+ShaderBufferHandle DX12Context::CreateShaderBuffer(void *data, ShaderBufferDescriptor descriptor)
 {
-  return INVALID_HANDLE;
+  return ShaderBufferHandle{INVALID_HANDLE};
 }
 
-void *DX12Context::map_buffer(BufferHandle handle, AccessMode accessMode)
+void *DX12Context::MapBuffer(ShaderBufferHandle handle, AccessMode accessMode)
 {
   return nullptr;
 }
 
-void DX12Context::unmap_buffer(BufferHandle handle)
+void DX12Context::UnmapBuffer(ShaderBufferHandle handle)
 {
 }
 
-void DX12Context::destroy_vertex_buffer(VertexBufferHandle handle)
+void DX12Context::DestroyVertexBuffer(VertexBufferHandle handle)
 {
 }
 
-void DX12Context::destroy_index_buffer(IndexBufferHandle handle)
+void DX12Context::DestroyIndexBuffer(IndexBufferHandle handle)
 {
 }
 
-void DX12Context::draw(Primitive primitive, RenderState renderState, ShaderHandle shader, const SceneState &sceneState)
+void DX12Context::Draw(Primitive primitive, RenderState renderState, ShaderHandle shader, const SceneState &sceneState)
 {
 }
 
-void DX12Context::dispatch_compute(
+void DX12Context::DispatchCompute(
     u32 xGroups, u32 yGroups, u32 zGroups, ShaderHandle shader, const ComputeState &computeState)
 {
 }
 
-void DX12Context::wait_for_memory(u64 flags)
+void DX12Context::WaitForMemory(u64 flags)
 {
 }
 
-void DX12Context::clear_back_buffer(ClearState clearState /*= */)
+void DX12Context::ClearBackBuffer(ClearState clearState /*= */)
 {
 }
 
-void DX12Context::swap_buffers(const Window &window)
+void DX12Context::SwapBuffers(const Window &window)
 {
 }
 

@@ -684,13 +684,13 @@ extern DECLSPEC void SDLCALL SDL_RenderGetScale(SDL_Renderer * renderer,
                                                float *scaleX, float *scaleY);
 
 /**
- *  \brief Set the color used for drawing operations (Rect, Line and clear_back_buffer).
+ *  \brief Set the color used for drawing operations (Rect, Line and ClearBackBuffer).
  *
  *  \param renderer The renderer for which drawing color should be set.
- *  \param r The red value used to draw on the rendering target.
- *  \param g The green value used to draw on the rendering target.
- *  \param b The blue value used to draw on the rendering target.
- *  \param a The alpha value used to draw on the rendering target, usually
+ *  \param r The red value used to Draw on the rendering target.
+ *  \param g The green value used to Draw on the rendering target.
+ *  \param b The blue value used to Draw on the rendering target.
+ *  \param a The alpha value used to Draw on the rendering target, usually
  *           ::SDL_ALPHA_OPAQUE (255).
  *
  *  \return 0 on success, or -1 on error
@@ -700,13 +700,13 @@ extern DECLSPEC int SDLCALL SDL_SetRenderDrawColor(SDL_Renderer * renderer,
                                            Uint8 a);
 
 /**
- *  \brief Get the color used for drawing operations (Rect, Line and clear_back_buffer).
+ *  \brief Get the color used for drawing operations (Rect, Line and ClearBackBuffer).
  *
  *  \param renderer The renderer from which drawing color should be queried.
- *  \param r A pointer to the red value used to draw on the rendering target.
- *  \param g A pointer to the green value used to draw on the rendering target.
- *  \param b A pointer to the blue value used to draw on the rendering target.
- *  \param a A pointer to the alpha value used to draw on the rendering target,
+ *  \param r A pointer to the red value used to Draw on the rendering target.
+ *  \param g A pointer to the green value used to Draw on the rendering target.
+ *  \param b A pointer to the blue value used to Draw on the rendering target.
+ *  \param a A pointer to the alpha value used to Draw on the rendering target,
  *           usually ::SDL_ALPHA_OPAQUE (255).
  *
  *  \return 0 on success, or -1 on error
@@ -745,7 +745,7 @@ extern DECLSPEC int SDLCALL SDL_GetRenderDrawBlendMode(SDL_Renderer * renderer,
                                                        SDL_BlendMode *blendMode);
 
 /**
- *  \brief clear_back_buffer the current rendering target with the drawing color
+ *  \brief ClearBackBuffer the current rendering target with the drawing color
  *
  *  This function clears the entire rendering target, ignoring the viewport and
  *  the clip rectangle.
@@ -755,9 +755,9 @@ extern DECLSPEC int SDLCALL SDL_GetRenderDrawBlendMode(SDL_Renderer * renderer,
 extern DECLSPEC int SDLCALL SDL_RenderClear(SDL_Renderer * renderer);
 
 /**
- *  \brief draw a point on the current rendering target.
+ *  \brief Draw a point on the current rendering target.
  *
- *  \param renderer The renderer which should draw a point.
+ *  \param renderer The renderer which should Draw a point.
  *  \param x The x coordinate of the point.
  *  \param y The y coordinate of the point.
  *
@@ -767,11 +767,11 @@ extern DECLSPEC int SDLCALL SDL_RenderDrawPoint(SDL_Renderer * renderer,
                                                 int x, int y);
 
 /**
- *  \brief draw multiple points on the current rendering target.
+ *  \brief Draw multiple points on the current rendering target.
  *
- *  \param renderer The renderer which should draw multiple points.
- *  \param points The points to draw
- *  \param count The number of points to draw
+ *  \param renderer The renderer which should Draw multiple points.
+ *  \param points The points to Draw
+ *  \param count The number of points to Draw
  *
  *  \return 0 on success, or -1 on error
  */
@@ -780,9 +780,9 @@ extern DECLSPEC int SDLCALL SDL_RenderDrawPoints(SDL_Renderer * renderer,
                                                  int count);
 
 /**
- *  \brief draw a line on the current rendering target.
+ *  \brief Draw a line on the current rendering target.
  *
- *  \param renderer The renderer which should draw a line.
+ *  \param renderer The renderer which should Draw a line.
  *  \param x1 The x coordinate of the start point.
  *  \param y1 The y coordinate of the start point.
  *  \param x2 The x coordinate of the end point.
@@ -794,9 +794,9 @@ extern DECLSPEC int SDLCALL SDL_RenderDrawLine(SDL_Renderer * renderer,
                                                int x1, int y1, int x2, int y2);
 
 /**
- *  \brief draw a series of connected lines on the current rendering target.
+ *  \brief Draw a series of connected lines on the current rendering target.
  *
- *  \param renderer The renderer which should draw multiple lines.
+ *  \param renderer The renderer which should Draw multiple lines.
  *  \param points The points along the lines
  *  \param count The number of points, drawing count-1 lines
  *
@@ -807,9 +807,9 @@ extern DECLSPEC int SDLCALL SDL_RenderDrawLines(SDL_Renderer * renderer,
                                                 int count);
 
 /**
- *  \brief draw a rectangle on the current rendering target.
+ *  \brief Draw a rectangle on the current rendering target.
  *
- *  \param renderer The renderer which should draw a rectangle.
+ *  \param renderer The renderer which should Draw a rectangle.
  *  \param rect A pointer to the destination rectangle, or NULL to outline the entire rendering target.
  *
  *  \return 0 on success, or -1 on error
@@ -818,9 +818,9 @@ extern DECLSPEC int SDLCALL SDL_RenderDrawRect(SDL_Renderer * renderer,
                                                const SDL_Rect * rect);
 
 /**
- *  \brief draw some number of rectangles on the current rendering target.
+ *  \brief Draw some number of rectangles on the current rendering target.
  *
- *  \param renderer The renderer which should draw multiple rectangles.
+ *  \param renderer The renderer which should Draw multiple rectangles.
  *  \param rects A pointer to an array of destination rectangles.
  *  \param count The number of rectangles.
  *
@@ -897,9 +897,9 @@ extern DECLSPEC int SDLCALL SDL_RenderCopyEx(SDL_Renderer * renderer,
 
 
 /**
- *  \brief draw a point on the current rendering target.
+ *  \brief Draw a point on the current rendering target.
  *
- *  \param renderer The renderer which should draw a point.
+ *  \param renderer The renderer which should Draw a point.
  *  \param x The x coordinate of the point.
  *  \param y The y coordinate of the point.
  *
@@ -909,11 +909,11 @@ extern DECLSPEC int SDLCALL SDL_RenderDrawPointF(SDL_Renderer * renderer,
                                                  float x, float y);
 
 /**
- *  \brief draw multiple points on the current rendering target.
+ *  \brief Draw multiple points on the current rendering target.
  *
- *  \param renderer The renderer which should draw multiple points.
- *  \param points The points to draw
- *  \param count The number of points to draw
+ *  \param renderer The renderer which should Draw multiple points.
+ *  \param points The points to Draw
+ *  \param count The number of points to Draw
  *
  *  \return 0 on success, or -1 on error
  */
@@ -922,9 +922,9 @@ extern DECLSPEC int SDLCALL SDL_RenderDrawPointsF(SDL_Renderer * renderer,
                                                   int count);
 
 /**
- *  \brief draw a line on the current rendering target.
+ *  \brief Draw a line on the current rendering target.
  *
- *  \param renderer The renderer which should draw a line.
+ *  \param renderer The renderer which should Draw a line.
  *  \param x1 The x coordinate of the start point.
  *  \param y1 The y coordinate of the start point.
  *  \param x2 The x coordinate of the end point.
@@ -936,9 +936,9 @@ extern DECLSPEC int SDLCALL SDL_RenderDrawLineF(SDL_Renderer * renderer,
                                                 float x1, float y1, float x2, float y2);
 
 /**
- *  \brief draw a series of connected lines on the current rendering target.
+ *  \brief Draw a series of connected lines on the current rendering target.
  *
- *  \param renderer The renderer which should draw multiple lines.
+ *  \param renderer The renderer which should Draw multiple lines.
  *  \param points The points along the lines
  *  \param count The number of points, drawing count-1 lines
  *
@@ -949,9 +949,9 @@ extern DECLSPEC int SDLCALL SDL_RenderDrawLinesF(SDL_Renderer * renderer,
                                                 int count);
 
 /**
- *  \brief draw a rectangle on the current rendering target.
+ *  \brief Draw a rectangle on the current rendering target.
  *
- *  \param renderer The renderer which should draw a rectangle.
+ *  \param renderer The renderer which should Draw a rectangle.
  *  \param rect A pointer to the destination rectangle, or NULL to outline the entire rendering target.
  *
  *  \return 0 on success, or -1 on error
@@ -960,9 +960,9 @@ extern DECLSPEC int SDLCALL SDL_RenderDrawRectF(SDL_Renderer * renderer,
                                                const SDL_FRect * rect);
 
 /**
- *  \brief draw some number of rectangles on the current rendering target.
+ *  \brief Draw some number of rectangles on the current rendering target.
  *
- *  \param renderer The renderer which should draw multiple rectangles.
+ *  \param renderer The renderer which should Draw multiple rectangles.
  *  \param rects A pointer to an array of destination rectangles.
  *  \param count The number of rectangles.
  *

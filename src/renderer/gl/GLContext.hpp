@@ -15,7 +15,7 @@ class GLContext final : public Context
   BufferManager<VertexBufferHandle, VertexBufferDescriptor> mVBManager;
   BufferManager<IndexBufferHandle, IndexBufferDescriptor> mIBManager;
   BufferManager<ConstantBufferHandle, ConstantBufferDescriptor> mCBManager;
-  BufferManager<BufferHandle, ShaderBufferDescriptor> mSBManager;
+  BufferManager<ShaderBufferHandle, ShaderBufferDescriptor> mSBManager;
   ShaderManager mShaderManager;
   RenderState mCachedRenderState;
   u32 mVAO;
@@ -23,49 +23,49 @@ class GLContext final : public Context
 public:
   GLContext();
   // Window creation
-  Window make_window(s32 width, s32 height) override;
+  Window MakeWindow(s32 width, s32 height) override;
 
   // Shader creation
 
   // TODO: need to create a shader compile tool
-  ShaderHandle create_shader_from_binary(const std::vector<u8> &vBinary, const std::vector<u8> &fBinary) override;
-  ShaderHandle create_shader_from_source(
+  ShaderHandle CreateShaderFromBinary(const std::vector<u8> &vBinary, const std::vector<u8> &fBinary) override;
+  ShaderHandle CreateShaderFromSource(
       const char *name, const std::string &vSource, const std::string &fSource) override;
-  ShaderHandle create_compute_shader_from_source(const char *name, const std::string &source) override;
+  ShaderHandle CreateComputeShaderFromSource(const char *name, const std::string &source) override;
 
   // Buffer Creation
-  VertexBufferHandle create_vertex_buffer(void *data, VertexBufferDescriptor descriptor) override;
-  IndexBufferHandle create_index_buffer(void *data, IndexBufferDescriptor descriptor) override;
-  ConstantBufferHandle create_constant_buffer(void *data, ConstantBufferDescriptor descriptor) override;
-  BufferHandle create_shader_buffer(void *data, ShaderBufferDescriptor descriptor) override;
+  VertexBufferHandle CreateVertexBuffer(void *data, VertexBufferDescriptor descriptor) override;
+  IndexBufferHandle CreateIndexBuffer(void *data, IndexBufferDescriptor descriptor) override;
+  ConstantBufferHandle CreateConstantBuffer(void *data, ConstantBufferDescriptor descriptor) override;
+  ShaderBufferHandle CreateShaderBuffer(void *data, ShaderBufferDescriptor descriptor) override;
 
   // Buffer Updates
-  void update_vertex_buffer(VertexBufferHandle handle, void *data, u32 size) override;
-  void update_index_buffer(IndexBufferHandle handle, void *data, u32 size) override;
-  void update_constant_buffer(ConstantBufferHandle handle, void *data, u32 size) override;
-  void update_shader_buffer(BufferHandle handle, void *data, u32 size) override;
+  void UpdateVertexBuffer(VertexBufferHandle handle, void *data, u32 size) override;
+  void UpdateIndexBuffer(IndexBufferHandle handle, void *data, u32 size) override;
+  void UpdateConstantBuffer(ConstantBufferHandle handle, void *data, u32 size) override;
+  void UpdateShaderBuffer(ShaderBufferHandle handle, void *data, u32 size) override;
 
-  void *map_buffer(BufferHandle handle, AccessMode accessMode) override;
-  void unmap_buffer(BufferHandle handle) override;
+  void *MapBuffer(ShaderBufferHandle handle, AccessMode accessMode) override;
+  void UnmapBuffer(ShaderBufferHandle handle) override;
 
   // Buffer Destruction
-  void destroy_vertex_buffer(VertexBufferHandle handle) override;
-  void destroy_index_buffer(IndexBufferHandle handle) override;
-  void destroy_shader_buffer(BufferHandle handle) override;
-  void destroy_constant_buffer(ConstantBufferHandle handle) override;
+  void DestroyVertexBuffer(VertexBufferHandle handle) override;
+  void DestroyIndexBuffer(IndexBufferHandle handle) override;
+  void DestroyShaderBuffer(ShaderBufferHandle handle) override;
+  void DestroyConstantBuffer(ConstantBufferHandle handle) override;
 
   // draw call submission
-  void draw(Primitive primitive, RenderState renderState, ShaderHandle shader, const SceneState &sceneState) override;
+  void Draw(Primitive primitive, RenderState renderState, ShaderHandle shader, const SceneState &sceneState) override;
 
   // Compute shader dispatch
-  void dispatch_compute(
+  void DispatchCompute(
       u32 xGroups, u32 yGroups, u32 zGroups, ShaderHandle shader, const ComputeState &computeState) override;
-  void wait_for_memory(u64 flags) override;
+  void WaitForMemory(u64 flags) override;
 
   // Screen clearing
-  void clear_back_buffer(ClearState clearState = {}) override;
+  void ClearBackBuffer(ClearState clearState = {}) override;
 
-  void swap_buffers(const Window &window) override;
+  void SwapBuffers(const Window &window) override;
 };
 
 } // namespace focus

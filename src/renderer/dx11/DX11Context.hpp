@@ -42,53 +42,47 @@ public:
   inline ID3D11Device *GetDevice() { return mDevice.Get(); }
   inline ID3D11DeviceContext *GetContext() { return mContext.Get(); }
 
-  void Init() override;
+  Window MakeWindow(s32 width, s32 height) override;
 
-  Window make_window(s32 width, s32 height) override;
-
-  ShaderHandle create_shader_from_binary(const char *vBinary, const char *fBinary) override;
-
-  ShaderHandle create_shader_from_source(
+  ShaderHandle CreateShaderFromSource(
       const char *name, const std::string &vSource, const std::string &fSource) override;
 
-  ShaderHandle create_compute_shader_from_source(const char *name, const std::string &source) override;
+  ShaderHandle CreateComputeShaderFromSource(const char *name, const std::string &source) override;
 
-  VertexBufferHandle create_vertex_buffer(void *data, VertexBufferDescriptor descriptor) override;
+  VertexBufferHandle CreateVertexBuffer(void *data, VertexBufferDescriptor descriptor) override;
 
-  IndexBufferHandle create_index_buffer(void *data, IndexBufferDescriptor descriptor) override;
+  IndexBufferHandle CreateIndexBuffer(void *data, IndexBufferDescriptor descriptor) override;
 
-  ConstantBufferHandle create_constant_buffer(void *data, ConstantBufferDescriptor descriptor) override;
+  ConstantBufferHandle CreateConstantBuffer(void *data, ConstantBufferDescriptor descriptor) override;
 
-  BufferHandle create_shader_buffer(void *data, ShaderBufferDescriptor descriptor) override;
+  ShaderBufferHandle CreateShaderBuffer(void *data, ShaderBufferDescriptor descriptor) override;
 
-  void update_vertex_buffer(VertexBufferHandle handle, void *data, u32 size) override;
-  void update_index_buffer(IndexBufferHandle handle, void *data, u32 size) override;
-  void update_constant_buffer(ConstantBufferHandle handle, void *data, u32 size) override;
-  void update_shader_buffer(BufferHandle handle, void *data, u32 size) override;
+  void UpdateVertexBuffer(VertexBufferHandle handle, void *data, u32 size) override;
+  void UpdateIndexBuffer(IndexBufferHandle handle, void *data, u32 size) override;
+  void UpdateConstantBuffer(ConstantBufferHandle handle, void *data, u32 size) override;
+  void UpdateShaderBuffer(ShaderBufferHandle handle, void *data, u32 size) override;
 
-  std::vector<u8> ReadShaderBuffer(BufferHandle handle) override;
+  void *MapBuffer(ShaderBufferHandle handle, AccessMode accessMode) override;
 
-  void *map_buffer(BufferHandle handle, AccessMode accessMode) override;
+  void UnmapBuffer(ShaderBufferHandle handle) override;
 
-  void unmap_buffer(BufferHandle handle) override;
+  void DestroyVertexBuffer(VertexBufferHandle handle) override;
 
-  void destroy_vertex_buffer(VertexBufferHandle handle) override;
+  void DestroyIndexBuffer(IndexBufferHandle handle) override;
 
-  void destroy_index_buffer(IndexBufferHandle handle) override;
+  void DestroyShaderBuffer(ShaderBufferHandle handle) override;
+  void DestroyConstantBuffer(ConstantBufferHandle handle) override;
 
-  void destroy_shader_buffer(BufferHandle handle) override;
-  void destroy_constant_buffer(ConstantBufferHandle handle) override;
+  void Draw(Primitive primitive, RenderState renderState, ShaderHandle shader, const SceneState &sceneState) override;
 
-  void draw(Primitive primitive, RenderState renderState, ShaderHandle shader, const SceneState &sceneState) override;
-
-  void dispatch_compute(
+  void DispatchCompute(
       u32 xGroups, u32 yGroups, u32 zGroups, ShaderHandle shader, const ComputeState &computeState) override;
 
-  void wait_for_memory(u64 flags) override;
+  void WaitForMemory(u64 flags) override;
 
-  void clear_back_buffer(ClearState clearState = {}) override;
+  void ClearBackBuffer(ClearState clearState = {}) override;
 
-  void swap_buffers(const Window &window) override;
+  void SwapBuffers(const Window &window) override;
 
 
 };
