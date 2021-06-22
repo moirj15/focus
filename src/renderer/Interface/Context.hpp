@@ -4,19 +4,16 @@
 
 struct SDL_Window;
 
-namespace std {
-
-template <typename Tag, typename T, T default_value>
-struct hash<focus::Handle<Tag, T, default_value>>
+namespace std
 {
-  template <typename Tag, typename T, T default_value>
-  size_t operator()(const focus::Handle<Tag, T, default_value> &k) const
-  {
-    return k.Hash();
-  }
+
+template<typename Tag, typename T, T default_value>
+struct hash<focus::Handle<Tag, T, default_value>> {
+  // template <typename Tag, typename T, T default_value>
+  size_t operator()(const focus::Handle<Tag, T, default_value> &k) const { return k.Hash(); }
 };
 
-}
+} // namespace std
 
 namespace focus
 {
@@ -33,7 +30,6 @@ using s64 = int64_t;
 
 using f32 = float;
 using f64 = double;
-
 
 // TODO: need some better documentation.
 class Context
