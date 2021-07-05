@@ -4,14 +4,16 @@ project(focus)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 #TODO put the defines up here
 
+
+
 set(SRC
-        src/main.cpp
-        src/common.h
+        ${PROJECT_SOURCE_DIR}/src/main.cpp
+        ${PROJECT_SOURCE_DIR}/src/common.h
         )
 file(GLOB RENDERER_SRC CONFIGURE_DEPENDS "src/renderer/*")
 
 # Opengl Backend
-set(OPENGL_BACKEND_DIR ${CMAKE_SOURCE_DIR}/src/renderer/gl)
+set(OPENGL_BACKEND_DIR ${PROJECT_SOURCE_DIR}//src/renderer/gl)
 set(OPENGL_BACKEND_SRC
         ${OPENGL_BACKEND_DIR}/BufferManager.cpp
         ${OPENGL_BACKEND_DIR}/GLContext.cpp
@@ -32,7 +34,7 @@ file(GLOB RENDERER_VULKAN_SRC CONFIGURE_DEPENDS "src/renderer/vk/*")
 
 # DX11 backend
 
-set(DX11_BACKEND_DIR ${CMAKE_SOURCE_DIR}/src/renderer/dx11)
+set(DX11_BACKEND_DIR ${PROJECT_SOURCE_DIR}/src/renderer/dx11)
 set(DX11_BACKEND_SRC
         ${DX11_BACKEND_DIR}/DX11Context.cpp
         ${DX11_BACKEND_DIR}/ShaderManager.cpp
@@ -50,7 +52,7 @@ set(DX11_BACKEND_HEADERS
 file(GLOB RENDERER_DX12_SRC CONFIGURE_DEPENDS "src/renderer/dx12/*")
 
 # Interface
-set(INTERFACE_DIR ${CMAKE_SOURCE_DIR}/src/renderer/Interface)
+set(INTERFACE_DIR ${PROJECT_SOURCE_DIR}/src/renderer/Interface)
 set(INTERFACE_SRC
         ${INTERFACE_DIR}/Context.cpp
         ${INTERFACE_DIR}/focus.cpp
@@ -61,7 +63,7 @@ set(INTERFACE_HEADERS
         )
 
 include_directories(
-        ${CMAKE_SOURCE_DIR}/include;
+        ${PROJECT_SOURCE_DIR}/include;
 )
 
 add_library(focus STATIC
@@ -91,7 +93,7 @@ if (WIN32)
     set_target_properties(
             focus_main PROPERTIES
             VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
-    target_include_directories(focus PUBLIC ${RENDERER_INTERFACE_SRC})
+    target_include_directories(focus PUBLIC ${INTERFACE_DIR})
     message("WINDOWS BUILD")
     message("${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
     set(CMAKE_CXX_FLAGS "/std:c++latest /MTd /MP /TP /W3 -D_CRT_SECURE_NO_WARNINGS -DGLEW_STATIC -DGLFW_INCLUDE_NONE -DRENDERER_OPENGL")
