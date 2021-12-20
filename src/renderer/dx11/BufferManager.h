@@ -1,5 +1,5 @@
 #pragma once
-#include "../Interface/Context.hpp"
+#include "../Interface/FocusBackend.hpp"
 #include "Utils.hpp"
 
 #include <cassert>
@@ -26,7 +26,7 @@ struct BufferManager {
 
   inline HandleType Create(void *data, DescriptorType descriptor)
   {
-    return Create(data, descriptor, HandleType{0});
+    return Create(HandleType{0}, descriptor, data, 0);
 //    D3D11_BUFFER_DESC bufferDesc = {
 //        .ByteWidth = sizeInBytes,
 //        .Usage = D3D11_USAGE_DYNAMIC, // making everything dynamic for now, need to look at adding a usage member in the
@@ -52,20 +52,20 @@ struct BufferManager {
 
   inline ID3D11Buffer *Get(HandleType handle) { return mBuffers[handle].Get(); }
 
-  inline void Update(HandleType handle, void *data, u32 sizeInBytes)
+  inline void Update(HandleType handle, void *data, uint32_t sizeInBytes)
   {
     auto buffer = mBuffers[handle];
     auto descriptor = mDescriptors[handle];
     if (descriptor.size_in_bytes < sizeInBytes) {
       buffer.Reset();
       descriptor.size_in_bytes = sizeInBytes;
-      Create(data, descriptor, handle);
+      Create(handle, descriptor, data, 0);
     } else {
       D3D11_MAPPED_SUBRESOURCE mappedResource;
       Check(mContext->Map(buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
-      auto *mappedData = (u8*)mappedResource.pData;
-      for (u32 i = 0; i < sizeInBytes; i += mappedResource.RowPitch) {
-        memcpy(((u8*)mappedResource.pData) + i, ((u8*)data) + i, mappedResource.RowPitch);
+      auto *mappedData = (uint8_t*)mappedResource.pData;
+      for (uint32_t i = 0; i < sizeInBytes; i += mappedResource.RowPitch) {
+        memcpy(((uint8_t*)mappedResource.pData) + i, ((uint8_t*)data) + i, mappedResource.RowPitch);
       }
       mContext->Unmap(buffer.Get(), 0);
     }
@@ -78,10 +78,10 @@ struct BufferManager {
   }
 
 private:
-  inline HandleType Create(void *data, DescriptorType descriptor, HandleType handle)
+  inline HandleType Create(HandleType handle, DescriptorType descriptor, void *data, uint32_t size_in_bytes)
   {
     D3D11_BUFFER_DESC bufferDesc = {
-        .ByteWidth = descriptor.size_in_bytes,
+        .ByteWidth = size_in_bytes,
         .Usage = D3D11_USAGE_DYNAMIC, // making everything dynamic for now, need to look at adding a usage member in the
                                       // descriptors
         .BindFlags = BindFlag,

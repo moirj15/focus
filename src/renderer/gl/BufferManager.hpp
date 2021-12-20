@@ -1,38 +1,38 @@
 #pragma once
 
-#include "../Interface/Context.hpp"
+#include "../Interface/FocusBackend.hpp"
 #include "glad.h"
 
+#include <cassert>
 #include <unordered_map>
 #include <vector>
-#include <cassert>
 
 namespace focus
 {
-template<typename Handle, typename Descriptor>
+template<typename Handle, typename BufferLayout>
 struct BufferManager {
   Handle mCurrHandle{0};
-  std::unordered_map<Handle, u32> mHandles;
-  std::unordered_map<Handle, Descriptor> mDescriptors;
+  std::unordered_map<Handle, GLuint> mHandles;
+  std::unordered_map<Handle, BufferLayout> mDescriptors;
 
-  inline Handle Create(void *data, Descriptor descriptor)
+  inline Handle Create(BufferLayout buffer_layout, void *data, uint32_t size_in_bytes)
   {
     // Create the buffer for OpenGL
-    u32 handle;
+    GLuint handle;
     glGenBuffers(1, &handle);
     glBindBuffer(GL_ARRAY_BUFFER, handle);
-    glBufferData(GL_ARRAY_BUFFER, descriptor.size_in_bytes, data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, size_in_bytes, data, GL_STATIC_DRAW);
     // Do the actual management of the buffer handle
     mCurrHandle++;
-    mDescriptors[mCurrHandle] = descriptor;
+    mDescriptors[mCurrHandle] = buffer_layout;
     mHandles[mCurrHandle] = handle;
     return mCurrHandle;
   }
 
-  inline u32 Get(Handle handle) { return mHandles[handle]; }
+  inline GLuint Get(Handle handle) { return mHandles[handle]; }
 
-  inline void WriteTo(void *data, u32 size_in_bytes, Handle handle) { WriteTo(data, size_in_bytes, 0, handle); }
-  inline void WriteTo(void *data, u32 size_in_bytes, u32 offset_in_bytes, Handle handle)
+  inline void WriteTo(void *data, uint32_t size_in_bytes, Handle handle) { WriteTo(data, size_in_bytes, 0, handle); }
+  inline void WriteTo(void *data, uint32_t size_in_bytes, uint32_t offset_in_bytes, Handle handle)
   {
     auto bufferHandle = mHandles[handle];
     auto descriptor = mDescriptors[handle];
@@ -51,7 +51,7 @@ struct BufferManager {
     return vertexBuffer;
   }
 
-  inline std::vector<void *> ReadFrom(Handle handle, u32 length)
+  inline std::vector<void *> ReadFrom(Handle handle, uint32_t length)
   {
     const auto &descriptor = mDescriptors[handle];
     assert(length < descriptor.mSizeInBytes);
@@ -61,7 +61,7 @@ struct BufferManager {
     return vertexBuffer;
   }
 
-  inline std::vector<void *> ReadFrom(Handle handle, u32 start, u32 end)
+  inline std::vector<void *> ReadFrom(Handle handle, uint32_t start, uint32_t end)
   {
     const auto &descriptor = mDescriptors[handle];
     assert(end < descriptor.mSizeInBytes);

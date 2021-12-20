@@ -19,58 +19,60 @@ namespace focus::dx11
 
 DX11Context::DX11Context()
 {
-  u32 createDeviceFlags = 0;
+    uint32_t createDeviceFlags = 0;
 #if defined(DEBUG) || defined(_DEBUG)
-  createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+    createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
-  D3D_FEATURE_LEVEL desiredLevel[] = {D3D_FEATURE_LEVEL_11_1};
-  D3D_FEATURE_LEVEL featureLevel;
-  // TODO: get latest dx11
-  ID3D11Device *baseDevice;
-  ID3D11DeviceContext *baseContext;
-  Check(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, 0, createDeviceFlags, desiredLevel, 1, D3D11_SDK_VERSION, &baseDevice,
-      &featureLevel, &baseContext));
-  assert(featureLevel == D3D_FEATURE_LEVEL_11_1);
+    D3D_FEATURE_LEVEL desiredLevel[] = {D3D_FEATURE_LEVEL_11_1};
+    D3D_FEATURE_LEVEL featureLevel;
+    // TODO: get latest dx11
+    ID3D11Device *baseDevice;
+    ID3D11DeviceContext *baseContext;
+    Check(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, 0, createDeviceFlags, desiredLevel, 1, D3D11_SDK_VERSION,
+        &baseDevice, &featureLevel, &baseContext));
+    assert(featureLevel == D3D_FEATURE_LEVEL_11_1);
 
-  baseDevice->QueryInterface(__uuidof(ID3D11Device3), &mDevice);
-  baseContext->QueryInterface(__uuidof(ID3D11DeviceContext3), &mContext);
+    baseDevice->QueryInterface(__uuidof(ID3D11Device3), &mDevice);
+    baseContext->QueryInterface(__uuidof(ID3D11DeviceContext3), &mContext);
 
-  mShaderManager = ShaderManager(mDevice.Get());
-  mVBManager = BufferManager<VertexBufferHandle, VertexBufferDescriptor, D3D11_BIND_VERTEX_BUFFER>(mDevice.Get(), mContext.Get());
-  mIBManager = BufferManager<IndexBufferHandle, IndexBufferDescriptor, D3D11_BIND_INDEX_BUFFER>(mDevice.Get(), mContext.Get());
-  mCBManager = BufferManager<ConstantBufferHandle, ConstantBufferDescriptor, D3D11_BIND_CONSTANT_BUFFER>(mDevice.Get(), mContext.Get());
-  mSBManager = ShaderBufferManager(mDevice.Get(), mContext.Get());
+    mShaderManager = ShaderManager(mDevice.Get());
+    mVBManager =
+        BufferManager<VertexBuffer, VertexBufferLayout, D3D11_BIND_VERTEX_BUFFER>(mDevice.Get(), mContext.Get());
+    mIBManager = BufferManager<IndexBuffer, IndexBufferLayout, D3D11_BIND_INDEX_BUFFER>(mDevice.Get(), mContext.Get());
+    mCBManager =
+        BufferManager<ConstantBuffer, ConstantBufferLayout, D3D11_BIND_CONSTANT_BUFFER>(mDevice.Get(), mContext.Get());
+    mSBManager = ShaderBufferManager(mDevice.Get(), mContext.Get());
 
-  // TODO: temporary rasterizer state, should create a manager for this, maybe create a handle type for this?
-  // TODO: maybe an internal handle just for tracking this internaly?
-  D3D11_RASTERIZER_DESC rasterizerDesc = {
-      .FillMode = D3D11_FILL_SOLID,
-      .CullMode = D3D11_CULL_NONE,
-      .FrontCounterClockwise = true,
-  };
-  mDevice->CreateRasterizerState(&rasterizerDesc, &mRasterizerState);
+    // TODO: temporary rasterizer state, should create a manager for this, maybe create a handle type for this?
+    // TODO: maybe an internal handle just for tracking this internaly?
+    D3D11_RASTERIZER_DESC rasterizerDesc = {
+        .FillMode = D3D11_FILL_SOLID,
+        .CullMode = D3D11_CULL_NONE,
+        .FrontCounterClockwise = true,
+    };
+    mDevice->CreateRasterizerState(&rasterizerDesc, &mRasterizerState);
 }
 
-Window DX11Context::MakeWindow(s32 width, s32 height)
+Window DX11Context::MakeWindow(int32_t width, int32_t height)
 {
-  SDL_Window *window =
-      SDL_CreateWindow("DX12", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN);
+    SDL_Window *window =
+        SDL_CreateWindow("DX11", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN);
 
-  assert(window != nullptr);
+    assert(window != nullptr);
 
-  // Don't resize window so it doesn't mess with tiling window managers
-  SDL_SetWindowResizable(window, SDL_FALSE);
+    // Don't resize window so it doesn't mess with tiling window managers
+    SDL_SetWindowResizable(window, SDL_FALSE);
 
-  SDL_SysWMinfo wmInfo;
-  SDL_VERSION(&wmInfo.version);
-  SDL_GetWindowWMInfo(window, &wmInfo);
-  HWND hwnd = wmInfo.info.win.window;
+    SDL_SysWMinfo wmInfo;
+    SDL_VERSION(&wmInfo.version);
+    SDL_GetWindowWMInfo(window, &wmInfo);
+    HWND hwnd = wmInfo.info.win.window;
 
-  // clang-format off
+    // clang-format off
   DXGI_SWAP_CHAIN_DESC swapChainDesc = {
       .BufferDesc = {
-          .Width = (u32)width,
-          .Height = (u32)height,
+          .Width = (uint32_t)width,
+          .Height = (uint32_t)height,
           .RefreshRate = {
               .Numerator = 60,
               .Denominator = 1,
@@ -91,24 +93,24 @@ Window DX11Context::MakeWindow(s32 width, s32 height)
       .SwapEffect = DXGI_SWAP_EFFECT_DISCARD,
       .Flags = 0,
   };
-  // clang-format on
+    // clang-format on
 
-  ComPtr<IDXGIDevice> dxgiDevice;
-  Check(mDevice->QueryInterface(__uuidof(IDXGIDevice), &dxgiDevice));
-  ComPtr<IDXGIAdapter> adapter;
-  Check(dxgiDevice->GetParent(__uuidof(IDXGIAdapter), &adapter));
-  ComPtr<IDXGIFactory> factory;
-  Check(adapter->GetParent(__uuidof(IDXGIFactory), &factory));
+    ComPtr<IDXGIDevice> dxgiDevice;
+    Check(mDevice->QueryInterface(__uuidof(IDXGIDevice), &dxgiDevice));
+    ComPtr<IDXGIAdapter> adapter;
+    Check(dxgiDevice->GetParent(__uuidof(IDXGIAdapter), &adapter));
+    ComPtr<IDXGIFactory> factory;
+    Check(adapter->GetParent(__uuidof(IDXGIFactory), &factory));
 
-  Check(factory->CreateSwapChain(mDevice.Get(), &swapChainDesc, &mSwapChain));
+    Check(factory->CreateSwapChain(mDevice.Get(), &swapChainDesc, &mSwapChain));
 
-  mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), &mBackBuffer);
-  mDevice->CreateRenderTargetView(mBackBuffer.Get(), 0, &mBackBufferRenderTargetView);
+    mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), &mBackBuffer);
+    mDevice->CreateRenderTargetView(mBackBuffer.Get(), 0, &mBackBufferRenderTargetView);
 
-  // clang-format off
+    // clang-format off
   D3D11_TEXTURE2D_DESC depthStencilDesc = {
-      .Width = (u32)width,
-      .Height = (u32)height,
+      .Width = (uint32_t)width,
+      .Height = (uint32_t)height,
       .MipLevels = 1,
       .ArraySize = 1,
       .Format = DXGI_FORMAT_D24_UNORM_S8_UINT,
@@ -122,196 +124,230 @@ Window DX11Context::MakeWindow(s32 width, s32 height)
       .CPUAccessFlags = 0,
       .MiscFlags = 0,
   };
-  // clang-format on
+    // clang-format on
 
-  Check(mDevice->CreateTexture2D(&depthStencilDesc, 0, &mDepthStencilBuffer));
-  Check(mDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), 0, &mDepthStencilView));
-  mContext->OMSetRenderTargets(1, mBackBufferRenderTargetView.GetAddressOf(), mDepthStencilView.Get());
+    Check(mDevice->CreateTexture2D(&depthStencilDesc, 0, &mDepthStencilBuffer));
+    Check(mDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), 0, &mDepthStencilView));
+    mContext->OMSetRenderTargets(1, mBackBufferRenderTargetView.GetAddressOf(), mDepthStencilView.Get());
 
-  // TODO: be careful about setting this to something else down the road. Currently not checking for changes
-  mViewport = {
-      .TopLeftX = 0.0f,
-      .TopLeftY = 0.0f,
-      .Width = (f32)width,
-      .Height = (f32)height,
-      .MinDepth = 0.0f,
-      .MaxDepth = 1.0f,
-  };
+    // TODO: be careful about setting this to something else down the road. Currently not checking for changes
+    mViewport = {
+        .TopLeftX = 0.0f,
+        .TopLeftY = 0.0f,
+        .Width = (float)width,
+        .Height = (float)height,
+        .MinDepth = 0.0f,
+        .MaxDepth = 1.0f,
+    };
 
-  mContext->RSSetViewports(1, &mViewport);
+    mContext->RSSetViewports(1, &mViewport);
 
-  return {
-      .width = width,
-      .height = height,
-      .sdl_window = window,
-  };
+    return {
+        .width = width,
+        .height = height,
+        .sdl_window = window,
+    };
 }
 
-ShaderHandle DX11Context::CreateShaderFromSource(
-    const char *name, const std::string &vSource, const std::string &fSource)
+Shader DX11Context::CreateShaderFromBinary(const std::vector<uint8_t> &vBinary, const std::vector<uint8_t> &fBinary)
 {
-  return mShaderManager.AddShader(name, vSource, fSource);
+    return {};
 }
 
-ShaderHandle DX11Context::CreateComputeShaderFromSource(const char *name, const std::string &source)
+Shader DX11Context::CreateShaderFromSource(const char *name, const std::string &vSource, const std::string &fSource)
 {
-  return mShaderManager.AddComputeShader(name, source);
+    return mShaderManager.AddShader(name, vSource, fSource);
 }
 
-VertexBufferHandle DX11Context::CreateVertexBuffer(void *data, VertexBufferDescriptor descriptor)
+Shader DX11Context::CreateComputeShaderFromSource(const char *name, const std::string &source)
 {
-  return mVBManager.Create(data, descriptor);
+    return mShaderManager.AddComputeShader(name, source);
 }
 
-IndexBufferHandle DX11Context::CreateIndexBuffer(void *data, IndexBufferDescriptor descriptor)
+VertexBuffer DX11Context::CreateVertexBuffer(
+    const VertexBufferLayout &vertex_buffer_layout, void *data, uint32_t data_size)
 {
-  return mIBManager.Create(data, descriptor);
+    return mVBManager.Create(data, vertex_buffer_layout);
 }
 
-ShaderBufferHandle DX11Context::CreateShaderBuffer(void *data, ShaderBufferDescriptor descriptor)
+IndexBuffer DX11Context::CreateIndexBuffer(
+    const IndexBufferLayout &index_buffer_descriptor, void *data, uint32_t data_size)
 {
-  return mSBManager.Create(data, descriptor);
+    return mIBManager.Create(data, index_buffer_descriptor);
 }
 
-ConstantBufferHandle DX11Context::CreateConstantBuffer(void *data, ConstantBufferDescriptor descriptor)
+ConstantBuffer DX11Context::CreateConstantBuffer(
+    const ConstantBufferLayout &constant_buffer_layout, void *data, uint32_t data_size)
 {
-  return mCBManager.Create(data, descriptor);
+    return mCBManager.Create(data, constant_buffer_layout);
 }
 
-void DX11Context::UpdateVertexBuffer(VertexBufferHandle handle, void *data, u32 size)
+ShaderBuffer DX11Context::CreateShaderBuffer(
+    const ShaderBufferLayout &shader_buffer_layout, void *data, uint32_t data_size)
 {
-  mVBManager.Update(handle, data, size);
+    // TODO: redo
+    //    return mSBManager.Create(data, shader_buffer_layout);
+    return {};
 }
-void DX11Context::UpdateIndexBuffer(IndexBufferHandle handle, void *data, u32 size)
+
+Pipeline DX11Context::CreatePipeline(PipelineState state)
 {
-  mIBManager.Update(handle, data, size);
-
+    return {};
 }
-void DX11Context::UpdateConstantBuffer(ConstantBufferHandle handle, void *data, u32 size)
+
+#if 0
+void DX11Context::UpdateVertexBuffer(VertexBuffer handle, void *data, uint32_t size)
 {
-  mCBManager.Update(handle, data, size);
-
+    mVBManager.Update(handle, data, size);
 }
-void DX11Context::UpdateShaderBuffer(ShaderBufferHandle handle, void *data, u32 size)
+void DX11Context::UpdateIndexBuffer(IndexBuffer handle, void *data, uint32_t size)
 {
-  mSBManager.Update(handle, data, size);
+    mIBManager.Update(handle, data, size);
 }
-
-
-void *DX11Context::MapBuffer(ShaderBufferHandle handle, AccessMode accessMode)
+void DX11Context::UpdateConstantBuffer(ConstantBuffer handle, void *data, uint32_t size)
 {
-  D3D11_MAPPED_SUBRESOURCE mappedResource;
-  Check(mContext->Map(mSBManager.mBuffers[handle].Get(), 0, D3D11_MAP_READ_WRITE, 0, &mappedResource));
-  return mappedResource.pData;
+    mCBManager.Update(handle, data, size);
 }
-
-void DX11Context::UnmapBuffer(ShaderBufferHandle handle)
+void DX11Context::UpdateShaderBuffer(ShaderBuffer handle, void *data, uint32_t size)
 {
-  mContext->Unmap(mSBManager.mBuffers[handle].Get(), 0);
+    mSBManager.Update(handle, data, size);
 }
+#endif
 
-void DX11Context::DestroyVertexBuffer(VertexBufferHandle handle)
+void *DX11Context::MapBuffer(ShaderBuffer handle, AccessMode accessMode)
 {
-  mVBManager.Destroy(handle);
+    D3D11_MAPPED_SUBRESOURCE mappedResource;
+    Check(mContext->Map(mSBManager.mBuffers[handle].Get(), 0, D3D11_MAP_READ_WRITE, 0, &mappedResource));
+    return mappedResource.pData;
 }
 
-void DX11Context::DestroyIndexBuffer(IndexBufferHandle handle)
+void DX11Context::UnmapBuffer(ShaderBuffer handle)
 {
-  mIBManager.Destroy(handle);
+    mContext->Unmap(mSBManager.mBuffers[handle].Get(), 0);
 }
 
-void DX11Context::DestroyShaderBuffer(ShaderBufferHandle handle)
+void DX11Context::DestroyVertexBuffer(VertexBuffer handle)
 {
-  mSBManager.Destroy(handle);
+    mVBManager.Destroy(handle);
 }
 
-void DX11Context::DestroyConstantBuffer(ConstantBufferHandle handle)
+void DX11Context::DestroyIndexBuffer(IndexBuffer handle)
 {
-  mCBManager.Destroy(handle);
+    mIBManager.Destroy(handle);
 }
 
+void DX11Context::DestroyShaderBuffer(ShaderBuffer handle)
+{
+    mSBManager.Destroy(handle);
+}
+
+void DX11Context::DestroyConstantBuffer(ConstantBuffer handle)
+{
+    mCBManager.Destroy(handle);
+}
+
+void DX11Context::BeginPass(const std::string &name)
+{
+}
+
+void DX11Context::BindSceneState(const SceneState &scene_state)
+{
+}
+void DX11Context::BindPipeline(Pipeline pipeline)
+{
+}
+void DX11Context::Draw(Primitive primitive)
+{
+}
+
+void DX11Context::EndPass()
+{
+}
+
+/*
 void DX11Context::Draw(Primitive primitive, RenderState renderState, ShaderHandle shader, const SceneState &sceneState)
 {
-  // TODO: some kinda state tracking
-  mContext->OMSetRenderTargets(1, mBackBufferRenderTargetView.GetAddressOf(), mDepthStencilView.Get());
+    // TODO: some kinda state tracking
+    mContext->OMSetRenderTargets(1, mBackBufferRenderTargetView.GetAddressOf(), mDepthStencilView.Get());
 
-  auto programs = mShaderManager.GetProgram(shader);
+    auto programs = mShaderManager.GetProgram(shader);
 
-  // Setup the shader state
-  mContext->VSSetShader(programs.vertexShader.Get(), nullptr, 0);
-  mContext->PSSetShader(programs.pixelShader.Get(), nullptr, 0);
+    // Setup the shader state
+    mContext->VSSetShader(programs.vertexShader.Get(), nullptr, 0);
+    mContext->PSSetShader(programs.pixelShader.Get(), nullptr, 0);
 
-  mContext->IASetInputLayout(programs.inputLayout.Get());
-  mContext->IASetPrimitiveTopology(utils::PrimitiveToD3D11(primitive));
+    mContext->IASetInputLayout(programs.inputLayout.Get());
+    mContext->IASetPrimitiveTopology(utils::PrimitiveToD3D11(primitive));
 
-  mContext->RSSetState(mRasterizerState.Get());
+    mContext->RSSetState(mRasterizerState.Get());
 
-  for (auto vbHandle : sceneState.vb_handles) {
-    // TODO: need to start storing the stride in the descriptor or someplace else
-    auto *vBuffer = mVBManager.Get(vbHandle);
-    auto vbDesc = mVBManager.mDescriptors[vbHandle];
-    u32 offset = 0;
-    mContext->IASetVertexBuffers(0, 1, &vBuffer, &programs.inputStride, &offset);
-  }
-  for (auto cbHandle : sceneState.cb_handles) {
-    // TODO: figure out a good way to do this for different shader stages
-    // TODO: also need to handle when a shader stage takes multible constant buffers
-    auto *cBuffer = mCBManager.Get(cbHandle);
-    mContext->VSSetConstantBuffers(0, 1, &cBuffer);
-  }
-  auto ibDesc = mIBManager.mDescriptors[sceneState.ib_handle];
-  auto *iBuffer = mIBManager.Get(sceneState.ib_handle);
-  mContext->IASetIndexBuffer(iBuffer, DXGI_FORMAT_R32_UINT, 0);
-  mContext->Draw(ibDesc.size_in_bytes / 4, 0);
+    for (auto vbHandle : sceneState.vb_handles) {
+        // TODO: need to start storing the stride in the descriptor or someplace else
+        auto *vBuffer = mVBManager.Get(vbHandle);
+        auto vbDesc = mVBManager.mDescriptors[vbHandle];
+        u32 offset = 0;
+        mContext->IASetVertexBuffers(0, 1, &vBuffer, &programs.inputStride, &offset);
+    }
+    for (auto cbHandle : sceneState.cb_handles) {
+        // TODO: figure out a good way to do this for different shader stages
+        // TODO: also need to handle when a shader stage takes multible constant buffers
+        auto *cBuffer = mCBManager.Get(cbHandle);
+        mContext->VSSetConstantBuffers(0, 1, &cBuffer);
+    }
+    auto ibDesc = mIBManager.mDescriptors[sceneState.ib_handle];
+    auto *iBuffer = mIBManager.Get(sceneState.ib_handle);
+    mContext->IASetIndexBuffer(iBuffer, DXGI_FORMAT_R32_UINT, 0);
+    mContext->Draw(ibDesc.size_in_bytes / 4, 0);
 }
+*/
 
 void DX11Context::DispatchCompute(
-    u32 xGroups, u32 yGroups, u32 zGroups, ShaderHandle shader, const ComputeState &computeState)
+    uint32_t xGroups, uint32_t yGroups, uint32_t zGroups, Shader shader, const ComputeState &computeState)
 {
-  auto cs = mShaderManager.GetComputeShader(shader);
-  mContext->CSSetShader(cs, nullptr, 0);
-  std::vector<ID3D11ShaderResourceView *> readResources;
-  std::vector<ID3D11UnorderedAccessView *> writeResources;
-  for (auto bHandle : computeState.buffer_handles) {
-    if (mSBManager.mResources.contains(bHandle)) {
-      readResources.push_back(mSBManager.mResources[bHandle].Get());
-    } else if (mSBManager.mRWResources.contains(bHandle)) {
-      writeResources.push_back(mSBManager.mRWResources[bHandle].Get());
+    auto cs = mShaderManager.GetComputeShader(shader);
+    mContext->CSSetShader(cs, nullptr, 0);
+    std::vector<ID3D11ShaderResourceView *> readResources;
+    std::vector<ID3D11UnorderedAccessView *> writeResources;
+    for (auto bHandle : computeState.buffer_handles) {
+        if (mSBManager.mResources.contains(bHandle)) {
+            readResources.push_back(mSBManager.mResources[bHandle].Get());
+        } else if (mSBManager.mRWResources.contains(bHandle)) {
+            writeResources.push_back(mSBManager.mRWResources[bHandle].Get());
+        }
     }
-  }
-  mContext->CSSetShaderResources(0, readResources.size(), readResources.data());
-  u32 uavInitialCounts = -1;
-  mContext->CSSetUnorderedAccessViews(0, writeResources.size(), writeResources.data(), &uavInitialCounts);
-  for (auto cbHandle : computeState.cb_handles) {
-    // TODO: figure out a good way to do this for different shader stages
-    // TODO: also need to handle when a shader stage takes multible constant buffers
-    auto *cBuffer = mCBManager.Get(cbHandle);
-    mContext->CSSetConstantBuffers(0, 1, &cBuffer);
-  }
-  mContext->Dispatch(xGroups, yGroups, zGroups);
+    mContext->CSSetShaderResources(0, readResources.size(), readResources.data());
+    uint32_t uavInitialCounts = -1;
+    mContext->CSSetUnorderedAccessViews(0, writeResources.size(), writeResources.data(), &uavInitialCounts);
+    for (auto cbHandle : computeState.cb_handles) {
+        // TODO: figure out a good way to do this for different shader stages
+        // TODO: also need to handle when a shader stage takes multible constant buffers
+        auto *cBuffer = mCBManager.Get(cbHandle);
+        mContext->CSSetConstantBuffers(0, 1, &cBuffer);
+    }
+    mContext->Dispatch(xGroups, yGroups, zGroups);
 }
 
-void DX11Context::WaitForMemory(u64 flags)
+void DX11Context::WaitForMemory(uint64_t flags)
 {
-  // Not needed for dx11?
+    // Not needed for dx11?
 }
 
 void DX11Context::ClearBackBuffer(ClearState clearState)
 {
-  if ((u32)clearState.to_clear & (u32)ClearBuffer::Color) {
-    mContext->ClearRenderTargetView(mBackBufferRenderTargetView.Get(), (float *)&clearState.clear_color);
-  }
-  if ((u32)clearState.to_clear & (u32)ClearBuffer::DepthStencil) {
-    // TODO: need to add a depth to ClearState
-    mContext->ClearDepthStencilView(mDepthStencilView.Get(), utils::ClearBufferToD3D11(clearState.to_clear), 1.0f, 0);
-  }
+    if ((uint32_t)clearState.to_clear & (uint32_t)ClearBuffer::Color) {
+        mContext->ClearRenderTargetView(mBackBufferRenderTargetView.Get(), (float *)&clearState.clear_color);
+    }
+    if ((uint32_t)clearState.to_clear & (uint32_t)ClearBuffer::DepthStencil) {
+        // TODO: need to add a depth to ClearState
+        mContext->ClearDepthStencilView(
+            mDepthStencilView.Get(), utils::ClearBufferToD3D11(clearState.to_clear), 1.0f, 0);
+    }
 }
 
 void DX11Context::SwapBuffers(const Window &window)
 {
-  mSwapChain->Present(1, 0);
-  // SDL_GL_SwapWindow(window.mSDLWindow);
+    mSwapChain->Present(1, 0);
+    // SDL_GL_SwapWindow(window.mSDLWindow);
 }
-
 
 } // namespace focus::dx11

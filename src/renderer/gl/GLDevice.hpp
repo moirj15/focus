@@ -1,47 +1,31 @@
 #pragma once
 
-#include "../Interface/focus.hpp"
-#include "BufferManager.h"
-#include "ShaderBufferManager.hpp"
+#include "../../common.h"
+#include "../Interface/FocusBackend.hpp"
+#include "BufferManager.hpp"
 #include "ShaderManager.hpp"
 
-#include <d3d11.h>
-#include <d3d11_3.h>
-#include <dxgi.h>
-#include <wrl/client.h>
+struct GLFWwindow;
 
-namespace focus::dx11
+namespace focus
 {
-using namespace Microsoft::WRL;
 
-class DX11Context : public Device
+class GLDevice final : public Device
 {
-    ComPtr<ID3D11Device3> mDevice;
-    ComPtr<ID3D11DeviceContext3> mContext;
-
-  private:
-    ComPtr<IDXGISwapChain> mSwapChain;
-    ComPtr<ID3D11Texture2D> mBackBuffer;
-    ComPtr<ID3D11RenderTargetView> mBackBufferRenderTargetView;
-    ComPtr<ID3D11Texture2D> mDepthStencilBuffer;
-    ComPtr<ID3D11DepthStencilView> mDepthStencilView;
-    ComPtr<ID3D11RasterizerState> mRasterizerState;
-    D3D11_VIEWPORT mViewport;
-
+    BufferManager<VertexBuffer, VertexBufferLayout> mVBManager;
+    BufferManager<IndexBuffer, IndexBufferLayout> mIBManager;
+    BufferManager<ConstantBuffer, ConstantBufferLayout> mCBManager;
+    BufferManager<ShaderBuffer, ShaderBufferLayout> mSBManager;
     ShaderManager mShaderManager;
-    /// Managers for read-only inputs
-    BufferManager<VertexBuffer, VertexBufferLayout, D3D11_BIND_VERTEX_BUFFER> mVBManager;
-    BufferManager<IndexBuffer, IndexBufferLayout, D3D11_BIND_INDEX_BUFFER> mIBManager;
-    BufferManager<ConstantBuffer, ConstantBufferLayout, D3D11_BIND_CONSTANT_BUFFER> mCBManager;
-    // TODO: find equivalent
-    ShaderBufferManager mSBManager;
+    PipelineState mCachedRenderState;
+    GLuint mVAO;
+    SceneState _bound_scene_state;
+    std::optional<Pipeline> _bound_pipeline;
+    std::string _pass_name;
+    std::unordered_map<Pipeline, PipelineState> _pipeline_states;
 
-  public:
-    DX11Context();
-
-    inline ID3D11Device *GetDevice() { return mDevice.Get(); }
-    inline ID3D11DeviceContext *GetContext() { return mContext.Get(); }
-
+public:
+    GLDevice();
     // Window creation
     Window MakeWindow(int32_t width, int32_t height) override;
 
@@ -61,7 +45,6 @@ class DX11Context : public Device
         const ConstantBufferLayout &constant_buffer_layout, void *data, uint32_t data_size) override;
     ShaderBuffer CreateShaderBuffer(const ShaderBufferLayout &shader_buffer_layout, void *data, uint32_t data_size) override;
 
-    Pipeline CreatePipeline(PipelineState state) override;
     /*
     // Buffer Updates
     void UpdateVertexBuffer(VertexBuffer handle, void *data, uint32_t size) override;
@@ -96,6 +79,7 @@ class DX11Context : public Device
     void ClearBackBuffer(ClearState clearState = {}) override;
 
     void SwapBuffers(const Window &window) override;
+    Pipeline CreatePipeline(PipelineState state) override;
 };
 
-} // namespace focus::dx11
+} // namespace focus

@@ -1,5 +1,5 @@
 #pragma once
-#include "../Interface/Context.hpp"
+#include "../Interface/FocusBackend.hpp"
 
 #include <cassert>
 #include <d3d11.h>
@@ -41,13 +41,13 @@ constexpr D3D11_PRIMITIVE_TOPOLOGY PrimitiveToD3D11(Primitive primitive)
   }
 }
 
-constexpr u32 ClearBufferToD3D11(ClearBuffer clearBuffer)
+constexpr uint32_t ClearBufferToD3D11(ClearBuffer clearBuffer)
 {
-  u32 flags = 0;
-  if ((u32)clearBuffer & (u32)ClearBuffer::Depth) {
+    uint32_t flags = 0;
+  if ((uint32_t)clearBuffer & (uint32_t)ClearBuffer::Depth) {
     flags |= D3D11_CLEAR_DEPTH;
   }
-  if ((u32)clearBuffer & (u32)ClearBuffer::Stencil) {
+  if ((uint32_t)clearBuffer & (uint32_t)ClearBuffer::Stencil) {
     flags |= D3D11_CLEAR_STENCIL;
   }
   return flags;
@@ -63,11 +63,11 @@ constexpr DXGI_FORMAT FocusToDXGIFormat(VarType type)
     return DXGI_FORMAT_R32_SINT;
   case VarType::UInt:
     return DXGI_FORMAT_R32_UINT;
-  case VarType::Vec2:
+  case VarType::Float2:
     return DXGI_FORMAT_R32G32_FLOAT;
-  case VarType::Vec3:
+  case VarType::Float3:
     return DXGI_FORMAT_R32G32B32_FLOAT;
-  case VarType::Vec4:
+  case VarType::Float4:
     return DXGI_FORMAT_R32G32B32A32_FLOAT;
   case VarType::Int2:
     return DXGI_FORMAT_R32G32_SINT;
@@ -81,13 +81,13 @@ constexpr DXGI_FORMAT FocusToDXGIFormat(VarType type)
     return DXGI_FORMAT_R32G32B32_UINT;
   case VarType::UInt4:
     return DXGI_FORMAT_R32G32B32A32_UINT;
-  case VarType::Mat2:
+  case VarType::Float2x2:
     assert(0 && "TODO");
     return DXGI_FORMAT_FORCE_UINT;
-  case VarType::Mat3:
+  case VarType::Float3x3:
     assert(0 && "TODO");
     return DXGI_FORMAT_FORCE_UINT;
-  case VarType::Mat4:
+  case VarType::Float4x4:
     assert(0 && "TODO");
     return DXGI_FORMAT_FORCE_UINT;
   case VarType::Sampler1D:
@@ -106,42 +106,42 @@ constexpr DXGI_FORMAT FocusToDXGIFormat(VarType type)
   }
 }
 
-constexpr u32 BytesPerVarType(VarType type)
+constexpr uint32_t BytesPerVarType(VarType type)
 {
   switch (type)
   {
   case VarType::Float:
-    return sizeof(f32);
+    return sizeof(float);
   case VarType::Int:
-    return sizeof(s32);
+    return sizeof(int32_t);
   case VarType::UInt:
-    return sizeof(u32);
-  case VarType::Vec2:
-    return sizeof(f32) * 2;
-  case VarType::Vec3:
-    return sizeof(f32) * 3;
-  case VarType::Vec4:
-    return sizeof(f32) * 4;
+    return sizeof(uint32_t);
+  case VarType::Float2:
+    return sizeof(float) * 2;
+  case VarType::Float3:
+    return sizeof(float) * 3;
+  case VarType::Float4:
+    return sizeof(float) * 4;
   case VarType::Int2:
     return DXGI_FORMAT_R32G32_SINT;
-    return sizeof(s32) * 2;
+    return sizeof(int32_t) * 2;
   case VarType::Int3:
-    return sizeof(s32) * 3;
+    return sizeof(int32_t) * 3;
   case VarType::Int4:
-    return sizeof(s32) * 4;
+    return sizeof(int32_t) * 4;
   case VarType::UInt2:
-    return sizeof(u32) * 2;
+    return sizeof(uint32_t) * 2;
   case VarType::UInt3:
-    return sizeof(u32) * 3;
+    return sizeof(uint32_t) * 3;
   case VarType::UInt4:
-    return sizeof(u32) * 4;
-  case VarType::Mat2:
+    return sizeof(uint32_t) * 4;
+  case VarType::Float2x2:
     assert(0 && "TODO");
     return DXGI_FORMAT_FORCE_UINT;
-  case VarType::Mat3:
+  case VarType::Float3x3:
     assert(0 && "TODO");
     return DXGI_FORMAT_FORCE_UINT;
-  case VarType::Mat4:
+  case VarType::Float4x4:
     assert(0 && "TODO");
     return DXGI_FORMAT_FORCE_UINT;
   case VarType::Sampler1D:

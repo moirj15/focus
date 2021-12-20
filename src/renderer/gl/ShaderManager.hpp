@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Interface/Context.hpp"
+#include "../Interface/FocusBackend.hpp"
 #include "glad.h"
 
 #include <string>
@@ -11,30 +11,30 @@ namespace focus
 
 class ShaderManager
 {
-  inline static ShaderHandle sCurrHandle{0};
-  std::unordered_map<std::string, ShaderHandle> mNameToShaderHandles;
-  std::unordered_map<ShaderHandle, u32> mShaderHandles;
-  std::unordered_map<ShaderHandle, ShaderInfo> mShaderInfos;
+  inline static Shader sCurrHandle{0};
+  std::unordered_map<std::string, Shader> mNameToShaderHandles;
+  std::unordered_map<Shader, GLuint> mShaderHandles;
+  std::unordered_map<Shader, ShaderInfo> mShaderInfos;
 
 public:
-  ShaderHandle AddShader(const char *name, const std::string &vSource, const std::string &fSource);
+  Shader AddShader(const char *name, const std::string &vSource, const std::string &fSource);
 
-  ShaderHandle AddComputeShader(const char *name, const std::string &source);
+  Shader AddComputeShader(const char *name, const std::string &source);
 
-  ShaderHandle GetShader(const std::string &name);
+//  Shader GetShader(const std::string &name);
 
-  ShaderInfo GetInfo(ShaderHandle handle);
+  ShaderInfo GetInfo(Shader handle);
 
-  u32 GetProgram(ShaderHandle handle);
+  GLuint GetProgram(Shader handle);
 
-  void DeleteShader(ShaderHandle handle);
+  void DeleteShader(Shader handle);
 
 private:
-  void CompileShader(u32 handle, const std::string &source, const std::string &type);
-  void LinkShaderProgram(std::vector<u32> shaderHandles, u32 programHandle);
+  void CompileShader(GLuint handle, const std::string &source, const std::string &type);
+  void LinkShaderProgram(std::vector<GLuint> shaderHandles, GLuint programHandle);
   const char *ShaderTypeToString(GLenum type);
-  std::unordered_map<std::string, InputBufferDescriptor> GetInputBufferDescriptors(u32 program);
-  ShaderHandle AddShader(const char *name, const std::vector<std::string> &sources, const std::vector<u32> &types);
+  std::unordered_map<std::string, InputBufferDescriptor> GetInputBufferDescriptors(GLuint program);
+  Shader AddShader(const char *name, const std::vector<std::string> &sources, const std::vector<uint32_t> &types);
 };
 
 } // namespace focus

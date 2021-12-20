@@ -17,7 +17,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(VkDebugUtilsMessageSeverityFlagBits
     VkDebugUtilsMessageTypeFlagBitsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT *callBackData,
     void *userData)
 {
-  fmt::print("Validation layer: {}\n", callBackData->pMessage);
+//  fmt::print("Validation layer: {}\n", callBackData->pMessage);
   return VK_FALSE;
 }
 

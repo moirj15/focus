@@ -16,13 +16,13 @@ file(GLOB RENDERER_SRC CONFIGURE_DEPENDS "src/renderer/*")
 set(OPENGL_BACKEND_DIR ${PROJECT_SOURCE_DIR}//src/renderer/gl)
 set(OPENGL_BACKEND_SRC
         ${OPENGL_BACKEND_DIR}/BufferManager.cpp
-        ${OPENGL_BACKEND_DIR}/GLContext.cpp
+        ${OPENGL_BACKEND_DIR}/GLDevice.cpp
         ${OPENGL_BACKEND_DIR}/ShaderManager.cpp
         ${OPENGL_BACKEND_DIR}/glad.c
         )
 set(OPENGL_BACKEND_HEADERS
         ${OPENGL_BACKEND_DIR}/BufferManager.hpp
-        ${OPENGL_BACKEND_DIR}/GLContext.hpp
+        ${OPENGL_BACKEND_DIR}/GLDevice.hpp
         ${OPENGL_BACKEND_DIR}/ShaderManager.hpp
         ${OPENGL_BACKEND_DIR}/Utils.hpp
         ${OPENGL_BACKEND_DIR}/Types.hpp
@@ -54,11 +54,11 @@ file(GLOB RENDERER_DX12_SRC CONFIGURE_DEPENDS "src/renderer/dx12/*")
 # Interface
 set(INTERFACE_DIR ${PROJECT_SOURCE_DIR}/src/renderer/Interface)
 set(INTERFACE_SRC
-        ${INTERFACE_DIR}/Context.cpp
+        ${INTERFACE_DIR}/FocusBackend.cpp
         ${INTERFACE_DIR}/focus.cpp
         )
 set(INTERFACE_HEADERS
-        ${INTERFACE_DIR}/Context.hpp
+        ${INTERFACE_DIR}/FocusBackend.hpp
         ${INTERFACE_DIR}/focus.hpp
         )
 

@@ -8,6 +8,7 @@
 namespace focus
 {
 
+#if 0
 Window DX12Context::MakeWindow(s32 width, s32 height)
 {
   SDL_Window *window =
@@ -193,5 +194,6 @@ void DX12Context::ClearBackBuffer(ClearState clearState /*= */)
 void DX12Context::SwapBuffers(const Window &window)
 {
 }
+#endif
 
 } // namespace focus

@@ -7,11 +7,11 @@
 namespace focus::dx11
 {
 
-ShaderHandle ShaderManager::AddShader(const char *name, const std::string &vSource, const std::string &pSource)
+Shader ShaderManager::AddShader(const char *name, const std::string &vSource, const std::string &pSource)
 {
   ComPtr<ID3DBlob> vBinary;
   ComPtr<ID3DBlob> vErrors;
-  u32 flags = 0;
+  uint32_t flags = 0;
 #ifdef _DEBUG
   flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
@@ -45,7 +45,7 @@ ShaderHandle ShaderManager::AddShader(const char *name, const std::string &vSour
   D3D11_SHADER_DESC vDesc;
   Check(vertexReflection->GetDesc(&vDesc));
   std::vector<D3D11_INPUT_ELEMENT_DESC> descriptors(vDesc.InputParameters);
-  for (s32 i = 0; i < descriptors.size(); i++) {
+  for (int32_t i = 0; i < descriptors.size(); i++) {
     D3D11_SIGNATURE_PARAMETER_DESC inputDesc;
     Check(vertexReflection->GetInputParameterDesc(i, &inputDesc));
     descriptors[i] = {
@@ -68,11 +68,11 @@ ShaderHandle ShaderManager::AddShader(const char *name, const std::string &vSour
   return mCurrHandle;
 }
 
-ShaderHandle ShaderManager::AddComputeShader(const char *name, const std::string &source)
+Shader ShaderManager::AddComputeShader(const char *name, const std::string &source)
 {
   ComPtr<ID3DBlob> cBinary;
   ComPtr<ID3DBlob> cErrors;
-  u32 flags = 0;
+  uint32_t flags = 0;
 #ifdef _DEBUG
   flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
@@ -90,17 +90,17 @@ ShaderHandle ShaderManager::AddComputeShader(const char *name, const std::string
   return mCurrHandle;
 }
 
-Shaders ShaderManager::GetProgram(ShaderHandle handle)
+Shaders ShaderManager::GetProgram(Shader handle)
 {
   return mGfxShaders[handle];
 }
 
-ID3D11ComputeShader *ShaderManager::GetComputeShader(ShaderHandle handle)
+ID3D11ComputeShader *ShaderManager::GetComputeShader(Shader handle)
 {
   return mComputeShaders[handle].Get();
 }
 
-void ShaderManager::DeleteShader(ShaderHandle handle)
+void ShaderManager::DeleteShader(Shader handle)
 {
   mGfxShaders.erase(handle);
   mComputeShaders.erase(handle);
@@ -108,7 +108,7 @@ void ShaderManager::DeleteShader(ShaderHandle handle)
 
 DXGI_FORMAT ShaderManager::GetFormat(D3D11_SIGNATURE_PARAMETER_DESC desc)
 {
-  u32 componentCount = 0;
+  uint32_t componentCount = 0;
   if (desc.Mask & (1 << 3)) {
     componentCount = 4;
   } else if (desc.Mask & (1 << 2)) {
@@ -154,16 +154,16 @@ DXGI_FORMAT ShaderManager::GetFormat(D3D11_SIGNATURE_PARAMETER_DESC desc)
   }
 }
 
-u32 ShaderManager::GetInputSize(D3D11_SIGNATURE_PARAMETER_DESC desc)
+uint32_t ShaderManager::GetInputSize(D3D11_SIGNATURE_PARAMETER_DESC desc)
 {
   if (desc.Mask & (1 << 3)) {
-    return 4 * sizeof(f32);
+    return 4 * sizeof(float);
   } else if (desc.Mask & (1 << 2)) {
-    return 3 * sizeof(f32);
+    return 3 * sizeof(float);
   } else if (desc.Mask & (1 << 1)) {
-    return 2 * sizeof(f32);
+    return 2 * sizeof(float);
   } else if (desc.Mask & (1 << 0)) {
-    return 1 * sizeof(f32);
+    return 1 * sizeof(float);
   } else {
     assert(0 && "unknown format type");
     return DXGI_FORMAT_UNKNOWN;

@@ -1,5 +1,5 @@
 #pragma once
-#include "../Interface/Context.hpp"
+#include "../Interface/focus.hpp"
 
 #include <d3d12.h>
 #include <dxgi.h>
@@ -8,15 +8,16 @@ using namespace Microsoft::WRL;
 
 namespace focus
 {
-class DX12Context : public Context
+#if 0
+class DX12Context : public Device
 {
   ComPtr<ID3D12Device> mDevice;
   ComPtr<ID3D12Fence> mFence;
-  u32 mRtvDescriptorSize = 0;       // render target resources
-  u32 mDsvDescriptorSize = 0;       // depth/stencil resources
-  u32 mCbvSrvUavDescriptorSize = 0; // constant buffer/Shade resource/unordered random access resources
-  u32 m4xMsaaQualityLevels = 0;
-  static constexpr u32 mSwapChainBufferCount = 2;
+  uint32_t mRtvDescriptorSize = 0;       // render target resources
+  uint32_t mDsvDescriptorSize = 0;       // depth/stencil resources
+  uint32_t mCbvSrvUavDescriptorSize = 0; // constant buffer/Shade resource/unordered random access resources
+  uint32_t m4xMsaaQualityLevels = 0;
+  static constexpr uint32_t mSwapChainBufferCount = 2;
   int mCurrBackBuffer = 0;
   DXGI_FORMAT mBackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
   ComPtr<ID3D12CommandQueue> mCommandQueue;
@@ -63,4 +64,5 @@ public:
 
   void SwapBuffers(const Window &window) override;
 };
+#endif
 } // namespace focus

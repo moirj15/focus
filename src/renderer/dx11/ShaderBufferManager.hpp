@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Interface/Context.hpp"
+#include "../Interface/FocusBackend.hpp"
 #include "Utils.hpp"
 
 #include <d3d11_3.h>
@@ -13,92 +13,101 @@ using Microsoft::WRL::ComPtr;
 // TODO: there must be a way to combine this and the other buffer manager
 // TODO: figure out a better way to do this for different types of resource views
 struct ShaderBufferManager {
-  ID3D11Device3 *mDevice;
-  ID3D11DeviceContext3 *mContext;
-  std::unordered_map<ShaderBufferHandle, ComPtr<ID3D11Buffer>> mBuffers;
-  std::unordered_map<ShaderBufferHandle, ShaderBufferDescriptor> mDescriptors;
-  std::unordered_map<ShaderBufferHandle, ComPtr<ID3D11ShaderResourceView>> mResources;
-  std::unordered_map<ShaderBufferHandle, ComPtr<ID3D11UnorderedAccessView1>> mRWResources;
-  // TODO: temporary hacky solution for synchronous reads from compute shader results
-  ComPtr<ID3D11Buffer> mStagingBuffer;
-  u32 mStagingBufferSize = 0;
-  ShaderBufferHandle mCurrentHandle{0};
+    ID3D11Device3 *mDevice;
+    ID3D11DeviceContext3 *mContext;
+    std::unordered_map<ShaderBuffer, ComPtr<ID3D11Buffer>> mBuffers;
+    std::unordered_map<ShaderBuffer, ShaderBufferLayout> mDescriptors;
+    std::unordered_map<ShaderBuffer, ComPtr<ID3D11ShaderResourceView>> mResources;
+    std::unordered_map<ShaderBuffer, ComPtr<ID3D11UnorderedAccessView1>> mRWResources;
+    // TODO: temporary hacky solution for synchronous reads from compute shader results
+    ComPtr<ID3D11Buffer> mStagingBuffer;
+    uint32_t mStagingBufferSize = 0;
+    ShaderBuffer mCurrentHandle{0};
 
-  ShaderBufferManager() = default; // TODO: temp hack for constructing D3D11Context
-  explicit ShaderBufferManager(ID3D11Device3 *device, ID3D11DeviceContext3 *context) :
-      mDevice(device), mContext(context)
-  {
-  }
-
-  inline ShaderBufferHandle Create(void *data, const ShaderBufferDescriptor &descriptor)
-  {
-    return Create(data, descriptor, ShaderBufferHandle{0});
-  }
-
-  void Update(ShaderBufferHandle handle, void *data, u32 sizeInBytes)
-  {
-    auto descriptor = mDescriptors[handle];
-    if (descriptor.size_in_bytes < sizeInBytes) {
-      Destroy(handle);
-      descriptor.size_in_bytes = sizeInBytes;
-      Create(data, descriptor, handle);
-    } else {
-      auto buffer = mBuffers[handle];
-      D3D11_MAPPED_SUBRESOURCE mappedResource;
-      Check(mContext->Map(buffer.Get(), 0, D3D11_MAP_READ_WRITE, 0, &mappedResource));
-      auto *mappedData = (u8 *)mappedResource.pData;
-      for (u32 i = 0; i < sizeInBytes; i += mappedResource.RowPitch) {
-        memcpy(((u8 *)mappedResource.pData) + i, ((u8 *)data) + i, mappedResource.RowPitch);
-      }
-      mContext->Unmap(mBuffers[handle].Get(), 0);
+    ShaderBufferManager() = default; // TODO: temp hack for constructing D3D11Context
+    explicit ShaderBufferManager(ID3D11Device3 *device, ID3D11DeviceContext3 *context) :
+            mDevice(device), mContext(context)
+    {
     }
-  }
 
-  std::vector<u8> ReadAll(ShaderBufferHandle handle)
-  {
-    if (!mDescriptors.contains(handle)) {
-      return {};
+    inline ShaderBuffer Create(void *data, const ShaderBufferLayout &descriptor)
+    {
+        return Create(ShaderBuffer{0}, descriptor, data, 0);
     }
-    auto descriptor = mDescriptors[handle];
-    if (mStagingBufferSize < descriptor.size_in_bytes) {
-      mStagingBufferSize = descriptor.size_in_bytes;
 
-      // TODO: cleanup
-      mStagingBuffer.Reset();
-      D3D11_BUFFER_DESC bufferDesc = {
-          .ByteWidth = descriptor.size_in_bytes,
-          .Usage = D3D11_USAGE_STAGING,
-          .BindFlags = 0,
-          .CPUAccessFlags = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE, // TODO: figure out dynamic cpu access stuff
-          .MiscFlags = 0,
-          .StructureByteStride = 0,
-      };
-      Check(mDevice->CreateBuffer(&bufferDesc, nullptr, &mStagingBuffer));
+    void Update(ShaderBuffer handle, void *data, uint32_t sizeInBytes)
+    {
+        // TODO: redo
+#if 0
+        auto descriptor = mDescriptors[handle];
+        if (descriptor.size_in_bytes < sizeInBytes) {
+            Destroy(handle);
+            descriptor.size_in_bytes = sizeInBytes;
+            Create(handle, descriptor, data, 0);
+        } else {
+            auto buffer = mBuffers[handle];
+            D3D11_MAPPED_SUBRESOURCE mappedResource;
+            Check(mContext->Map(buffer.Get(), 0, D3D11_MAP_READ_WRITE, 0, &mappedResource));
+            auto *mappedData = (uint8_t *)mappedResource.pData;
+            for (uint32_t i = 0; i < sizeInBytes; i += mappedResource.RowPitch) {
+                memcpy(((uint8_t *)mappedResource.pData) + i, ((uint8_t *)data) + i, mappedResource.RowPitch);
+            }
+            mContext->Unmap(mBuffers[handle].Get(), 0);
+        }
+#endif
     }
-    std::vector<u8> data(mStagingBufferSize, 0);
-    mContext->CopyResource(mStagingBuffer.Get(), mBuffers[handle].Get());
-    D3D11_MAPPED_SUBRESOURCE mappedResource;
 
-    Check(mContext->Map(mStagingBuffer.Get(), 0, D3D11_MAP_READ, 0, &mappedResource));
-    memcpy(data.data(), mappedResource.pData, data.size());
-    mContext->Unmap(mStagingBuffer.Get(), 0);
-    return data;
-  }
+    std::vector<uint8_t> ReadAll(ShaderBuffer handle)
+    {
+        // TODO: redo
+#if 0
+        if (!mDescriptors.contains(handle)) {
+            return {};
+        }
+        auto descriptor = mDescriptors[handle];
+        if (mStagingBufferSize < descriptor.size_in_bytes) {
+            mStagingBufferSize = descriptor.size_in_bytes;
 
-  void Destroy(ShaderBufferHandle handle)
-  {
-    mBuffers.erase(handle);
-    mResources.erase(handle);
-    mRWResources.erase(handle);
-  }
+            // TODO: cleanup
+            mStagingBuffer.Reset();
+            D3D11_BUFFER_DESC bufferDesc = {
+                .ByteWidth = descriptor.size_in_bytes,
+                .Usage = D3D11_USAGE_STAGING,
+                .BindFlags = 0,
+                .CPUAccessFlags =
+                    D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE, // TODO: figure out dynamic cpu access stuff
+                .MiscFlags = 0,
+                .StructureByteStride = 0,
+            };
+            Check(mDevice->CreateBuffer(&bufferDesc, nullptr, &mStagingBuffer));
+        }
+        std::vector<uint8_t> data(mStagingBufferSize, 0);
+        mContext->CopyResource(mStagingBuffer.Get(), mBuffers[handle].Get());
+        D3D11_MAPPED_SUBRESOURCE mappedResource;
 
-private:
-  ShaderBufferHandle Create(void *data, const ShaderBufferDescriptor &descriptor, ShaderBufferHandle handle)
-  {
+        Check(mContext->Map(mStagingBuffer.Get(), 0, D3D11_MAP_READ, 0, &mappedResource));
+        memcpy(data.data(), mappedResource.pData, data.size());
+        mContext->Unmap(mStagingBuffer.Get(), 0);
+        return data;
+#endif
+    }
+
+    void Destroy(ShaderBuffer handle)
+    {
+        mBuffers.erase(handle);
+        mResources.erase(handle);
+        mRWResources.erase(handle);
+    }
+
+  private:
+    ShaderBuffer Create(ShaderBuffer handle, const ShaderBufferLayout &descriptor, void *data, uint32_t size_in_bytes)
+    {
+        // TODO: redo
+#if 0
     D3D11_BUFFER_DESC bufferDesc = {
-        .ByteWidth = descriptor.size_in_bytes,
+        .ByteWidth = size_in_bytes,
         .Usage = D3D11_USAGE_DEFAULT,
-        .BindFlags = (u32)(descriptor.accessMode == AccessMode::ReadOnly ? D3D11_BIND_SHADER_RESOURCE
+        .BindFlags = (uint32_t)(descriptor._usage == BufferUsage::Dynamic ? D3D11_BIND_SHADER_RESOURCE
                                                                          : D3D11_BIND_UNORDERED_ACCESS),
         .CPUAccessFlags = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE, // TODO: figure out dynamic cpu access stuff
         .MiscFlags = 0,
@@ -169,8 +178,9 @@ private:
     } else {
       assert(0 && "Illegal Access Mode");
     }
-    return mCurrentHandle;
-  }
+#endif
+        return mCurrentHandle;
+    }
 };
 
 } // namespace focus::dx11

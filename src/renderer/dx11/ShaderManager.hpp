@@ -1,5 +1,5 @@
 #pragma once
-#include "../Interface/Context.hpp"
+#include "../Interface/FocusBackend.hpp"
 
 #include <d3d11.h>
 #include <d3d11shader.h>
@@ -24,32 +24,32 @@ struct Shaders {
   ComPtr<ID3D11InputLayout> inputLayout;
 
   // TODO: temporary until a better way of storing this information is thought of
-  u32 inputStride = 0;
+  uint32_t inputStride = 0;
 };
 
 
 class ShaderManager
 {
 
-  std::unordered_map<ShaderHandle, const char *> mShaderNames;
-  std::unordered_map<ShaderHandle, Shaders> mGfxShaders;
-  std::unordered_map<ShaderHandle, ComPtr<ID3D11ComputeShader>> mComputeShaders;
+  std::unordered_map<Shader, const char *> mShaderNames;
+  std::unordered_map<Shader, Shaders> mGfxShaders;
+  std::unordered_map<Shader, ComPtr<ID3D11ComputeShader>> mComputeShaders;
   // TODO: not thread safe, but not anticipating multithreaded shader compilation/creation now or in the future
-  ShaderHandle mCurrHandle{0};
+  Shader mCurrHandle{0};
   ID3D11Device *mDevice;
 
 public:
   ShaderManager() = default; // TODO: temp hack for constructing D3D11Context
   ShaderManager(ID3D11Device *device) : mDevice(device) {}
-  ShaderHandle AddShader(const char *name, const std::string &vSource, const std::string &pSource);
-  ShaderHandle AddComputeShader(const char *name, const std::string &source);
-  Shaders GetProgram(ShaderHandle handle);
-  ID3D11ComputeShader *GetComputeShader(ShaderHandle handle);
+  Shader AddShader(const char *name, const std::string &vSource, const std::string &pSource);
+  Shader AddComputeShader(const char *name, const std::string &source);
+  Shaders GetProgram(Shader handle);
+  ID3D11ComputeShader *GetComputeShader(Shader handle);
 
-  void DeleteShader(ShaderHandle handle);
+  void DeleteShader(Shader handle);
 private:
   DXGI_FORMAT GetFormat(D3D11_SIGNATURE_PARAMETER_DESC desc);
-  u32 GetInputSize(D3D11_SIGNATURE_PARAMETER_DESC desc);
+  uint32_t GetInputSize(D3D11_SIGNATURE_PARAMETER_DESC desc);
 
   // TODO: precompiled shaders
 };
