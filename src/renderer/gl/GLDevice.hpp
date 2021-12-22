@@ -22,7 +22,25 @@ class GLDevice final : public Device
     SceneState _bound_scene_state;
     std::optional<Pipeline> _bound_pipeline;
     std::string _pass_name;
-    std::unordered_map<Pipeline, PipelineState> _pipeline_states;
+
+    // TODO: Extract and maybe use with other managers
+    template <typename Handle, typename Data>
+    class HandleManager
+    {
+        std::unordered_map<Handle, Data> _map;
+        Handle _current_key;
+      public:
+        [[nodiscard]] Handle InsertNew(Data data) {
+            _current_key++;
+            _map.insert({_current_key, data});
+            return _current_key;
+        }
+        [[nodiscard]] std::optional<Data> Get(Handle handle) {
+            return _map.contains(handle) ? _map[handle] : std::optional<Data>{};
+        }
+    } ;
+    HandleManager<Pipeline, PipelineState> _pipeline_manager;
+
 
 public:
     GLDevice();
@@ -44,6 +62,7 @@ public:
     ConstantBuffer CreateConstantBuffer(
         const ConstantBufferLayout &constant_buffer_layout, void *data, uint32_t data_size) override;
     ShaderBuffer CreateShaderBuffer(const ShaderBufferLayout &shader_buffer_layout, void *data, uint32_t data_size) override;
+    Pipeline CreatePipeline(PipelineState state) override;
 
     /*
     // Buffer Updates
@@ -67,7 +86,7 @@ public:
     void BindSceneState(const SceneState &scene_state) override;
     void BindPipeline(Pipeline pipeline) override;
     // draw call submission
-    void Draw(Primitive primitive) override;
+    void Draw(Primitive primitive, uint32_t starting_vertex, uint32_t point_count) override;
 
     void EndPass() override;
     // Compute shader dispatch
@@ -79,7 +98,6 @@ public:
     void ClearBackBuffer(ClearState clearState = {}) override;
 
     void SwapBuffers(const Window &window) override;
-    Pipeline CreatePipeline(PipelineState state) override;
 };
 
 } // namespace focus

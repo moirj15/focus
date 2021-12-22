@@ -49,7 +49,7 @@ inline uint32_t GLTypeSizeInBytes(GLenum type)
     }
 }
 
-inline uint32_t VarTypeSizeInBytes(VarType type)
+inline GLint VarTypeSizeInBytes(VarType type)
 {
     switch (type) {
     case VarType::Float:

@@ -101,7 +101,7 @@ ShaderBuffer GLDevice::CreateShaderBuffer(
 
 Pipeline GLDevice::CreatePipeline(PipelineState state)
 {
-    return focus::Pipeline();
+    return _pipeline_manager.InsertNew(state);
 }
 
 // void GLDevice::UpdateVertexBuffer(VertexBuffer handle, void *data, uint32_t size)
@@ -164,7 +164,7 @@ void GLDevice::BindPipeline(Pipeline pipeline)
         printf("Warning pipeline rebound during pass %s\n", _pass_name.c_str());
     }
     _bound_pipeline = pipeline;
-    const auto &pipeline_state = _pipeline_states[pipeline];
+    const auto &pipeline_state = _pipeline_manager.Get(pipeline).value();
 
     if (pipeline_state.depth_test != mCachedRenderState.depth_test) {
         if (pipeline_state.depth_test.enabled) {
@@ -216,8 +216,41 @@ void GLDevice::BindPipeline(Pipeline pipeline)
     glBindVertexArray(mVAO);
 }
 // draw call submission
-void GLDevice::Draw(Primitive primitive)
+void GLDevice::Draw(Primitive primitive, uint32_t starting_vertex, uint32_t point_count)
 {
+    GLenum glPrimitive = glUtils::PrimitiveToGL(primitive);
+    // TODO: sort based on bit flags?
+    // Only doing interleved buffers for now
+    // TODO: move a bunch of this stuff into some helpers
+    for (const auto &vbHandle : _bound_scene_state.vb_handles) {
+        const auto &vb_layout = mVBManager.mDescriptors[vbHandle];
+        GLuint gl_vb_handle = mVBManager.Get(vbHandle);
+        glBindBuffer(GL_ARRAY_BUFFER, gl_vb_handle);
+
+        for (uint32_t attrib_index = 0; attrib_index < vb_layout._attributes.size(); attrib_index++) {
+            const auto &attribute = vb_layout._attributes[attrib_index];
+            glEnableVertexAttribArray(attrib_index);
+            GLint attribute_size_in_bytes = glUtils::VarTypeSizeInBytes(attribute.type);
+            // TODO: figure out normalized inputs
+            glVertexAttribPointer(attrib_index, glUtils::VarTypeToSlotSizeGL(attribute.type),
+                glUtils::VarTypeToIndividualTypeGL(attribute.type), false, attribute_size_in_bytes,
+                (const void *)(uintptr_t)attribute.offset);
+        }
+    }
+    // TODO: some error management would be nice
+    PipelineState pipeline_state = _pipeline_manager.Get(_bound_pipeline.value()).value();
+    GLuint gl_shader_handle = mShaderManager.GetProgram(pipeline_state.shader);
+    // setup all the uniform buffers
+    for (const auto &cbHandle : _bound_scene_state.cb_handles) {
+        const auto &cb_layout = mCBManager.mDescriptors[cbHandle];
+        GLuint gl_cb_handle = mCBManager.Get(cbHandle);
+        glBindBuffer(GL_UNIFORM_BUFFER, gl_cb_handle);
+        // TODO: figure out multiple binding points
+        glBindBufferBase(GL_UNIFORM_BUFFER, 0, gl_cb_handle);
+        glUniformBlockBinding(gl_shader_handle, cb_layout.binding_point, 0);
+    }
+    // TODO: pretty ugly, need to re-write. Maybe add an element count to the sceneState or some descriptor?
+    glDrawArrays(glPrimitive, starting_vertex, point_count);
 }
 
 void GLDevice::EndPass()

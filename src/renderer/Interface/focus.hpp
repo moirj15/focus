@@ -465,7 +465,7 @@ class Device
     virtual void BindSceneState(const SceneState &scene_state) = 0;
     virtual void BindPipeline(Pipeline pipeline) = 0;
 
-    virtual void Draw(Primitive primitive) = 0;
+    virtual void Draw(Primitive primitive, uint32_t starting_vertex, uint32_t point_count) = 0;
 
     virtual void EndPass() = 0;
 

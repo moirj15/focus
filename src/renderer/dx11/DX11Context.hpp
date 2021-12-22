@@ -84,7 +84,7 @@ class DX11Context : public Device
     void BindSceneState(const SceneState &scene_state) override;
     void BindPipeline(Pipeline pipeline) override;
     // draw call submission
-    void Draw(Primitive primitive) override;
+    void Draw(Primitive primitive, uint32_t starting_vertex, uint32_t point_count) override;
 
     void EndPass() override;
     // Compute shader dispatch

@@ -81,9 +81,9 @@ void TriangleTest(const focus::Window &window)
 //    };
 
     focus::SceneState sceneState = {
-        .vb_handles = {device->CreateVertexBuffer(vb_layout, (uint8_t*)points, sizeof(points) / sizeof(float))},
-        .cb_handles = {device->CreateConstantBuffer(cb_layout, (uint8_t*)mvp, sizeof(mvp) / sizeof(float))},
-        .ib_handle = device->CreateIndexBuffer(ib_layout, (uint8_t*)indices, sizeof(indices) / sizeof(uint32_t)),
+        .vb_handles = {device->CreateVertexBuffer(vb_layout, (uint8_t*)points, sizeof(points))},
+        .cb_handles = {device->CreateConstantBuffer(cb_layout, (uint8_t*)mvp, sizeof(mvp))},
+        .ib_handle = device->CreateIndexBuffer(ib_layout, (uint8_t*)indices, sizeof(indices)),
         .indexed = true,
     };
 
@@ -106,7 +106,7 @@ void TriangleTest(const focus::Window &window)
 
         device->BindSceneState(sceneState);
         device->BindPipeline(pipeline);
-        device->Draw(focus::Primitive::Triangles);
+        device->Draw(focus::Primitive::Triangles, 0, 3);
 
         device->EndPass();
 

@@ -256,7 +256,7 @@ void DX11Context::BindSceneState(const SceneState &scene_state)
 void DX11Context::BindPipeline(Pipeline pipeline)
 {
 }
-void DX11Context::Draw(Primitive primitive)
+void DX11Context::Draw(Primitive primitive, uint32_t starting_vertex, uint32_t point_count)
 {
 }
 
