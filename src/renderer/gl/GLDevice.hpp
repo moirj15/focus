@@ -2,13 +2,59 @@
 
 #include "../../common.h"
 #include "../Interface/FocusBackend.hpp"
-#include "BufferManager.hpp"
 #include "ShaderManager.hpp"
 
 struct GLFWwindow;
 
 namespace focus
 {
+
+template <typename Handle, typename Data>
+class HandleManager
+{
+    std::unordered_map<Handle, Data> _map;
+    Handle _current_key;
+  public:
+    [[nodiscard]] Handle InsertNew(Data data) {
+        _current_key++;
+        _map.insert({_current_key, data});
+        return _current_key;
+    }
+    [[nodiscard]] std::optional<Data> Get(Handle handle) {
+        return _map.contains(handle) ? _map[handle] : std::optional<Data>{};
+    }
+};
+
+template<typename Handle, typename BufferLayout>
+struct BufferManager {
+    Handle mCurrHandle{0};
+    std::unordered_map<Handle, GLuint> mHandles;
+    std::unordered_map<Handle, BufferLayout> mDescriptors;
+
+    inline Handle Create(BufferLayout buffer_layout, void *data, uint32_t size_in_bytes)
+    {
+        // Create the buffer for OpenGL
+        GLuint handle;
+        glGenBuffers(1, &handle);
+        glBindBuffer(GL_ARRAY_BUFFER, handle);
+        glBufferData(GL_ARRAY_BUFFER, size_in_bytes, data, GL_STATIC_DRAW);
+        // Do the actual management of the buffer handle
+        mCurrHandle++;
+        mDescriptors[mCurrHandle] = buffer_layout;
+        mHandles[mCurrHandle] = handle;
+        return mCurrHandle;
+    }
+
+    inline GLuint Get(Handle handle) { return mHandles[handle]; }
+
+    inline void Destroy(Handle handle)
+    {
+        auto bufferHandle = mHandles[handle];
+        mHandles.erase(handle);
+        mDescriptors.erase(handle);
+        glDeleteBuffers(1, &bufferHandle);
+    }
+};
 
 class GLDevice final : public Device
 {
@@ -24,21 +70,6 @@ class GLDevice final : public Device
     std::string _pass_name;
 
     // TODO: Extract and maybe use with other managers
-    template <typename Handle, typename Data>
-    class HandleManager
-    {
-        std::unordered_map<Handle, Data> _map;
-        Handle _current_key;
-      public:
-        [[nodiscard]] Handle InsertNew(Data data) {
-            _current_key++;
-            _map.insert({_current_key, data});
-            return _current_key;
-        }
-        [[nodiscard]] std::optional<Data> Get(Handle handle) {
-            return _map.contains(handle) ? _map[handle] : std::optional<Data>{};
-        }
-    } ;
     HandleManager<Pipeline, PipelineState> _pipeline_manager;
 
 

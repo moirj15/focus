@@ -66,7 +66,7 @@ inline GLint VarTypeSizeInBytes(VarType type)
     }
 }
 
-constexpr uint32_t VarTypeToSlotSizeGL(VarType varType)
+constexpr GLint VarTypeToSlotSizeGL(VarType varType)
 {
     switch (varType) {
     case VarType::Float:

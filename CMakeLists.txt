@@ -15,13 +15,11 @@ file(GLOB RENDERER_SRC CONFIGURE_DEPENDS "src/renderer/*")
 # Opengl Backend
 set(OPENGL_BACKEND_DIR ${PROJECT_SOURCE_DIR}//src/renderer/gl)
 set(OPENGL_BACKEND_SRC
-        ${OPENGL_BACKEND_DIR}/BufferManager.cpp
         ${OPENGL_BACKEND_DIR}/GLDevice.cpp
         ${OPENGL_BACKEND_DIR}/ShaderManager.cpp
         ${OPENGL_BACKEND_DIR}/glad.c
         )
 set(OPENGL_BACKEND_HEADERS
-        ${OPENGL_BACKEND_DIR}/BufferManager.hpp
         ${OPENGL_BACKEND_DIR}/GLDevice.hpp
         ${OPENGL_BACKEND_DIR}/ShaderManager.hpp
         ${OPENGL_BACKEND_DIR}/Utils.hpp

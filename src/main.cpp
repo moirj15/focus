@@ -50,35 +50,13 @@ void TriangleTest(const focus::Window &window)
         1.0f,
     };
 
-    focus::VertexBufferLayout vb_layout;
+    focus::VertexBufferLayout vb_layout("INPUT");
     vb_layout.Add("aPosition", focus::VarType::Float3);
-    vb_layout.SetDebugName("INPUT");
 
     focus::IndexBufferLayout ib_layout(focus::IndexBufferType::U32);
-    /*
-    focus::VertexBufferDescriptor vbDescriptor = {
-        .input_descriptor_name = {"aPosition"},
-        .buffer_type = focus::BufferType::SingleType,
-        .types = {focus::VarType::Float3},
-        .size_in_bytes = sizeof(points),
-    };*/
 
-//    focus::IndexBufferDescriptor ibDescriptor = {
-//        .type = focus::IndexBufferType::U32,
-//        .size_in_bytes = sizeof(indices),
-//    };
-
-    focus::ConstantBufferLayout cb_layout;
-    cb_layout.SetDebugName("Constants");
+    focus::ConstantBufferLayout cb_layout("Constants");
     cb_layout.Add("mvp", focus::VarType::Float4x4);
-
-//    focus::ConstantBufferDescriptor mvpDesc = {
-//        .name = "Constants",
-//        .types = {focus::VarType::Float4x4},
-//        .slot = 0,
-//        .usage = focus::BufferUsage::Static,
-//        .size_in_bytes = sizeof(mvp),
-//    };
 
     focus::SceneState sceneState = {
         .vb_handles = {device->CreateVertexBuffer(vb_layout, (uint8_t*)points, sizeof(points))},
@@ -86,13 +64,6 @@ void TriangleTest(const focus::Window &window)
         .ib_handle = device->CreateIndexBuffer(ib_layout, (uint8_t*)indices, sizeof(indices)),
         .indexed = true,
     };
-
-//    focus::SceneState sceneState = {
-//        .vb_handles = {device->CreateVertexBuffer(<#initializer #>, nullptr, 0)},
-//        .cb_handles = {device->CreateConstantBuffer(<#initializer #>, 0, 0)},
-//        .ib_handle = device->CreateIndexBuffer(<#initializer #>, nullptr, 0),
-//        .indexed = true,
-//    };
 
     SDL_Event e;
     while (true) {
@@ -205,17 +176,18 @@ void TriangleTestInterleavedBuffer(const focus::Window &window)
 void ComputeTest(const focus::Window &window)
 {
 
-#if 0
     auto handle =
         device->CreateComputeShaderFromSource("TestCompute", utils::ReadEntireFileAsString("shaders/gl/test.comp"));
 
-    focus::ShaderBufferDescriptor sDesc = {
-        .name = "color_buf",
-        .slot = 0,
-        .accessMode = focus::AccessMode::WriteOnly,
-        .types = {focus::VarType::Float},
-    };
-    auto sHandle = device->CreateShaderBuffer(nullptr, focus::ShaderBufferDescriptor());
+    focus::ShaderBufferLayout sDesc(0, focus::BufferUsage::Dynamic, "color_buf");
+    sDesc.Add("color_buf", focus::VarType::Float);
+//    focus::ShaderBufferDescriptor sDesc = {
+//        .name = "color_buf",
+//        .slot = 0,
+//        .accessMode = focus::AccessMode::WriteOnly,
+//        .types = {focus::VarType::Float},
+//    };
+    auto sHandle = device->CreateShaderBuffer(sDesc, nullptr, 256 * 256 * sizeof(float));
     auto *contents = (float *)device->MapBuffer(sHandle, focus::AccessMode::ReadOnly);
     for (int i = 0; i < 256 * 256; i++) {
         contents[i] = 88.0f;
@@ -237,7 +209,6 @@ void ComputeTest(const focus::Window &window)
 
         device->SwapBuffers(window);
     }
-#endif
 }
 
 int main(int argc, char **argv)

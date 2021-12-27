@@ -1,6 +1,5 @@
 #include "GLDevice.hpp"
 
-#include "BufferManager.hpp"
 #include "ShaderManager.hpp"
 #include "Utils.hpp"
 #include "glad.h"
@@ -158,6 +157,7 @@ void GLDevice::BindSceneState(const SceneState &scene_state)
 {
     _bound_scene_state = scene_state;
 }
+
 void GLDevice::BindPipeline(Pipeline pipeline)
 {
     if (_bound_pipeline) {
@@ -209,8 +209,7 @@ void GLDevice::BindPipeline(Pipeline pipeline)
             glDisable(GL_BLEND);
         }
     }
-    //    auto ibDesc = mIBManager.mDescriptors[sceneState.ib_handle];
-    auto shaderInfo = mShaderManager.GetInfo(pipeline_state.shader);
+//    auto shaderInfo = mShaderManager.GetInfo(pipeline_state.shader);
     GLuint program = mShaderManager.GetProgram(pipeline_state.shader);
     glUseProgram(program);
     glBindVertexArray(mVAO);
@@ -250,69 +249,13 @@ void GLDevice::Draw(Primitive primitive, uint32_t starting_vertex, uint32_t poin
         glUniformBlockBinding(gl_shader_handle, cb_layout.binding_point, 0);
     }
     // TODO: pretty ugly, need to re-write. Maybe add an element count to the sceneState or some descriptor?
-    glDrawArrays(glPrimitive, starting_vertex, point_count);
+    glDrawArrays(glPrimitive, (GLint)starting_vertex, point_count);
 }
 
 void GLDevice::EndPass()
 {
     _bound_pipeline.reset();
 }
-
-// TODO: do automatic batching
-
-/*
-void GLDevice::Draw(Primitive primitive, RenderState renderState, ShaderHandle shader, const SceneState &sceneState)
-{
-    GLenum glPrimitive = glUtils::PrimitiveToGL(primitive);
-    // TODO: sort based on bit flags?
-    // TODO: for now I'll assume that there is either one interleaved vbo or multiple single-type buffers
-    for (const auto &vbHandle : sceneState.vb_handles) {
-        const auto &vbDesc = mVBManager.mDescriptors[vbHandle];
-        u32 glVBHandle = mVBManager.Get(vbHandle);
-        if (vbDesc.buffer_type == BufferType::SingleType) {
-            const auto &inputDesc = shaderInfo.mInputBufferDescriptors[vbDesc.input_descriptor_name[0]];
-            glBindBuffer(GL_ARRAY_BUFFER, glVBHandle);
-            glEnableVertexAttribArray(inputDesc.slot);
-
-            // glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, (const void *)0);
-            glVertexAttribPointer(inputDesc.slot, glUtils::VarTypeToSlotSizeGL(vbDesc.types[0]),
-                glUtils::VarTypeToIndividualTypeGL(inputDesc.type), false, 0, (const void *)0);
-        } else if (vbDesc.buffer_type == BufferType::InterLeaved) {
-            glBindBuffer(GL_ARRAY_BUFFER, glVBHandle);
-            for (u32 i = 0; i < shaderInfo.mInputBufferDescriptors.size(); i++) {
-                const auto &inputDesc = shaderInfo.mInputBufferDescriptors[vbDesc.input_descriptor_name[i]];
-                glEnableVertexAttribArray(inputDesc.slot);
-
-                // glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, (const void *)0);
-                glVertexAttribPointer(inputDesc.slot, glUtils::VarTypeToSlotSizeGL(vbDesc.types[i]),
-                    glUtils::VarTypeToIndividualTypeGL(inputDesc.type), false, vbDesc.element_size_in_bytes,
-                    (const void *)inputDesc.byteOffset);
-            }
-        } else {
-            assert(0);
-        }
-    }
-    // setup all the uniform buffers
-    for (const auto &cbHandle : sceneState.cb_handles) {
-        const auto &cbDesc = mCBManager.mDescriptors[cbHandle];
-        GLuint glCBHandle = mCBManager.Get(cbHandle);
-        glBindBuffer(GL_UNIFORM_BUFFER, glCBHandle);
-        // TODO: figure out multiple binding points
-        glBindBufferBase(GL_UNIFORM_BUFFER, 0, glCBHandle);
-        glUniformBlockBinding(program, cbDesc.slot, 0);
-    }
-    if (sceneState.indexed) {
-        GLuint glIBHandle = mIBManager.Get(sceneState.ib_handle);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glIBHandle);
-        glDrawElements(glPrimitive, ibDesc.size_in_bytes / 4, GL_UNSIGNED_INT, (void *)0);
-    } else {
-        // TODO: pretty ugly, need to re-write. Maybe add an element count to the sceneState or some descriptor?
-        glDrawArrays(glPrimitive, 0,
-            (mVBManager.mDescriptors[sceneState.vb_handles[0]].size_in_bytes
-                / mVBManager.mDescriptors[sceneState.vb_handles[0]].element_size_in_bytes)
-                / 3);
-    }
-}*/
 
 void GLDevice::ClearBackBuffer(ClearState clearState)
 {

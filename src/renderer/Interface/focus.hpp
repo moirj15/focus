@@ -21,7 +21,7 @@ class Handle
   public:
     static Handle Invalid() { return Handle(); }
 
-    Handle() = default; //: _value(default_value) {}
+    Handle() = default;
     explicit Handle(uint64_t value) : _value(value) {}
 
     explicit operator uint64_t() const { return _value; }
@@ -198,7 +198,11 @@ struct BufferLayout {
     uint32_t binding_point = 0;
 
     BufferLayout() = default;
-    explicit BufferLayout(uint32_t bp, BufferUsage buffer_usage) : binding_point(bp), _usage(buffer_usage) {}
+    explicit BufferLayout(const std::string &db_name) : debug_name(db_name) {}
+    explicit BufferLayout(uint32_t bp, BufferUsage buffer_usage, const std::string &db_name = "") :
+            binding_point(bp), _usage(buffer_usage), debug_name(db_name)
+    {
+    }
     BufferLayout &Add(const std::string &name, VarType type)
     {
         _attributes.push_back(BufferLayout::Attribute{
@@ -438,14 +442,15 @@ class Device
         const IndexBufferLayout &index_buffer_descriptor, void *data, uint32_t data_size) = 0;
     virtual ConstantBuffer CreateConstantBuffer(
         const ConstantBufferLayout &constant_buffer_layout, void *data, uint32_t data_size) = 0;
-    virtual ShaderBuffer CreateShaderBuffer(const ShaderBufferLayout &shader_buffer_layout, void *data, uint32_t data_size) = 0;
+    virtual ShaderBuffer CreateShaderBuffer(
+        const ShaderBufferLayout &shader_buffer_layout, void *data, uint32_t data_size) = 0;
 
     virtual Pipeline CreatePipeline(PipelineState state) = 0;
 
-//    virtual void UpdateVertexBuffer(VertexBuffer handle, void *data, uint32_t size) = 0;
-//    virtual void UpdateIndexBuffer(IndexBuffer handle, void *data, uint32_t size) = 0;
-//    virtual void UpdateConstantBuffer(ConstantBuffer handle, void *data, uint32_t size) = 0;
-//    virtual void UpdateShaderBuffer(ShaderBuffer handle, void *data, uint32_t size) = 0;
+    //    virtual void UpdateVertexBuffer(VertexBuffer handle, void *data, uint32_t size) = 0;
+    //    virtual void UpdateIndexBuffer(IndexBuffer handle, void *data, uint32_t size) = 0;
+    //    virtual void UpdateConstantBuffer(ConstantBuffer handle, void *data, uint32_t size) = 0;
+    //    virtual void UpdateShaderBuffer(ShaderBuffer handle, void *data, uint32_t size) = 0;
 
     // Buffer Access
     // TODO: add partial buffer access too
