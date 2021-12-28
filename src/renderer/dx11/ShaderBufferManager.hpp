@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Interface/FocusBackend.hpp"
+#include "../Interface/focus.hpp"
 #include "Utils.hpp"
 
 #include <d3d11_3.h>

@@ -1,5 +1,5 @@
 #pragma once
-#include "../Interface/FocusBackend.hpp"
+#include "../Interface/focus.hpp"
 
 #include <cassert>
 #include <d3d11.h>

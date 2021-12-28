@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.10)
 project(focus)
 #set(CMAKE_UNITY_BUILD ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-#TODO put the defines up here
 
 
 
@@ -18,13 +17,6 @@ set(OPENGL_BACKEND_SRC
         ${OPENGL_BACKEND_DIR}/GLDevice.cpp
         ${OPENGL_BACKEND_DIR}/ShaderManager.cpp
         ${OPENGL_BACKEND_DIR}/glad.c
-        )
-set(OPENGL_BACKEND_HEADERS
-        ${OPENGL_BACKEND_DIR}/GLDevice.hpp
-        ${OPENGL_BACKEND_DIR}/ShaderManager.hpp
-        ${OPENGL_BACKEND_DIR}/Utils.hpp
-        ${OPENGL_BACKEND_DIR}/Types.hpp
-        ${OPENGL_BACKEND_DIR}/glad.h
         )
 
 # vulkan backend
@@ -46,17 +38,13 @@ set(DX11_BACKEND_HEADERS
         ${DX11_BACKEND_DIR}/Utils.hpp
         )
 
-# DX12 backend
-file(GLOB RENDERER_DX12_SRC CONFIGURE_DEPENDS "src/renderer/dx12/*")
-
 # Interface
 set(INTERFACE_DIR ${PROJECT_SOURCE_DIR}/src/renderer/Interface)
 set(INTERFACE_SRC
-        ${INTERFACE_DIR}/FocusBackend.cpp
         ${INTERFACE_DIR}/focus.cpp
         )
+
 set(INTERFACE_HEADERS
-        ${INTERFACE_DIR}/FocusBackend.hpp
         ${INTERFACE_DIR}/focus.hpp
         )
 

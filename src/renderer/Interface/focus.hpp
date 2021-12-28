@@ -34,6 +34,21 @@ class Handle
     size_t Hash() const { return std::hash<uint64_t>()(_value); }
 };
 
+} // namespace focus
+
+namespace std
+{
+
+template<typename Tag>
+struct hash<focus::Handle<Tag>> {
+    // template <typename Tag, typename T, T default_value>
+    size_t operator()(const focus::Handle<Tag> &k) const { return k.Hash(); }
+};
+
+} // namespace std
+namespace focus
+{
+
 #define MAKE_HANDLE(name)                                                                                              \
     struct name##Tag {                                                                                                 \
     };                                                                                                                 \
@@ -488,55 +503,6 @@ class Device
 
     virtual void SwapBuffers(const Window &window) = 0;
 };
-
-/*
-// Window creation
-Window MakeWindow(int32_t width, int32_t height);
-
-// Shader creation
-ShaderHandle CreateShaderFromBinary(const std::vector<uint8_t> &vBinary, const std::vector<uint8_t> &fBinary);
-ShaderHandle CreateShaderFromSource(const char *name, const std::string &vSource, const std::string &fSource);
-ShaderHandle CreateComputeShaderFromSource(const char *name, const std::string &source);
-
-// Buffer Creation
-VertexBufferHandle CreateVertexBuffer(void *data, VertexBufferDescriptor descriptor);
-IndexBufferHandle CreateIndexBuffer(void *data, IndexBufferDescriptor descriptor);
-ConstantBufferHandle CreateConstantBuffer(void *data, ConstantBufferDescriptor descriptor);
-ShaderBufferHandle CreateShaderBuffer(void *data, ShaderBufferDescriptor descriptor);
-
-void UpdateVertexBuffer(VertexBufferHandle handle, void *data, uint32_t size);
-void UpdateIndexBuffer(IndexBufferHandle handle, void *data, uint32_t size);
-void UpdateConstantBuffer(ConstantBufferHandle handle, void *data, uint32_t size);
-void UpdateShaderBuffer(ShaderBufferHandle handle, void *data, uint32_t size);
-
-// Buffer Access
-// TODO: add partial buffer access too
-// TODO: consider adding a scoped pointer for mapped memory
-void *MapBuffer(ShaderBufferHandle handle, AccessMode access_mode);
-void UnmapBuffer(ShaderBufferHandle handle);
-
-// Buffer Destruction
-
-void DestroyVertexBuffer(VertexBufferHandle handle);
-void DestroyIndexBuffer(IndexBufferHandle handle);
-void DestroyShaderBuffer(ShaderBufferHandle handle);
-void DestroyConstantBuffer(ConstantBufferHandle handle);
-
-// draw call submission
-void Draw(Primitive primitive, RenderState render_state, ShaderHandle shader, const SceneState &scene_state);
-
-// Compute shader dispatch
-void DispatchCompute(uint32_t x_groups, uint32_t y_groups, uint32_t z_groups, ShaderHandle shader,
-        const ComputeState &compute_state);
-
-// TODO: better naming
-void WaitForMemory(uint64_t flags);
-
-// Screen clearing
-void ClearBackBuffer(ClearState clear_state);
-
-void swap_buffers(const Window &window);
-*/
 
 #ifdef _WIN32
 /**

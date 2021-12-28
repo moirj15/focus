@@ -1,5 +1,5 @@
 #pragma once
-#include "../Interface/FocusBackend.hpp"
+#include "../Interface/focus.hpp"
 #include "Utils.hpp"
 
 #include <cassert>

@@ -1,11 +1,11 @@
 #pragma once
-#include "../Interface/FocusBackend.hpp"
 
 #include <d3d11.h>
 #include <d3d11shader.h>
 #include <optional>
 #include <unordered_map>
 #include <wrl/client.h>
+#include "../Interface/focus.hpp"
 
 namespace focus::dx11
 {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../common.h"
-#include "../Interface/FocusBackend.hpp"
+#include "../Interface/focus.hpp"
 #include "ShaderManager.hpp"
 
 struct GLFWwindow;
@@ -94,14 +94,6 @@ public:
         const ConstantBufferLayout &constant_buffer_layout, void *data, uint32_t data_size) override;
     ShaderBuffer CreateShaderBuffer(const ShaderBufferLayout &shader_buffer_layout, void *data, uint32_t data_size) override;
     Pipeline CreatePipeline(PipelineState state) override;
-
-    /*
-    // Buffer Updates
-    void UpdateVertexBuffer(VertexBuffer handle, void *data, uint32_t size) override;
-    void UpdateIndexBuffer(IndexBuffer handle, void *data, uint32_t size) override;
-    void UpdateConstantBuffer(ConstantBuffer handle, void *data, uint32_t size) override;
-    void UpdateShaderBuffer(ShaderBuffer handle, void *data, uint32_t size) override;
-     */
 
     void *MapBuffer(ShaderBuffer handle, AccessMode accessMode) override;
     void UnmapBuffer(ShaderBuffer handle) override;
