@@ -110,6 +110,8 @@ public:
     void BindPipeline(Pipeline pipeline) override;
     // draw call submission
     void Draw(Primitive primitive, uint32_t starting_vertex, uint32_t point_count) override;
+    void DrawInstanced(
+        Primitive primitive, uint32_t starting_vertex, uint32_t point_count, uint32_t instance_count) override;
 
     void EndPass() override;
     // Compute shader dispatch
@@ -121,6 +123,8 @@ public:
     void ClearBackBuffer(ClearState clearState = {}) override;
 
     void SwapBuffers(const Window &window) override;
+  private:
+    void BindAttributes();
 };
 
 } // namespace focus

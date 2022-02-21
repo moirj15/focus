@@ -209,15 +209,14 @@ void GLDevice::BindPipeline(Pipeline pipeline)
             glDisable(GL_BLEND);
         }
     }
-//    auto shaderInfo = mShaderManager.GetInfo(pipeline_state.shader);
+    //    auto shaderInfo = mShaderManager.GetInfo(pipeline_state.shader);
     GLuint program = mShaderManager.GetProgram(pipeline_state.shader);
     glUseProgram(program);
     glBindVertexArray(mVAO);
 }
-// draw call submission
-void GLDevice::Draw(Primitive primitive, uint32_t starting_vertex, uint32_t point_count)
+
+void GLDevice::BindAttributes()
 {
-    GLenum glPrimitive = glUtils::PrimitiveToGL(primitive);
     // TODO: sort based on bit flags?
     // Only doing interleved buffers for now
     // TODO: move a bunch of this stuff into some helpers
@@ -248,8 +247,23 @@ void GLDevice::Draw(Primitive primitive, uint32_t starting_vertex, uint32_t poin
         glBindBufferBase(GL_UNIFORM_BUFFER, 0, gl_cb_handle);
         glUniformBlockBinding(gl_shader_handle, cb_layout.binding_point, 0);
     }
+}
+
+// draw call submission
+void GLDevice::Draw(Primitive primitive, uint32_t starting_vertex, uint32_t point_count)
+{
+    GLenum glPrimitive = glUtils::PrimitiveToGL(primitive);
+    BindAttributes();
     // TODO: pretty ugly, need to re-write. Maybe add an element count to the sceneState or some descriptor?
-    glDrawArrays(glPrimitive, (GLint)starting_vertex, point_count);
+    glDrawArrays(glPrimitive, (GLint)starting_vertex, (GLint)point_count);
+}
+
+void GLDevice::DrawInstanced(
+    Primitive primitive, uint32_t starting_vertex, uint32_t point_count, uint32_t instance_count)
+{
+    BindAttributes();
+    GLenum gl_primitive = glUtils::PrimitiveToGL(primitive);
+    glDrawArraysInstanced(gl_primitive, (GLint)starting_vertex, (GLint)point_count, (GLint)instance_count);
 }
 
 void GLDevice::EndPass()

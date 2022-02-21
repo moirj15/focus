@@ -144,3 +144,4 @@ else ()
 
 endif ()
 
+add_subdirectory(examples)

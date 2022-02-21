@@ -59,9 +59,9 @@ void TriangleTest(const focus::Window &window)
     cb_layout.Add("mvp", focus::VarType::Float4x4);
 
     focus::SceneState sceneState = {
-        .vb_handles = {device->CreateVertexBuffer(vb_layout, (uint8_t*)points, sizeof(points))},
-        .cb_handles = {device->CreateConstantBuffer(cb_layout, (uint8_t*)mvp, sizeof(mvp))},
-        .ib_handle = device->CreateIndexBuffer(ib_layout, (uint8_t*)indices, sizeof(indices)),
+        .vb_handles = {device->CreateVertexBuffer(vb_layout, (uint8_t *)points, sizeof(points))},
+        .cb_handles = {device->CreateConstantBuffer(cb_layout, (uint8_t *)mvp, sizeof(mvp))},
+        .ib_handle = device->CreateIndexBuffer(ib_layout, (uint8_t *)indices, sizeof(indices)),
         .indexed = true,
     };
 
@@ -85,10 +85,9 @@ void TriangleTest(const focus::Window &window)
     }
 }
 
-
 void TriangleTestInterleavedBuffer(const focus::Window &window)
 {
-    #if 0
+#if 0
     auto handle = device->CreateShaderFromSource("UniformColor",
         utils::ReadEntireFileAsString("shaders/gl/UniformColorInterleaved.vert"),
         utils::ReadEntireFileAsString("shaders/gl/UniformColorInterleaved.frag"));
@@ -170,7 +169,7 @@ void TriangleTestInterleavedBuffer(const focus::Window &window)
 
         device->SwapBuffers(window);
     }
-    #endif
+#endif
 }
 
 void ComputeTest(const focus::Window &window)
@@ -181,12 +180,6 @@ void ComputeTest(const focus::Window &window)
 
     focus::ShaderBufferLayout sDesc(0, focus::BufferUsage::Dynamic, "color_buf");
     sDesc.Add("color_buf", focus::VarType::Float);
-//    focus::ShaderBufferDescriptor sDesc = {
-//        .name = "color_buf",
-//        .slot = 0,
-//        .accessMode = focus::AccessMode::WriteOnly,
-//        .types = {focus::VarType::Float},
-//    };
     auto sHandle = device->CreateShaderBuffer(sDesc, nullptr, 256 * 256 * sizeof(float));
     auto *contents = (float *)device->MapBuffer(sHandle, focus::AccessMode::ReadOnly);
     for (int i = 0; i < 256 * 256; i++) {

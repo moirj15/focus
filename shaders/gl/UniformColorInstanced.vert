@@ -7,7 +7,6 @@ layout(std140, binding = 0) uniform Input
 };
 
 layout(location = 0) in vec3 aPosition;
-layout(location = 1) in vec3 aOffset;
 
 out vec3 oColor;
 
