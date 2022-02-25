@@ -75,6 +75,7 @@ class GLDevice final : public Device
 
 public:
     GLDevice();
+    ~GLDevice() override;
     // Window creation
     Window MakeWindow(int32_t width, int32_t height) override;
 
@@ -86,8 +87,7 @@ public:
     Shader CreateComputeShaderFromSource(const char *name, const std::string &source) override;
 
     // Buffer Creation
-    VertexBuffer CreateVertexBuffer(
-        const VertexBufferLayout &vertex_buffer_layout, void *data, uint32_t data_size) override;
+    VertexBuffer CreateVertexBuffer(const VertexBufferLayout &vertex_buffer_layout, void *data, uint32_t data_size) override;
     IndexBuffer CreateIndexBuffer(
         const IndexBufferLayout &index_buffer_descriptor, void *data, uint32_t data_size) override;
     ConstantBuffer CreateConstantBuffer(

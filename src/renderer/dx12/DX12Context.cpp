@@ -1,10 +1,10 @@
 #include "DX12Context.hpp"
-
+#if 0
 #include <SDL2/SDL.h>
 #include <cassert>
 
 #define Check(x) assert(x == S_OK)
-
+#endif
 namespace focus
 {
 

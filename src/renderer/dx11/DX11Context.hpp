@@ -38,9 +38,10 @@ class DX11Context : public Device
 
   public:
     DX11Context();
+    ~DX11Context();
 
-    inline ID3D11Device *GetDevice() { return mDevice.Get(); }
-    inline ID3D11DeviceContext *GetContext() { return mContext.Get(); }
+    ID3D11Device *GetDevice() { return mDevice.Get(); }
+    ID3D11DeviceContext *GetContext() { return mContext.Get(); }
 
     // Window creation
     Window MakeWindow(int32_t width, int32_t height) override;
@@ -59,7 +60,8 @@ class DX11Context : public Device
         const IndexBufferLayout &index_buffer_descriptor, void *data, uint32_t data_size) override;
     ConstantBuffer CreateConstantBuffer(
         const ConstantBufferLayout &constant_buffer_layout, void *data, uint32_t data_size) override;
-    ShaderBuffer CreateShaderBuffer(const ShaderBufferLayout &shader_buffer_layout, void *data, uint32_t data_size) override;
+    ShaderBuffer CreateShaderBuffer(
+        const ShaderBufferLayout &shader_buffer_layout, void *data, uint32_t data_size) override;
 
     Pipeline CreatePipeline(PipelineState state) override;
     /*

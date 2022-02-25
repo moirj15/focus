@@ -1,9 +1,10 @@
 #pragma once
 
-#include "focus.hpp"
+#include <focus.hpp>
 
-#include <string>
 #include <optional>
+#include <stdio.h>
+#include <string>
 
 class Example
 {
@@ -86,12 +87,11 @@ Mesh ReadObjectFile(const std::string &file);
 
 } // namespace utils
 
-
 template<typename ErrorType, typename ReturnType>
 class MayFail
 {
     std::optional<ErrorType> _error_code;
     std::optional<ReturnType> _return_value;
-  public:
 
+  public:
 };

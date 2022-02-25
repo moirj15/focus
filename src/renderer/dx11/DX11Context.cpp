@@ -53,6 +53,11 @@ DX11Context::DX11Context()
     mDevice->CreateRasterizerState(&rasterizerDesc, &mRasterizerState);
 }
 
+DX11Context::~DX11Context()
+{
+    // TODO: Proper shutdown
+}
+
 Window DX11Context::MakeWindow(int32_t width, int32_t height)
 {
     SDL_Window *window =
@@ -164,8 +169,8 @@ Shader DX11Context::CreateComputeShaderFromSource(const char *name, const std::s
     return mShaderManager.AddComputeShader(name, source);
 }
 
-VertexBuffer DX11Context::CreateVertexBuffer(
-    const VertexBufferLayout &vertex_buffer_layout, void *data, uint32_t data_size)
+VertexBuffer DX11Context::CreateVertexBuffer(const VertexBufferLayout &vertex_buffer_layout, void *data,
+    uint32_t data_size)
 {
     return mVBManager.Create(data, vertex_buffer_layout);
 }

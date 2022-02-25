@@ -1,11 +1,11 @@
 #pragma once
 #include "../Interface/focus.hpp"
-
+#if 0
 #include <d3d12.h>
 #include <dxgi.h>
 #include <wrl/client.h>
 using namespace Microsoft::WRL;
-
+#endif
 namespace focus
 {
 #if 0

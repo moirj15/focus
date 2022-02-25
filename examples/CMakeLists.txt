@@ -9,7 +9,8 @@ set(EXAMPLE_SOURCES
         main.cpp
 )
 add_executable(examples
-        ${EXAMPLE_SOURCES})
+        ${EXAMPLE_SOURCES}
+)
 
 target_include_directories(examples
         PUBLIC

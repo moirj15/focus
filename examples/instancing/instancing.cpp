@@ -1,9 +1,8 @@
 #include "instancing.hpp"
-#include <glm/glm.hpp>
-#include <glm/ext.hpp>
 
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "err_typecheck_invalid_operands"
+#include <glm/ext.hpp>
+#include <glm/glm.hpp>
+
 Instancing::Instancing(focus::Device *device, const focus::Window &window) :
         Example(device, window, "Instancing Example")
 {
@@ -32,22 +31,32 @@ Instancing::Instancing(focus::Device *device, const focus::Window &window) :
     cb_data.insert(cb_data.end(), glm::value_ptr(color), glm::value_ptr(color) + 4);
     cb_data.insert(cb_data.end(), glm::value_ptr(mvp), glm::value_ptr(mvp) + 16);
 
-    focus::VertexBufferLayout vb_layout("INPUT");
+    std::vector<glm::vec2> offsets;
+    for (int x = 0; x < 5; x++) {
+        for (int y = 0; y < 5; y++) {
+            offsets.emplace_back((float)x, (float)y);
+        }
+    }
+
+    focus::VertexBufferLayout vb_layout(0, focus::BufferUsage::Default, focus::InputClassification::Normal, "INPUT");
     vb_layout.Add("aPosition", focus::VarType::Float3);
-    vb_layout.Add("aOffset", focus::VarType::Float2);
+
+    focus::VertexBufferLayout instance_buffer_layout(
+        1, focus::BufferUsage::Default, focus::InputClassification::Instanced);
+    instance_buffer_layout.Add("aOffset", focus::VarType::Float2);
 
     focus::ConstantBufferLayout cb_layout("Constants");
     cb_layout.Add("mvp", focus::VarType::Float4x4);
 
     _scene_state = {
         .vb_handles = {device->CreateVertexBuffer(
-            vb_layout, (uint8_t *)mesh.vertices.data(), mesh.vertices.size() * sizeof(float))},
-        .cb_handles = {device->CreateConstantBuffer(cb_layout, (uint8_t *)cb_data.data(), cb_data.size() * sizeof(float))},
+                           vb_layout, mesh.vertices.data(), mesh.vertices.size() * sizeof(float)),
+            device->CreateVertexBuffer(instance_buffer_layout, offsets.data(), offsets.size() * sizeof(glm::vec2))},
+        .cb_handles = {device->CreateConstantBuffer(cb_layout, cb_data.data(), cb_data.size() * sizeof(float))},
         .ib_handle = {},
         .indexed = true,
     };
 }
-#pragma clang diagnostic pop
 
 void Instancing::DoFrame()
 {

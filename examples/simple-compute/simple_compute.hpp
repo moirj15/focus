@@ -14,7 +14,7 @@ class SimpleCompute : public Example
         compute_shader =
             device->CreateComputeShaderFromSource("TestCompute", utils::ReadEntireFileAsString("shaders/gl/test.comp"));
 
-        focus::ShaderBufferLayout sDesc(0, focus::BufferUsage::Dynamic, "color_buf");
+        focus::ShaderBufferLayout sDesc(0, focus::BufferUsage::Dynamic, focus::InputClassification::Normal, "color_buf");
         sDesc.Add("color_buf", focus::VarType::Float);
         shader_buffer = device->CreateShaderBuffer(sDesc, nullptr, 256 * 256 * sizeof(float));
         auto *contents = (float *)device->MapBuffer(shader_buffer, focus::AccessMode::ReadOnly);

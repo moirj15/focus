@@ -23,6 +23,11 @@ GLDevice::GLDevice()
     SDL_GL_LoadLibrary(nullptr);
 }
 
+GLDevice::~GLDevice()
+{
+    // TODO: proper shutdown
+}
+
 Window GLDevice::MakeWindow(int32_t width, int32_t height)
 {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -200,10 +205,10 @@ void GLDevice::BindPipeline(Pipeline pipeline)
         }
     }
     if (pipeline_state.depth_range != mCachedRenderState.depth_range) {
-        glDepthRange(pipeline_state.depth_range.mNear, pipeline_state.depth_range.mNear);
+        glDepthRange(pipeline_state.depth_range.near, pipeline_state.depth_range.near);
     }
     if (pipeline_state.blend_state != mCachedRenderState.blend_state) {
-        if (pipeline_state.blend_state.mEnabled) {
+        if (pipeline_state.blend_state.enabled) {
             glEnable(GL_BLEND);
         } else {
             glDisable(GL_BLEND);
@@ -225,14 +230,17 @@ void GLDevice::BindAttributes()
         GLuint gl_vb_handle = mVBManager.Get(vbHandle);
         glBindBuffer(GL_ARRAY_BUFFER, gl_vb_handle);
 
-        for (uint32_t attrib_index = 0; attrib_index < vb_layout._attributes.size(); attrib_index++) {
-            const auto &attribute = vb_layout._attributes[attrib_index];
+        for (uint32_t attrib_index = 0; attrib_index < vb_layout.attributes.size(); attrib_index++) {
+            const auto &attribute = vb_layout.attributes[attrib_index];
             glEnableVertexAttribArray(attrib_index);
             GLint attribute_size_in_bytes = glUtils::VarTypeSizeInBytes(attribute.type);
             // TODO: figure out normalized inputs
             glVertexAttribPointer(attrib_index, glUtils::VarTypeToSlotSizeGL(attribute.type),
                 glUtils::VarTypeToIndividualTypeGL(attribute.type), false, attribute_size_in_bytes,
                 (const void *)(uintptr_t)attribute.offset);
+            if (vb_layout.input_classification == InputClassification::Instanced) {
+                glVertexAttribDivisor(attrib_index, 1);
+            }
         }
     }
     // TODO: some error management would be nice

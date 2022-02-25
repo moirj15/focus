@@ -59,7 +59,8 @@ void TriangleTest(const focus::Window &window)
     cb_layout.Add("mvp", focus::VarType::Float4x4);
 
     focus::SceneState sceneState = {
-        .vb_handles = {device->CreateVertexBuffer(vb_layout, (uint8_t *)points, sizeof(points))},
+        .vb_handles = {device->CreateVertexBuffer(
+            vb_layout, (uint8_t *)points, sizeof(points))},
         .cb_handles = {device->CreateConstantBuffer(cb_layout, (uint8_t *)mvp, sizeof(mvp))},
         .ib_handle = device->CreateIndexBuffer(ib_layout, (uint8_t *)indices, sizeof(indices)),
         .indexed = true,
@@ -178,7 +179,7 @@ void ComputeTest(const focus::Window &window)
     auto handle =
         device->CreateComputeShaderFromSource("TestCompute", utils::ReadEntireFileAsString("shaders/gl/test.comp"));
 
-    focus::ShaderBufferLayout sDesc(0, focus::BufferUsage::Dynamic, "color_buf");
+    focus::ShaderBufferLayout sDesc(0, focus::BufferUsage::Dynamic, focus::InputClassification::Normal, "color_buf");
     sDesc.Add("color_buf", focus::VarType::Float);
     auto sHandle = device->CreateShaderBuffer(sDesc, nullptr, 256 * 256 * sizeof(float));
     auto *contents = (float *)device->MapBuffer(sHandle, focus::AccessMode::ReadOnly);

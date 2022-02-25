@@ -22,16 +22,16 @@ class Handle
     static Handle Invalid() { return Handle(); }
 
     Handle() = default;
-    explicit Handle(uint64_t value) : _value(value) {}
+    explicit Handle(const uint64_t value) : _value(value) {}
 
     explicit operator uint64_t() const { return _value; }
 
     friend bool operator==(Handle a, Handle b) { return a._value == b._value; }
     friend bool operator!=(Handle a, Handle b) { return a._value != b._value; }
-    bool operator==(uint64_t b) { return _value == b; }
-    bool operator!=(uint64_t b) { return _value != b; }
+    bool operator==(const uint64_t b) const { return _value == b; }
+    bool operator!=(const uint64_t b) const { return _value != b; }
     uint64_t operator++(int) { return _value++; }
-    size_t Hash() const { return std::hash<uint64_t>()(_value); }
+    [[nodiscard]] size_t Hash() const { return std::hash<uint64_t>()(_value); }
 };
 
 } // namespace focus
@@ -199,31 +199,40 @@ enum class BufferUsage {
     Staging,
 };
 
+// TODO: rename?
+enum class InputClassification {
+    Normal,
+    Instanced,
+};
+
 // Lovingly borrowed from oryol-gfx
 template<typename Tag>
 struct BufferLayout {
-    std::string debug_name;
     struct Attribute {
         std::string name;
         VarType type;
         uint32_t offset; // Calculated on a call to VertexBufferLayout::Add()
     };
-    std::vector<Attribute> _attributes;
-    BufferUsage _usage = BufferUsage::Default;
+    std::vector<Attribute> attributes;
     uint32_t binding_point = 0;
+    BufferUsage usage = BufferUsage::Default;
+    InputClassification input_classification = InputClassification::Normal;
+    std::string debug_name;
 
     BufferLayout() = default;
     explicit BufferLayout(const std::string &db_name) : debug_name(db_name) {}
-    explicit BufferLayout(uint32_t bp, BufferUsage buffer_usage, const std::string &db_name = "") :
-            binding_point(bp), _usage(buffer_usage), debug_name(db_name)
+    explicit BufferLayout(const uint32_t bp, const BufferUsage buffer_usage,
+        const InputClassification input_classification, const std::string &db_name = "") :
+            binding_point(bp),
+            usage(buffer_usage), input_classification(input_classification), debug_name(db_name)
     {
     }
     BufferLayout &Add(const std::string &name, VarType type)
     {
-        _attributes.push_back(BufferLayout::Attribute{
+        attributes.push_back(BufferLayout::Attribute{
             .name = std::string(name),
             .type = type,
-            .offset = _attributes.empty() ? 0 : VarTypeByteSize(type) + _attributes.back().offset,
+            .offset = attributes.empty() ? 0 : VarTypeByteSize(type) + attributes.back().offset,
         });
         return *this;
     }
@@ -247,8 +256,11 @@ struct IndexBufferLayout {
     BufferUsage usage;
 
     IndexBufferLayout() = default;
-    IndexBufferLayout(IndexBufferType buffer_type, BufferUsage buffer_usage = BufferUsage::Default) :
-            type(buffer_type), usage(buffer_usage)
+
+    explicit IndexBufferLayout(
+        const IndexBufferType buffer_type, BufferUsage const buffer_usage = BufferUsage::Default) :
+            type(buffer_type),
+            usage(buffer_usage)
     {
     }
     void SetDebugName(const std::string &name) { debug_name = name; }
@@ -280,7 +292,7 @@ struct ConstantBufferDescriptor {
 struct ShaderBufferDescriptor {
     std::string name;
     uint32_t slot;
-    AccessMode accessMode;
+    AccessMode access_mode;
     std::vector<VarType> types;
     BufferUsage usage;
     uint32_t size_in_bytes;
@@ -290,7 +302,7 @@ struct InputBufferDescriptor {
     std::string name; // name of the variable, not the semantic used.
     VarType type;
     uint32_t slot; // TODO: I guess for D3D this should be used for the intrinisc number? ie POSITION3, 3 is the slot
-    uint32_t byteOffset;
+    uint32_t byte_offset;
 };
 
 struct ShaderInfo {
@@ -348,41 +360,49 @@ struct StencilTest {
             return func != o.func || face != o.face || mask != o.mask || op != o.op;
         }
     } front, back;
-    // If true, mFront and mBack will be used for seperate stencil tests of front and back facing triangles.
+    // If true, mFront and mBack will be used for separate stencil tests of front and back facing triangles.
     // Otherwise, the values set in mFront will be used for both.
-    bool seperate = false;
+    bool separate = false;
     bool enabled = false;
 
     bool operator!=(const StencilTest &o) const
     {
-        return front != o.front || back != o.back || seperate != o.seperate || enabled != o.enabled;
+        return front != o.front || back != o.back || separate != o.separate || enabled != o.enabled;
     }
 };
 
-struct DepthRange {
-    double mNear = 0.0;
-    double mFar = 1.0;
+// I guess some windows headers still include near and far pointer macros
+#if defined near
+#undef near
+#endif
+#if defined far
+#undef far
+#endif
 
-    bool operator!=(const DepthRange &o) const { return mNear != o.mNear || mFar != o.mFar; }
+struct DepthRange {
+    double near = 0.0;
+    double far = 1.0;
+
+    bool operator!=(const DepthRange &o) const { return near != o.near || far != o.far; }
 };
 
 struct BlendState {
     struct BlendingFace {
         // TODO: not sure if the is the correct default behavior
-        Color mBlendColor;
-        BlendEquation mEquation = BlendEquation::Add;
-        BlendFunction mFunction = BlendFunction::Zero;
+        Color blend_color;
+        BlendEquation equation = BlendEquation::Add;
+        BlendFunction function = BlendFunction::Zero;
 
         bool operator!=(const BlendingFace &o) const
         {
-            return mBlendColor != o.mBlendColor || mEquation != o.mEquation || mFunction != o.mFunction;
+            return blend_color != o.blend_color || equation != o.equation || function != o.function;
         }
-    } mColor, mAlpha;
-    bool mSeperate = false;
-    bool mEnabled = false;
+    } color, alpha;
+    bool seperate = false;
+    bool enabled = false;
     bool operator!=(const BlendState &o) const
     {
-        return mColor != o.mColor || mAlpha != o.mAlpha || mSeperate != o.mSeperate || mEnabled != o.mEnabled;
+        return color != o.color || alpha != o.alpha || seperate != o.seperate || enabled != o.enabled;
     }
 };
 
@@ -442,6 +462,8 @@ class Device
 {
   public:
     static Device *Init(RendererAPI api);
+
+    virtual ~Device() {}
     // Window creation
     virtual Window MakeWindow(int32_t width, int32_t height) = 0;
 
@@ -451,8 +473,8 @@ class Device
     virtual Shader CreateComputeShaderFromSource(const char *name, const std::string &source) = 0;
 
     // Buffer Creation
-    virtual VertexBuffer CreateVertexBuffer(
-        const VertexBufferLayout &vertex_buffer_layout, void *data, uint32_t data_size) = 0;
+    virtual VertexBuffer CreateVertexBuffer(const VertexBufferLayout &vertex_buffer_layout, void *data,
+        uint32_t data_size) = 0;
     virtual IndexBuffer CreateIndexBuffer(
         const IndexBufferLayout &index_buffer_descriptor, void *data, uint32_t data_size) = 0;
     virtual ConstantBuffer CreateConstantBuffer(
