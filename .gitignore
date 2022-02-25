@@ -22,3 +22,7 @@ cmake-build-debug-visual-studio/*
 .idea/
 .cache/
 lib/
+compile_commands.json
+cmake_install.cmake
+generate.stamp
+generate.stamp.depend

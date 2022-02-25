@@ -16,7 +16,7 @@ Instancing::Instancing(focus::Device *device, const focus::Window &window) :
 
     _pipeline = _device->CreatePipeline(pipeline_state);
 
-    auto mesh = utils::ReadObjectFile("examples/data/obj-files/teapot.obj");
+    auto mesh = utils::ReadObjectFile("data/obj-files/teapot.obj");
     _vertex_count = mesh.vertices.size() / 3;
 
     auto perspective = glm::infinitePerspective(90.0f, 16.0f / 9.0f, 0.01f);
