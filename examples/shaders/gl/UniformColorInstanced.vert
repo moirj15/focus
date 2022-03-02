@@ -13,6 +13,6 @@ out vec3 oColor;
 
 void main()
 {
-    gl_Position = mvp * vec4(aPosition + aOffset, 1.0);
+    gl_Position = mvp * vec4(aPosition + vec3(aOffset, 0.0f), 1.0);
     oColor = color.xyz;
 }

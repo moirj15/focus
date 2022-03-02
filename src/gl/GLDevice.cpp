@@ -232,24 +232,22 @@ void GLDevice::BindAttributes()
 
         for (uint32_t attrib_index = 0; attrib_index < vb_layout.attributes.size(); attrib_index++) {
             const auto &attribute = vb_layout.attributes[attrib_index];
-            glEnableVertexAttribArray(attrib_index);
+            glEnableVertexAttribArray(attrib_index + vb_layout.binding_point);
             GLint attribute_size_in_bytes = glUtils::VarTypeSizeInBytes(attribute.type);
             // TODO: figure out normalized inputs
-            glVertexAttribPointer(attrib_index, glUtils::VarTypeToSlotSizeGL(attribute.type),
+            glVertexAttribPointer(attrib_index + vb_layout.binding_point, glUtils::VarTypeToSlotSizeGL(attribute.type),
                 glUtils::VarTypeToIndividualTypeGL(attribute.type), false, attribute_size_in_bytes,
                 (const void *)(uintptr_t)attribute.offset);
-            if (vb_layout.input_classification == InputClassification::Instanced) {
-                glVertexAttribDivisor(attrib_index, 1);
-            }
+            glVertexAttribDivisor(attrib_index + vb_layout.binding_point, attribute.attrib_divisor);
         }
     }
     // TODO: some error management would be nice
-    PipelineState pipeline_state = _pipeline_manager.Get(_bound_pipeline.value()).value();
-    GLuint gl_shader_handle = mShaderManager.GetProgram(pipeline_state.shader);
+    const PipelineState pipeline_state = _pipeline_manager.Get(_bound_pipeline.value()).value();
+    const GLuint gl_shader_handle = mShaderManager.GetProgram(pipeline_state.shader);
     // setup all the uniform buffers
     for (const auto &cbHandle : _bound_scene_state.cb_handles) {
         const auto &cb_layout = mCBManager.mDescriptors[cbHandle];
-        GLuint gl_cb_handle = mCBManager.Get(cbHandle);
+        const GLuint gl_cb_handle = mCBManager.Get(cbHandle);
         glBindBuffer(GL_UNIFORM_BUFFER, gl_cb_handle);
         // TODO: figure out multiple binding points
         glBindBufferBase(GL_UNIFORM_BUFFER, 0, gl_cb_handle);

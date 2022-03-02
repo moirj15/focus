@@ -6,9 +6,9 @@
 Instancing::Instancing(focus::Device *device, const focus::Window &window) :
         Example(device, window, "Instancing Example")
 {
-    auto shader =
-        _device->CreateShaderFromSource("UniformColor", utils::ReadEntireFileAsString("shaders/gl/UniformColor.vert"),
-            utils::ReadEntireFileAsString("shaders/gl/UniformColor.frag"));
+    auto shader = _device->CreateShaderFromSource("UniformColor",
+        utils::ReadEntireFileAsString("shaders/gl/UniformColorInstanced.vert"),
+        utils::ReadEntireFileAsString("shaders/gl/UniformColor.frag"));
 
     focus::PipelineState pipeline_state = {
         .shader = shader,
@@ -34,16 +34,15 @@ Instancing::Instancing(focus::Device *device, const focus::Window &window) :
     std::vector<glm::vec2> offsets;
     for (int x = 0; x < 5; x++) {
         for (int y = 0; y < 5; y++) {
-            offsets.emplace_back((float)x, (float)y);
+            offsets.emplace_back((float)(x * 10), (float)y * 10);
         }
     }
 
-    focus::VertexBufferLayout vb_layout(0, focus::BufferUsage::Default, focus::InputClassification::Normal, "INPUT");
+    focus::VertexBufferLayout vb_layout(0, focus::BufferUsage::Default, "INPUT");
     vb_layout.Add("aPosition", focus::VarType::Float3);
 
-    focus::VertexBufferLayout instance_buffer_layout(
-        1, focus::BufferUsage::Default, focus::InputClassification::Instanced);
-    instance_buffer_layout.Add("aOffset", focus::VarType::Float2);
+    focus::VertexBufferLayout instance_buffer_layout(1, focus::BufferUsage::Default);
+    instance_buffer_layout.Add("aOffset", focus::VarType::Float2, 1);
 
     focus::ConstantBufferLayout cb_layout("Constants");
     cb_layout.Add("mvp", focus::VarType::Float4x4);
@@ -66,7 +65,7 @@ void Instancing::DoFrame()
     _device->BindSceneState(_scene_state);
     _device->BindPipeline(_pipeline);
     // TODO: need to add instanced draw call
-    _device->DrawInstanced(focus::Primitive::Triangles, 0, _vertex_count, 1);
+    _device->DrawInstanced(focus::Primitive::Triangles, 0, _vertex_count, 25);
 
     _device->EndPass();
 

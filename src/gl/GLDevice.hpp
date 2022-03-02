@@ -33,7 +33,7 @@ struct BufferManager {
     std::unordered_map<Handle, GLuint> mHandles;
     std::unordered_map<Handle, BufferLayout> mDescriptors;
 
-    inline Handle Create(BufferLayout buffer_layout, void *data, uint32_t size_in_bytes)
+    Handle Create(BufferLayout buffer_layout, void *data, uint32_t size_in_bytes)
     {
         // Create the buffer for OpenGL
         GLuint handle;
@@ -47,9 +47,9 @@ struct BufferManager {
         return mCurrHandle;
     }
 
-    inline GLuint Get(Handle handle) { return mHandles[handle]; }
+    GLuint Get(Handle handle) { return mHandles[handle]; }
 
-    inline void Destroy(Handle handle)
+    void Destroy(Handle handle)
     {
         auto bufferHandle = mHandles[handle];
         mHandles.erase(handle);

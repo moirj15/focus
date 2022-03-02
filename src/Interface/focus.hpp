@@ -212,27 +212,29 @@ struct BufferLayout {
         std::string name;
         VarType type;
         uint32_t offset; // Calculated on a call to VertexBufferLayout::Add()
+        uint32_t attrib_divisor;
     };
     std::vector<Attribute> attributes;
     uint32_t binding_point = 0;
     BufferUsage usage = BufferUsage::Default;
-    InputClassification input_classification = InputClassification::Normal;
+    // InputClassification input_classification = InputClassification::Normal;
     std::string debug_name;
 
     BufferLayout() = default;
     explicit BufferLayout(const std::string &db_name) : debug_name(db_name) {}
     explicit BufferLayout(const uint32_t bp, const BufferUsage buffer_usage,
-        const InputClassification input_classification, const std::string &db_name = "") :
+        /*const InputClassification input_classification,*/ const std::string &db_name = "") :
             binding_point(bp),
-            usage(buffer_usage), input_classification(input_classification), debug_name(db_name)
+            usage(buffer_usage), /*input_classification(input_classification),*/ debug_name(db_name)
     {
     }
-    BufferLayout &Add(const std::string &name, VarType type)
+    BufferLayout &Add(const std::string &name, VarType type, const uint32_t attrib_divisor = 0)
     {
         attributes.push_back(BufferLayout::Attribute{
             .name = std::string(name),
             .type = type,
             .offset = attributes.empty() ? 0 : VarTypeByteSize(type) + attributes.back().offset,
+            .attrib_divisor = attrib_divisor,
         });
         return *this;
     }
@@ -473,8 +475,8 @@ class Device
     virtual Shader CreateComputeShaderFromSource(const char *name, const std::string &source) = 0;
 
     // Buffer Creation
-    virtual VertexBuffer CreateVertexBuffer(const VertexBufferLayout &vertex_buffer_layout, void *data,
-        uint32_t data_size) = 0;
+    virtual VertexBuffer CreateVertexBuffer(
+        const VertexBufferLayout &vertex_buffer_layout, void *data, uint32_t data_size) = 0;
     virtual IndexBuffer CreateIndexBuffer(
         const IndexBufferLayout &index_buffer_descriptor, void *data, uint32_t data_size) = 0;
     virtual ConstantBuffer CreateConstantBuffer(
