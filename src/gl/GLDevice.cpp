@@ -214,6 +214,7 @@ void GLDevice::BindPipeline(Pipeline pipeline)
             glDisable(GL_BLEND);
         }
     }
+    glLineWidth(pipeline_state.line_width);
     //    auto shaderInfo = mShaderManager.GetInfo(pipeline_state.shader);
     GLuint program = mShaderManager.GetProgram(pipeline_state.shader);
     glUseProgram(program);

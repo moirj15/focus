@@ -1,22 +1,62 @@
 [
 {
-  "directory": "E:/projects/focus/out/build/x64-Debug (default)",
-  "command": "C:\\PROGRA~2\\MICROS~1\\2019\\COMMUN~1\\VC\\Tools\\MSVC\\1428~1.293\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -I..\\..\\..\\include -I..\\..\\..\\src\\renderer\\Interface\\Context.cpp -I..\\..\\..\\src\\renderer\\Interface\\Context.hpp -I..\\..\\..\\src\\renderer\\Interface\\Handles.hpp -I..\\..\\..\\src\\renderer\\Interface\\IBuffer.hpp -I..\\..\\..\\src\\renderer\\Interface\\IShader.hpp -I..\\..\\..\\src\\renderer\\Interface\\RenderState.hpp -I..\\..\\..\\src\\renderer\\Interface\\Types.hpp -I..\\..\\..\\src\\renderer\\Interface\\Window.hpp /std:c++latest /MTd /MP /TP /W3 -D_CRT_SECURE_NO_WARNINGS -DGLEW_STATIC -DGLFW_INCLUDE_NONE -DRENDERER_OPENGL /MTd /Zi /Ob0 /Od /RTC1 -DGLFW_INCLUDE_NONE -D_DEBUG /FoCMakeFiles\\focus.dir\\Unity\\unity_0_cxx.cxx.obj /FdTARGET_COMPILE_PDB /FS -c \"E:\\projects\\focus\\out\\build\\x64-Debug (default)\\CMakeFiles\\focus.dir\\Unity\\unity_0_cxx.cxx\"",
-  "file": "E:/projects/focus/out/build/x64-Debug (default)/CMakeFiles/focus.dir/Unity/unity_0_cxx.cxx"
+  "directory": "E:/projects/VoxelDeformations/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -IE:/projects/VoxelDeformations/libs/glm -IE:/projects/VoxelDeformations/libs/SDL2 -IE:/projects/VoxelDeformations/focus/src/Interface -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=c++20 -o CMakeFiles\\VoxelDeformations.dir\\src\\main.cpp.obj -c E:\\projects\\VoxelDeformations\\src\\main.cpp",
+  "file": "E:\\projects\\VoxelDeformations\\src\\main.cpp"
 },
 {
-  "directory": "E:/projects/focus/out/build/x64-Debug (default)",
-  "command": "C:\\PROGRA~2\\MICROS~1\\2019\\COMMUN~1\\VC\\Tools\\MSVC\\1428~1.293\\bin\\Hostx64\\x64\\cl.exe  /nologo -I..\\..\\..\\include -I..\\..\\..\\src\\renderer\\Interface\\Context.cpp -I..\\..\\..\\src\\renderer\\Interface\\Context.hpp -I..\\..\\..\\src\\renderer\\Interface\\Handles.hpp -I..\\..\\..\\src\\renderer\\Interface\\IBuffer.hpp -I..\\..\\..\\src\\renderer\\Interface\\IShader.hpp -I..\\..\\..\\src\\renderer\\Interface\\RenderState.hpp -I..\\..\\..\\src\\renderer\\Interface\\Types.hpp -I..\\..\\..\\src\\renderer\\Interface\\Window.hpp /DWIN32 /D_WINDOWS /W3 /MTd /Zi /Ob0 /Od /RTC1 /FoCMakeFiles\\focus.dir\\Unity\\unity_0_c.c.obj /FdTARGET_COMPILE_PDB /FS -c \"E:\\projects\\focus\\out\\build\\x64-Debug (default)\\CMakeFiles\\focus.dir\\Unity\\unity_0_c.c\"",
-  "file": "E:/projects/focus/out/build/x64-Debug (default)/CMakeFiles/focus.dir/Unity/unity_0_c.c"
+  "directory": "E:/projects/VoxelDeformations/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -IE:/projects/VoxelDeformations/focus/include -IE:/projects/VoxelDeformations/focus/src/Interface -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o focus\\CMakeFiles\\focus.dir\\src\\Interface\\focus.cpp.obj -c E:\\projects\\VoxelDeformations\\focus\\src\\Interface\\focus.cpp",
+  "file": "E:\\projects\\VoxelDeformations\\focus\\src\\Interface\\focus.cpp"
 },
 {
-  "directory": "E:/projects/focus/out/build/x64-Debug (default)",
-  "command": "C:\\PROGRA~2\\MICROS~1\\2019\\COMMUN~1\\VC\\Tools\\MSVC\\1428~1.293\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -I..\\..\\..\\include /std:c++latest /MTd /MP /TP /W3 -D_CRT_SECURE_NO_WARNINGS -DGLEW_STATIC -DGLFW_INCLUDE_NONE -DRENDERER_OPENGL /MTd /Zi /Ob0 /Od /RTC1 -DGLFW_INCLUDE_NONE -D_DEBUG /FoCMakeFiles\\focus_main.dir\\Unity\\unity_0_cxx.cxx.obj /FdTARGET_COMPILE_PDB /FS -c \"E:\\projects\\focus\\out\\build\\x64-Debug (default)\\CMakeFiles\\focus_main.dir\\Unity\\unity_0_cxx.cxx\"",
-  "file": "E:/projects/focus/out/build/x64-Debug (default)/CMakeFiles/focus_main.dir/Unity/unity_0_cxx.cxx"
+  "directory": "E:/projects/VoxelDeformations/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -IE:/projects/VoxelDeformations/focus/include -IE:/projects/VoxelDeformations/focus/src/Interface -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o focus\\CMakeFiles\\focus.dir\\src\\gl\\GLDevice.cpp.obj -c E:\\projects\\VoxelDeformations\\focus\\src\\gl\\GLDevice.cpp",
+  "file": "E:\\projects\\VoxelDeformations\\focus\\src\\gl\\GLDevice.cpp"
 },
 {
-  "directory": "E:/projects/focus/out/build/x64-Debug (default)",
-  "command": "C:\\PROGRA~2\\MICROS~1\\2019\\COMMUN~1\\VC\\Tools\\MSVC\\1428~1.293\\bin\\Hostx64\\x64\\cl.exe  /nologo -I..\\..\\..\\include /DWIN32 /D_WINDOWS /W3 /MTd /Zi /Ob0 /Od /RTC1 /FoCMakeFiles\\focus_main.dir\\Unity\\unity_0_c.c.obj /FdTARGET_COMPILE_PDB /FS -c \"E:\\projects\\focus\\out\\build\\x64-Debug (default)\\CMakeFiles\\focus_main.dir\\Unity\\unity_0_c.c\"",
-  "file": "E:/projects/focus/out/build/x64-Debug (default)/CMakeFiles/focus_main.dir/Unity/unity_0_c.c"
+  "directory": "E:/projects/VoxelDeformations/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -IE:/projects/VoxelDeformations/focus/include -IE:/projects/VoxelDeformations/focus/src/Interface -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o focus\\CMakeFiles\\focus.dir\\src\\gl\\ShaderManager.cpp.obj -c E:\\projects\\VoxelDeformations\\focus\\src\\gl\\ShaderManager.cpp",
+  "file": "E:\\projects\\VoxelDeformations\\focus\\src\\gl\\ShaderManager.cpp"
+},
+{
+  "directory": "E:/projects/VoxelDeformations/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang.exe -IE:/projects/VoxelDeformations/focus/include -IE:/projects/VoxelDeformations/focus/src/Interface -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o focus\\CMakeFiles\\focus.dir\\src\\gl\\glad.c.obj -c E:\\projects\\VoxelDeformations\\focus\\src\\gl\\glad.c",
+  "file": "E:\\projects\\VoxelDeformations\\focus\\src\\gl\\glad.c"
+},
+{
+  "directory": "E:/projects/VoxelDeformations/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -IE:/projects/VoxelDeformations/focus/include -IE:/projects/VoxelDeformations/focus/examples/libs/glm -IE:/projects/VoxelDeformations/focus/src/Interface -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o focus\\examples\\CMakeFiles\\examples.dir\\common\\common.cpp.obj -c E:\\projects\\VoxelDeformations\\focus\\examples\\common\\common.cpp",
+  "file": "E:\\projects\\VoxelDeformations\\focus\\examples\\common\\common.cpp"
+},
+{
+  "directory": "E:/projects/VoxelDeformations/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -IE:/projects/VoxelDeformations/focus/include -IE:/projects/VoxelDeformations/focus/examples/libs/glm -IE:/projects/VoxelDeformations/focus/src/Interface -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o focus\\examples\\CMakeFiles\\examples.dir\\common\\tiny_obj_loader.cpp.obj -c E:\\projects\\VoxelDeformations\\focus\\examples\\common\\tiny_obj_loader.cpp",
+  "file": "E:\\projects\\VoxelDeformations\\focus\\examples\\common\\tiny_obj_loader.cpp"
+},
+{
+  "directory": "E:/projects/VoxelDeformations/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -IE:/projects/VoxelDeformations/focus/include -IE:/projects/VoxelDeformations/focus/examples/libs/glm -IE:/projects/VoxelDeformations/focus/src/Interface -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o focus\\examples\\CMakeFiles\\examples.dir\\triangle\\triangle.cpp.obj -c E:\\projects\\VoxelDeformations\\focus\\examples\\triangle\\triangle.cpp",
+  "file": "E:\\projects\\VoxelDeformations\\focus\\examples\\triangle\\triangle.cpp"
+},
+{
+  "directory": "E:/projects/VoxelDeformations/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -IE:/projects/VoxelDeformations/focus/include -IE:/projects/VoxelDeformations/focus/examples/libs/glm -IE:/projects/VoxelDeformations/focus/src/Interface -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o focus\\examples\\CMakeFiles\\examples.dir\\simple-compute\\simple_compute.cpp.obj -c E:\\projects\\VoxelDeformations\\focus\\examples\\simple-compute\\simple_compute.cpp",
+  "file": "E:\\projects\\VoxelDeformations\\focus\\examples\\simple-compute\\simple_compute.cpp"
+},
+{
+  "directory": "E:/projects/VoxelDeformations/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -IE:/projects/VoxelDeformations/focus/include -IE:/projects/VoxelDeformations/focus/examples/libs/glm -IE:/projects/VoxelDeformations/focus/src/Interface -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o focus\\examples\\CMakeFiles\\examples.dir\\lines\\Lines.cpp.obj -c E:\\projects\\VoxelDeformations\\focus\\examples\\lines\\Lines.cpp",
+  "file": "E:\\projects\\VoxelDeformations\\focus\\examples\\lines\\Lines.cpp"
+},
+{
+  "directory": "E:/projects/VoxelDeformations/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -IE:/projects/VoxelDeformations/focus/include -IE:/projects/VoxelDeformations/focus/examples/libs/glm -IE:/projects/VoxelDeformations/focus/src/Interface -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o focus\\examples\\CMakeFiles\\examples.dir\\instancing\\instancing.cpp.obj -c E:\\projects\\VoxelDeformations\\focus\\examples\\instancing\\instancing.cpp",
+  "file": "E:\\projects\\VoxelDeformations\\focus\\examples\\instancing\\instancing.cpp"
+},
+{
+  "directory": "E:/projects/VoxelDeformations/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -IE:/projects/VoxelDeformations/focus/include -IE:/projects/VoxelDeformations/focus/examples/libs/glm -IE:/projects/VoxelDeformations/focus/src/Interface -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o focus\\examples\\CMakeFiles\\examples.dir\\main.cpp.obj -c E:\\projects\\VoxelDeformations\\focus\\examples\\main.cpp",
+  "file": "E:\\projects\\VoxelDeformations\\focus\\examples\\main.cpp"
 }
 ]

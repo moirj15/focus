@@ -431,6 +431,7 @@ struct PipelineState {
     StencilTest stencil_test;
     DepthRange depth_range;
     BlendState blend_state;
+    float line_width = 1.0;
 };
 
 struct SceneState {
