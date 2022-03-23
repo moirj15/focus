@@ -53,6 +53,7 @@ Window GLDevice::MakeWindow(int32_t width, int32_t height)
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(DBCallBack, nullptr);
 #endif
+    glEnable(GL_PROGRAM_POINT_SIZE);
 
     printf("%s", glGetString(GL_VERSION));
 
