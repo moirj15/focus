@@ -50,8 +50,9 @@ Window GLDevice::MakeWindow(int32_t width, int32_t height)
     assert(gladLoadGL());
 
 #ifdef _DEBUG
-    glEnable(GL_DEBUG_OUTPUT);
-    glDebugMessageCallback(DBCallBack, nullptr);
+    // TODO: add debug flag
+//    glEnable(GL_DEBUG_OUTPUT);
+//    glDebugMessageCallback(DBCallBack, nullptr);
 #endif
     glEnable(GL_PROGRAM_POINT_SIZE);
 
@@ -84,24 +85,30 @@ Shader GLDevice::CreateComputeShaderFromSource(const char *name, const std::stri
 VertexBuffer GLDevice::CreateVertexBuffer(
     const VertexBufferLayout &vertex_buffer_layout, void *data, uint32_t data_size)
 {
-    return mVBManager.Create(vertex_buffer_layout, data, data_size);
+    return mVBManager.Create(vertex_buffer_layout, data, data_size, GL_STATIC_DRAW);
+}
+
+DynamicVertexBuffer GLDevice::CreateDynamicVertexBuffer(
+    const VertexBufferLayout &vertex_buffer_layout, void *data, uint32_t data_size)
+{
+    return _dynamic_vb_manager.Create(vertex_buffer_layout, data, data_size, GL_DYNAMIC_DRAW);
 }
 
 IndexBuffer GLDevice::CreateIndexBuffer(const IndexBufferLayout &index_buffer_layout, void *data, uint32_t data_size)
 {
-    return mIBManager.Create(index_buffer_layout, data, data_size);
+    return mIBManager.Create(index_buffer_layout, data, data_size, GL_STATIC_DRAW);
 }
 
 ConstantBuffer GLDevice::CreateConstantBuffer(
     const ConstantBufferLayout &constant_buffer_layout, void *data, uint32_t data_size)
 {
-    return mCBManager.Create(constant_buffer_layout, data, data_size);
+    return mCBManager.Create(constant_buffer_layout, data, data_size, GL_STATIC_DRAW);
 }
 
 ShaderBuffer GLDevice::CreateShaderBuffer(
     const ShaderBufferLayout &shader_buffer_layout, void *data, uint32_t data_size)
 {
-    return mSBManager.Create(shader_buffer_layout, data, data_size);
+    return mSBManager.Create(shader_buffer_layout, data, data_size, GL_STATIC_DRAW);
 }
 
 Pipeline GLDevice::CreatePipeline(PipelineState state)
@@ -126,6 +133,17 @@ Pipeline GLDevice::CreatePipeline(PipelineState state)
 //     assert(0);
 // }
 
+void GLDevice::UpdateDynamicVertexBuffer(DynamicVertexBuffer handle, void *data, uint32_t data_size, uint32_t offset)
+{
+    glBindBuffer(GL_ARRAY_BUFFER, _dynamic_vb_manager.Get(handle));
+    void *buffer_mem = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+    // TODO: add support for data_size and offset checking
+    memcpy(reinterpret_cast<uint8_t*>(buffer_mem) + offset, data, data_size);
+    glUnmapBuffer(GL_ARRAY_BUFFER);
+    glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
+}
+
+
 void *GLDevice::MapBuffer(ShaderBuffer handle, AccessMode accessMode)
 {
     return glMapNamedBuffer(mSBManager.Get(handle), glUtils::AccessModeToGL(accessMode));
@@ -138,6 +156,11 @@ void GLDevice::UnmapBuffer(ShaderBuffer handle)
 void GLDevice::DestroyVertexBuffer(VertexBuffer handle)
 {
     mVBManager.Destroy(handle);
+}
+
+void GLDevice::DestroyDynamicVertexBuffer(DynamicVertexBuffer handle)
+{
+    _dynamic_vb_manager.Destroy(handle);
 }
 
 void GLDevice::DestroyIndexBuffer(IndexBuffer handle)

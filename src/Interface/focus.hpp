@@ -55,6 +55,7 @@ namespace focus
     using name = Handle<name##Tag>
 
 MAKE_HANDLE(VertexBuffer);
+MAKE_HANDLE(DynamicVertexBuffer);
 MAKE_HANDLE(IndexBuffer);
 MAKE_HANDLE(ConstantBuffer);
 MAKE_HANDLE(ShaderBuffer);
@@ -436,6 +437,7 @@ struct PipelineState {
 
 struct SceneState {
     std::vector<VertexBuffer> vb_handles;
+    std::vector<DynamicVertexBuffer> dynamic_vb_handles;
     std::vector<ConstantBuffer> cb_handles;
     IndexBuffer ib_handle = IndexBuffer::Invalid();
     bool indexed = false;
@@ -478,6 +480,8 @@ class Device
     // Buffer Creation
     virtual VertexBuffer CreateVertexBuffer(
         const VertexBufferLayout &vertex_buffer_layout, void *data, uint32_t data_size) = 0;
+    virtual DynamicVertexBuffer CreateDynamicVertexBuffer(
+        const VertexBufferLayout &vertex_buffer_layout, void *data, uint32_t data_size) = 0;
     virtual IndexBuffer CreateIndexBuffer(
         const IndexBufferLayout &index_buffer_descriptor, void *data, uint32_t data_size) = 0;
     virtual ConstantBuffer CreateConstantBuffer(
@@ -486,6 +490,8 @@ class Device
         const ShaderBufferLayout &shader_buffer_layout, void *data, uint32_t data_size) = 0;
 
     virtual Pipeline CreatePipeline(PipelineState state) = 0;
+
+    virtual void UpdateDynamicVertexBuffer(DynamicVertexBuffer handle, void *data, uint32_t data_size, uint32_t offset = 0) = 0;
 
     //    virtual void UpdateVertexBuffer(VertexBuffer handle, void *data, uint32_t size) = 0;
     //    virtual void UpdateIndexBuffer(IndexBuffer handle, void *data, uint32_t size) = 0;
@@ -501,6 +507,7 @@ class Device
     // Buffer Destruction
 
     virtual void DestroyVertexBuffer(VertexBuffer handle) = 0;
+    virtual void DestroyDynamicVertexBuffer(DynamicVertexBuffer handle) = 0;
     virtual void DestroyIndexBuffer(IndexBuffer handle) = 0;
     virtual void DestroyShaderBuffer(ShaderBuffer handle) = 0;
     virtual void DestroyConstantBuffer(ConstantBuffer handle) = 0;

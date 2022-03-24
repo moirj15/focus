@@ -33,13 +33,13 @@ struct BufferManager {
     std::unordered_map<Handle, GLuint> mHandles;
     std::unordered_map<Handle, BufferLayout> mDescriptors;
 
-    Handle Create(BufferLayout buffer_layout, void *data, uint32_t size_in_bytes)
+    Handle Create(BufferLayout buffer_layout, void *data, uint32_t size_in_bytes, GLenum usage)
     {
         // Create the buffer for OpenGL
         GLuint handle;
         glGenBuffers(1, &handle);
         glBindBuffer(GL_ARRAY_BUFFER, handle);
-        glBufferData(GL_ARRAY_BUFFER, size_in_bytes, data, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, size_in_bytes, data, usage);
         // Do the actual management of the buffer handle
         mCurrHandle++;
         mDescriptors[mCurrHandle] = buffer_layout;
@@ -61,6 +61,7 @@ struct BufferManager {
 class GLDevice final : public Device
 {
     BufferManager<VertexBuffer, VertexBufferLayout> mVBManager;
+    BufferManager<DynamicVertexBuffer, VertexBufferLayout> _dynamic_vb_manager;
     BufferManager<IndexBuffer, IndexBufferLayout> mIBManager;
     BufferManager<ConstantBuffer, ConstantBufferLayout> mCBManager;
     BufferManager<ShaderBuffer, ShaderBufferLayout> mSBManager;
@@ -90,6 +91,8 @@ public:
 
     // Buffer Creation
     VertexBuffer CreateVertexBuffer(const VertexBufferLayout &vertex_buffer_layout, void *data, uint32_t data_size) override;
+    DynamicVertexBuffer CreateDynamicVertexBuffer(
+        const VertexBufferLayout &vertex_buffer_layout, void *data, uint32_t data_size) override;
     IndexBuffer CreateIndexBuffer(
         const IndexBufferLayout &index_buffer_descriptor, void *data, uint32_t data_size) override;
     ConstantBuffer CreateConstantBuffer(
@@ -97,11 +100,14 @@ public:
     ShaderBuffer CreateShaderBuffer(const ShaderBufferLayout &shader_buffer_layout, void *data, uint32_t data_size) override;
     Pipeline CreatePipeline(PipelineState state) override;
 
+    void UpdateDynamicVertexBuffer(DynamicVertexBuffer handle, void *data, uint32_t data_size, uint32_t offset) override;
+
     void *MapBuffer(ShaderBuffer handle, AccessMode accessMode) override;
     void UnmapBuffer(ShaderBuffer handle) override;
 
     // Buffer Destruction
     void DestroyVertexBuffer(VertexBuffer handle) override;
+    void DestroyDynamicVertexBuffer(DynamicVertexBuffer handle) override;
     void DestroyIndexBuffer(IndexBuffer handle) override;
     void DestroyShaderBuffer(ShaderBuffer handle) override;
     void DestroyConstantBuffer(ConstantBuffer handle) override;
