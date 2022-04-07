@@ -255,15 +255,30 @@ void GLDevice::BindAttributes()
         GLuint gl_vb_handle = mVBManager.Get(vbHandle);
         glBindBuffer(GL_ARRAY_BUFFER, gl_vb_handle);
 
-        for (uint32_t attrib_index = 0; attrib_index < vb_layout.attributes.size(); attrib_index++) {
-            const auto &attribute = vb_layout.attributes[attrib_index];
-            glEnableVertexAttribArray(attrib_index + vb_layout.binding_point);
+        for (const auto &attribute : vb_layout.attributes) {
+            glEnableVertexAttribArray(vb_layout.binding_point);
             GLint attribute_size_in_bytes = glUtils::VarTypeSizeInBytes(attribute.type);
             // TODO: figure out normalized inputs
-            glVertexAttribPointer(attrib_index + vb_layout.binding_point, glUtils::VarTypeToSlotSizeGL(attribute.type),
+            glVertexAttribPointer(vb_layout.binding_point, glUtils::VarTypeToSlotSizeGL(attribute.type),
                 glUtils::VarTypeToIndividualTypeGL(attribute.type), false, attribute_size_in_bytes,
                 (const void *)(uintptr_t)attribute.offset);
-            glVertexAttribDivisor(attrib_index + vb_layout.binding_point, attribute.attrib_divisor);
+            glVertexAttribDivisor(vb_layout.binding_point, attribute.attrib_divisor);
+        }
+    }
+    // TODO: refactor this into helper func
+    for (const auto &vbHandle : _bound_scene_state.dynamic_vb_handles) {
+        const auto &vb_layout = _dynamic_vb_manager.mDescriptors[vbHandle];
+        GLuint gl_vb_handle = _dynamic_vb_manager.Get(vbHandle);
+        glBindBuffer(GL_ARRAY_BUFFER, gl_vb_handle);
+
+        for (const auto &attribute : vb_layout.attributes) {
+            glEnableVertexAttribArray(vb_layout.binding_point);
+            GLint attribute_size_in_bytes = glUtils::VarTypeSizeInBytes(attribute.type);
+            // TODO: figure out normalized inputs
+            glVertexAttribPointer(vb_layout.binding_point, glUtils::VarTypeToSlotSizeGL(attribute.type),
+                                  glUtils::VarTypeToIndividualTypeGL(attribute.type), false, attribute_size_in_bytes,
+                                  (const void *)(uintptr_t)attribute.offset);
+            glVertexAttribDivisor(vb_layout.binding_point, attribute.attrib_divisor);
         }
     }
     // TODO: some error management would be nice
