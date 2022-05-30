@@ -99,6 +99,12 @@ IndexBuffer GLDevice::CreateIndexBuffer(const IndexBufferLayout &index_buffer_la
     return mIBManager.Create(index_buffer_layout, data, data_size, GL_STATIC_DRAW);
 }
 
+DynamicIndexBuffer GLDevice::CreateDynamicIndexBuffer(
+    const IndexBufferLayout &index_buffer_layout, void *data, uint32_t data_size)
+{
+    return m_dynamic_ib_manager.Create(index_buffer_layout, data, data_size, GL_DYNAMIC_DRAW);
+}
+
 ConstantBuffer GLDevice::CreateConstantBuffer(
     const ConstantBufferLayout &constant_buffer_layout, void *data, uint32_t data_size)
 {
@@ -133,9 +139,31 @@ Pipeline GLDevice::CreatePipeline(PipelineState state)
 //     assert(0);
 // }
 
+// TODO: less code duplication
 void GLDevice::UpdateDynamicVertexBuffer(DynamicVertexBuffer handle, void *data, uint32_t data_size, uint32_t offset)
 {
     glBindBuffer(GL_ARRAY_BUFFER, _dynamic_vb_manager.Get(handle));
+    void *buffer_mem = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+    // TODO: add support for data_size and offset checking
+    memcpy(reinterpret_cast<uint8_t*>(buffer_mem) + offset, data, data_size);
+    glUnmapBuffer(GL_ARRAY_BUFFER);
+    glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
+}
+
+void GLDevice::UpdateDynamicIndexBuffer(
+    DynamicIndexBuffer handle, void *data, uint32_t data_size, uint32_t offset)
+{
+    glBindBuffer(GL_ARRAY_BUFFER, m_dynamic_ib_manager.Get(handle));
+    void *buffer_mem = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+    // TODO: add support for data_size and offset checking
+    memcpy(reinterpret_cast<uint8_t*>(buffer_mem) + offset, data, data_size);
+    glUnmapBuffer(GL_ARRAY_BUFFER);
+    glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
+}
+
+void GLDevice::UpdateConstantBuffer(ConstantBuffer handle, void *data, uint32_t data_size, uint32_t offset)
+{
+    glBindBuffer(GL_ARRAY_BUFFER, mCBManager.Get(handle));
     void *buffer_mem = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
     // TODO: add support for data_size and offset checking
     memcpy(reinterpret_cast<uint8_t*>(buffer_mem) + offset, data, data_size);
@@ -166,6 +194,10 @@ void GLDevice::DestroyDynamicVertexBuffer(DynamicVertexBuffer handle)
 void GLDevice::DestroyIndexBuffer(IndexBuffer handle)
 {
     mIBManager.Destroy(handle);
+}
+void GLDevice::DestroyDynamicIndexBuffer(DynamicIndexBuffer handle)
+{
+    m_dynamic_ib_manager.Destroy(handle);
 }
 
 void GLDevice::DestroyShaderBuffer(ShaderBuffer handle)

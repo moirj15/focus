@@ -57,6 +57,7 @@ namespace focus
 MAKE_HANDLE(VertexBuffer);
 MAKE_HANDLE(DynamicVertexBuffer);
 MAKE_HANDLE(IndexBuffer);
+MAKE_HANDLE(DynamicIndexBuffer);
 MAKE_HANDLE(ConstantBuffer);
 MAKE_HANDLE(ShaderBuffer);
 MAKE_HANDLE(Shader);
@@ -269,50 +270,11 @@ struct IndexBufferLayout {
     void SetDebugName(const std::string &name) { debug_name = name; }
 };
 
-struct VertexBufferDescriptor {
-    std::vector<std::string> input_descriptor_name;
-    BufferType buffer_type;
-    std::vector<VarType> types;
-    uint32_t size_in_bytes;
-    uint32_t element_size_in_bytes;
-    BufferUsage usage;
-};
-
-struct IndexBufferDescriptor {
-    IndexBufferType type;
-    uint32_t size_in_bytes;
-    BufferUsage usage;
-};
-
-struct ConstantBufferDescriptor {
-    std::string name;
-    std::vector<VarType> types; // TODO: consider if this is necessary
-    uint32_t slot;
-    BufferUsage usage;
-    uint32_t size_in_bytes;
-};
-
-struct ShaderBufferDescriptor {
-    std::string name;
-    uint32_t slot;
-    AccessMode access_mode;
-    std::vector<VarType> types;
-    BufferUsage usage;
-    uint32_t size_in_bytes;
-};
-
 struct InputBufferDescriptor {
     std::string name; // name of the variable, not the semantic used.
     VarType type;
     uint32_t slot; // TODO: I guess for D3D this should be used for the intrinisc number? ie POSITION3, 3 is the slot
     uint32_t byte_offset;
-};
-
-struct ShaderInfo {
-    // TODO: maybe use the position in the shader for the key?
-    std::unordered_map<std::string, ConstantBufferDescriptor> mConstantBufferDescriptors;
-    std::unordered_map<std::string, ShaderBufferDescriptor> mShaderBufferDescriptors;
-    std::unordered_map<std::string, InputBufferDescriptor> mInputBufferDescriptors;
 };
 
 struct Color {
@@ -440,6 +402,7 @@ struct SceneState {
     std::vector<DynamicVertexBuffer> dynamic_vb_handles;
     std::vector<ConstantBuffer> cb_handles;
     IndexBuffer ib_handle = IndexBuffer::Invalid();
+    DynamicIndexBuffer dynamic_ib_handle = DynamicIndexBuffer::Invalid();
     bool indexed = false;
 };
 
@@ -480,18 +443,31 @@ class Device
     // Buffer Creation
     virtual VertexBuffer CreateVertexBuffer(
         const VertexBufferLayout &vertex_buffer_layout, void *data, uint32_t data_size) = 0;
+
     virtual DynamicVertexBuffer CreateDynamicVertexBuffer(
         const VertexBufferLayout &vertex_buffer_layout, void *data, uint32_t data_size) = 0;
+
     virtual IndexBuffer CreateIndexBuffer(
         const IndexBufferLayout &index_buffer_descriptor, void *data, uint32_t data_size) = 0;
+
+    virtual DynamicIndexBuffer CreateDynamicIndexBuffer(
+        const IndexBufferLayout &index_buffer_descriptor, void *data, uint32_t data_size) = 0;
+
     virtual ConstantBuffer CreateConstantBuffer(
         const ConstantBufferLayout &constant_buffer_layout, void *data, uint32_t data_size) = 0;
+
     virtual ShaderBuffer CreateShaderBuffer(
         const ShaderBufferLayout &shader_buffer_layout, void *data, uint32_t data_size) = 0;
 
+
     virtual Pipeline CreatePipeline(PipelineState state) = 0;
 
-    virtual void UpdateDynamicVertexBuffer(DynamicVertexBuffer handle, void *data, uint32_t data_size, uint32_t offset = 0) = 0;
+
+    virtual void UpdateDynamicVertexBuffer(DynamicVertexBuffer handle, void *data, uint32_t data_size, uint32_t offset) = 0;
+
+    virtual void UpdateDynamicIndexBuffer(DynamicIndexBuffer handle, void *data, uint32_t data_size, uint32_t offset) = 0;
+
+    virtual void UpdateConstantBuffer(ConstantBuffer handle, void *data, uint32_t data_size, uint32_t offset) = 0;
 
     //    virtual void UpdateVertexBuffer(VertexBuffer handle, void *data, uint32_t size) = 0;
     //    virtual void UpdateIndexBuffer(IndexBuffer handle, void *data, uint32_t size) = 0;
@@ -509,6 +485,7 @@ class Device
     virtual void DestroyVertexBuffer(VertexBuffer handle) = 0;
     virtual void DestroyDynamicVertexBuffer(DynamicVertexBuffer handle) = 0;
     virtual void DestroyIndexBuffer(IndexBuffer handle) = 0;
+    virtual void DestroyDynamicIndexBuffer(DynamicIndexBuffer handle) = 0;
     virtual void DestroyShaderBuffer(ShaderBuffer handle) = 0;
     virtual void DestroyConstantBuffer(ConstantBuffer handle) = 0;
 

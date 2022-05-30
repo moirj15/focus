@@ -3,26 +3,30 @@
 //#include "../../common.h"
 #include "../Interface/focus.hpp"
 #include "ShaderManager.hpp"
-#include <optional>
+
 #include <cassert>
+#include <optional>
 
 struct GLFWwindow;
 
 namespace focus
 {
 
-template <typename Handle, typename Data>
+template<typename Handle, typename Data>
 class HandleManager
 {
     std::unordered_map<Handle, Data> _map;
     Handle _current_key;
+
   public:
-    [[nodiscard]] Handle InsertNew(Data data) {
+    [[nodiscard]] Handle InsertNew(Data data)
+    {
         _current_key++;
         _map.insert({_current_key, data});
         return _current_key;
     }
-    [[nodiscard]] std::optional<Data> Get(Handle handle) {
+    [[nodiscard]] std::optional<Data> Get(Handle handle)
+    {
         return _map.contains(handle) ? _map[handle] : std::optional<Data>{};
     }
 };
@@ -63,6 +67,7 @@ class GLDevice final : public Device
     BufferManager<VertexBuffer, VertexBufferLayout> mVBManager;
     BufferManager<DynamicVertexBuffer, VertexBufferLayout> _dynamic_vb_manager;
     BufferManager<IndexBuffer, IndexBufferLayout> mIBManager;
+    BufferManager<DynamicIndexBuffer, IndexBufferLayout> m_dynamic_ib_manager;
     BufferManager<ConstantBuffer, ConstantBufferLayout> mCBManager;
     BufferManager<ShaderBuffer, ShaderBufferLayout> mSBManager;
     ShaderManager mShaderManager;
@@ -75,8 +80,7 @@ class GLDevice final : public Device
     // TODO: Extract and maybe use with other managers
     HandleManager<Pipeline, PipelineState> _pipeline_manager;
 
-
-public:
+  public:
     GLDevice();
     ~GLDevice() override;
     // Window creation
@@ -90,17 +94,32 @@ public:
     Shader CreateComputeShaderFromSource(const char *name, const std::string &source) override;
 
     // Buffer Creation
-    VertexBuffer CreateVertexBuffer(const VertexBufferLayout &vertex_buffer_layout, void *data, uint32_t data_size) override;
+    VertexBuffer CreateVertexBuffer(
+        const VertexBufferLayout &vertex_buffer_layout, void *data, uint32_t data_size) override;
+
     DynamicVertexBuffer CreateDynamicVertexBuffer(
         const VertexBufferLayout &vertex_buffer_layout, void *data, uint32_t data_size) override;
+
     IndexBuffer CreateIndexBuffer(
         const IndexBufferLayout &index_buffer_descriptor, void *data, uint32_t data_size) override;
+
+    DynamicIndexBuffer CreateDynamicIndexBuffer(
+        const IndexBufferLayout &index_buffer_descriptor, void *data, uint32_t data_size) override;
+
     ConstantBuffer CreateConstantBuffer(
         const ConstantBufferLayout &constant_buffer_layout, void *data, uint32_t data_size) override;
-    ShaderBuffer CreateShaderBuffer(const ShaderBufferLayout &shader_buffer_layout, void *data, uint32_t data_size) override;
+
+    ShaderBuffer CreateShaderBuffer(
+        const ShaderBufferLayout &shader_buffer_layout, void *data, uint32_t data_size) override;
+
     Pipeline CreatePipeline(PipelineState state) override;
 
-    void UpdateDynamicVertexBuffer(DynamicVertexBuffer handle, void *data, uint32_t data_size, uint32_t offset) override;
+    void UpdateDynamicVertexBuffer(
+        DynamicVertexBuffer handle, void *data, uint32_t data_size, uint32_t offset) override;
+
+    void UpdateDynamicIndexBuffer(
+        DynamicIndexBuffer handle, void *data, uint32_t data_size, uint32_t offset = 0) override;
+    void UpdateConstantBuffer(ConstantBuffer handle, void *data, uint32_t data_size, uint32_t offset) override;
 
     void *MapBuffer(ShaderBuffer handle, AccessMode accessMode) override;
     void UnmapBuffer(ShaderBuffer handle) override;
@@ -108,6 +127,7 @@ public:
     // Buffer Destruction
     void DestroyVertexBuffer(VertexBuffer handle) override;
     void DestroyDynamicVertexBuffer(DynamicVertexBuffer handle) override;
+    void DestroyDynamicIndexBuffer(DynamicIndexBuffer handle) override;
     void DestroyIndexBuffer(IndexBuffer handle) override;
     void DestroyShaderBuffer(ShaderBuffer handle) override;
     void DestroyConstantBuffer(ConstantBuffer handle) override;
@@ -131,6 +151,7 @@ public:
     void ClearBackBuffer(ClearState clearState = {}) override;
 
     void SwapBuffers(const Window &window) override;
+
   private:
     void BindAttributes();
 };

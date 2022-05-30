@@ -32,6 +32,9 @@ add_library(focus STATIC
         ${OPENGL_BACKEND_SRC}
         ${OPENGL_BACKEND_HEADERS}
         )
+if (WIN32)
+    set_property(TARGET focus PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:DEBUG>:Debug>")
+endif()
 target_include_directories(focus PUBLIC ${INTERFACE_DIR})
 
 add_subdirectory(examples)
