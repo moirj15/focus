@@ -221,6 +221,7 @@ struct BufferLayout {
     BufferUsage usage = BufferUsage::Default;
     // InputClassification input_classification = InputClassification::Normal;
     std::string debug_name;
+    uint32_t stride = 0;
 
     BufferLayout() = default;
     explicit BufferLayout(const std::string &db_name) : debug_name(db_name) {}
@@ -238,6 +239,7 @@ struct BufferLayout {
             .offset = attributes.empty() ? 0 : VarTypeByteSize(type) + attributes.back().offset,
             .attrib_divisor = attrib_divisor,
         });
+        stride += VarTypeByteSize(type);
         return *this;
     }
     void SetDebugName(const std::string &name) { debug_name = name; }

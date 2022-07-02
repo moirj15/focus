@@ -164,10 +164,11 @@ void GLDevice::UpdateDynamicIndexBuffer(
 void GLDevice::UpdateConstantBuffer(ConstantBuffer handle, void *data, uint32_t data_size, uint32_t offset)
 {
     glBindBuffer(GL_ARRAY_BUFFER, mCBManager.Get(handle));
-    void *buffer_mem = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-    // TODO: add support for data_size and offset checking
-    memcpy(reinterpret_cast<uint8_t*>(buffer_mem) + offset, data, data_size);
-    glUnmapBuffer(GL_ARRAY_BUFFER);
+    glBufferSubData(GL_ARRAY_BUFFER, offset, data_size, data);
+//    void *buffer_mem = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+//    // TODO: add support for data_size and offset checking
+//    memcpy(reinterpret_cast<uint8_t*>(buffer_mem) + offset, data, data_size);
+//    glUnmapBuffer(GL_ARRAY_BUFFER);
     glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
 }
 
@@ -287,14 +288,16 @@ void GLDevice::BindAttributes()
         GLuint gl_vb_handle = mVBManager.Get(vbHandle);
         glBindBuffer(GL_ARRAY_BUFFER, gl_vb_handle);
 
-        for (const auto &attribute : vb_layout.attributes) {
-            glEnableVertexAttribArray(vb_layout.binding_point);
+        for (uint32_t i = 0; i < vb_layout.attributes.size(); i++) {
+            const auto &attribute = vb_layout.attributes[i];
+            const GLint binding_point = vb_layout.binding_point + i;
+            glEnableVertexAttribArray(binding_point);
             GLint attribute_size_in_bytes = glUtils::VarTypeSizeInBytes(attribute.type);
             // TODO: figure out normalized inputs
-            glVertexAttribPointer(vb_layout.binding_point, glUtils::VarTypeToSlotSizeGL(attribute.type),
-                glUtils::VarTypeToIndividualTypeGL(attribute.type), false, attribute_size_in_bytes,
+            glVertexAttribPointer(binding_point, glUtils::VarTypeToSlotSizeGL(attribute.type),
+                glUtils::VarTypeToIndividualTypeGL(attribute.type), false, vb_layout.stride,
                 (const void *)(uintptr_t)attribute.offset);
-            glVertexAttribDivisor(vb_layout.binding_point, attribute.attrib_divisor);
+            glVertexAttribDivisor(binding_point, attribute.attrib_divisor);
         }
     }
     // TODO: refactor this into helper func
@@ -303,14 +306,16 @@ void GLDevice::BindAttributes()
         GLuint gl_vb_handle = _dynamic_vb_manager.Get(vbHandle);
         glBindBuffer(GL_ARRAY_BUFFER, gl_vb_handle);
 
-        for (const auto &attribute : vb_layout.attributes) {
-            glEnableVertexAttribArray(vb_layout.binding_point);
+        for (uint32_t i = 0; i < vb_layout.attributes.size(); i++) {
+            const auto &attribute = vb_layout.attributes[i];
+            const GLint binding_point = vb_layout.binding_point + i;
+            glEnableVertexAttribArray(binding_point);
             GLint attribute_size_in_bytes = glUtils::VarTypeSizeInBytes(attribute.type);
             // TODO: figure out normalized inputs
-            glVertexAttribPointer(vb_layout.binding_point, glUtils::VarTypeToSlotSizeGL(attribute.type),
-                                  glUtils::VarTypeToIndividualTypeGL(attribute.type), false, attribute_size_in_bytes,
+            glVertexAttribPointer(binding_point, glUtils::VarTypeToSlotSizeGL(attribute.type),
+                                  glUtils::VarTypeToIndividualTypeGL(attribute.type), false, vb_layout.stride,
                                   (const void *)(uintptr_t)attribute.offset);
-            glVertexAttribDivisor(vb_layout.binding_point, attribute.attrib_divisor);
+            glVertexAttribDivisor(binding_point, attribute.attrib_divisor);
         }
     }
     // TODO: some error management would be nice
@@ -322,8 +327,8 @@ void GLDevice::BindAttributes()
         const GLuint gl_cb_handle = mCBManager.Get(cbHandle);
         glBindBuffer(GL_UNIFORM_BUFFER, gl_cb_handle);
         // TODO: figure out multiple binding points
-        glBindBufferBase(GL_UNIFORM_BUFFER, 0, gl_cb_handle);
-        glUniformBlockBinding(gl_shader_handle, cb_layout.binding_point, 0);
+        glBindBufferBase(GL_UNIFORM_BUFFER, cb_layout.binding_point, gl_cb_handle);
+        glUniformBlockBinding(gl_shader_handle, cb_layout.binding_point, cb_layout.binding_point);
     }
 }
 
